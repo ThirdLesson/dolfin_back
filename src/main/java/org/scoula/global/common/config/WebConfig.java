@@ -1,5 +1,6 @@
-package org.scoula.config;
+package org.scoula.global.common.config;
 
+import org.scoula.global.swagger.config.SwaggerConfig;
 import org.springframework.web.filter.CharacterEncodingFilter;
 import org.springframework.web.servlet.support.AbstractAnnotationConfigDispatcherServletInitializer;
 
@@ -21,11 +22,7 @@ public class WebConfig extends AbstractAnnotationConfigDispatcherServletInitiali
     @Override
     protected String[] getServletMappings() {
         return new String[]{
-                "/",
-                "/swagger-ui.html",
-                "/swagger-resources/**",
-                "/v2/api-docs",
-                "/webjars/**"
+                "/"
         };
     }
 

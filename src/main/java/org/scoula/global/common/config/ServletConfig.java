@@ -1,4 +1,4 @@
-package org.scoula.config;
+package org.scoula.global.common.config;
 
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
@@ -11,7 +11,7 @@ import org.springframework.web.servlet.view.JstlView;
 
 @Configuration
 @EnableWebMvc
-@ComponentScan(basePackages = {"org.scoula.controller"})
+@ComponentScan(basePackages = {"org.scoula.domain.controller"})
 public class ServletConfig implements WebMvcConfigurer {
 
     @Override

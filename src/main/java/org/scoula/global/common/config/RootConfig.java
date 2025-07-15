@@ -1,10 +1,9 @@
-package org.scoula.config;
+package org.scoula.global.common.config;
 
 import com.zaxxer.hikari.HikariConfig;
 import com.zaxxer.hikari.HikariDataSource;
 import org.apache.ibatis.session.SqlSessionFactory;
 import org.mybatis.spring.SqlSessionFactoryBean;
-import org.mybatis.spring.annotation.MapperScan;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.ApplicationContext;
@@ -21,7 +20,7 @@ import javax.sql.DataSource;
 @ComponentScan(basePackages = {
     // "org.scoula.service",
     "org.scoula.mapper",
-    "org.scoula.config"  // Swagger 설정을 포함하기 위해 추가
+    "org.scoula.global.swagger.config"  // Swagger 설정을 포함하기 위해 추가
 })
 public class RootConfig {
     @Value("${jdbc.driver}") String driver;
