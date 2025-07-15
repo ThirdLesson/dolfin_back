@@ -1,6 +1,6 @@
 ---
 name: "[design] 디자인 이슈 템플릿"
-about: Describe this issue template's purpose here.
+about: Suggest an idea for this project
 title: "[design] 디자인 이슈 템플릿"
 labels: ''
 assignees: ''
