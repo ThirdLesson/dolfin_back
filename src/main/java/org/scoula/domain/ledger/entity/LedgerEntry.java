@@ -1,12 +1,14 @@
 package org.scoula.domain.ledger.entity;
 
+import org.scoula.global.entity.BaseEntity;
+
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-public class LedgerEntry {
+public class LedgerEntry extends BaseEntity {
 
 	private Long ledgerEntryId;
 	private Long amount;                // 금액
