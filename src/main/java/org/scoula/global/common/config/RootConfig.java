@@ -4,6 +4,7 @@ import com.zaxxer.hikari.HikariConfig;
 import com.zaxxer.hikari.HikariDataSource;
 import org.apache.ibatis.session.SqlSessionFactory;
 import org.mybatis.spring.SqlSessionFactoryBean;
+import org.mybatis.spring.annotation.MapperScan;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.ApplicationContext;
@@ -17,9 +18,10 @@ import javax.sql.DataSource;
 
 @Configuration
 @PropertySource({"classpath:/application.properties"})
+@MapperScan(basePackages = {"org.scoula.domain.member.mapper"}) // 게시판과 회원 도메인 매퍼 스캔
 @ComponentScan(basePackages = {
     // "org.scoula.service",
-    "org.scoula.mapper",
+    "org.scoula.domain.member.service",  // 도메인 객체를 포함하기 위해 추가
     "org.scoula.global.swagger.config"  // Swagger 설정을 포함하기 위해 추가
 })
 public class RootConfig {
