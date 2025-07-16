@@ -1,5 +1,7 @@
 package org.scoula.domain.transaction.entity;
 
+import java.util.UUID;
+
 import org.scoula.global.entity.BaseEntity;
 
 import lombok.AccessLevel;
@@ -10,7 +12,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class Transaction extends BaseEntity {
 	private Long transactionId;
-	private Long transactionGroupId;
+	private UUID transactionGroupId;
 	private Long amount;
 	private TransactionType transactionType;
 	private Long CounterPartyMemberId;
