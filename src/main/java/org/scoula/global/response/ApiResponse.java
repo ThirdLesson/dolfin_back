@@ -1,0 +1,28 @@
+package org.scoula.global.response;
+
+import lombok.Getter;
+
+@Getter
+public class ApiResponse<T> {
+	private final T data;
+	private final int status;
+	private final String message;
+
+	private ApiResponse(T data, int status, String message) {
+		this.data = data;
+		this.status = status;
+		this.message = message;
+	}
+
+	public static <T> ApiResponse<T> ok(T data) {
+		return new ApiResponse<>(data, 200, "OK");
+	}
+
+	public static <T> ApiResponse<T> created(T data) {
+		return new ApiResponse<>(data, 201, "CREATED");
+	}
+
+	public static ApiResponse<Void> noContent() {
+		return new ApiResponse<>(null, 204, "NO_CONTENT");
+	}
+}
