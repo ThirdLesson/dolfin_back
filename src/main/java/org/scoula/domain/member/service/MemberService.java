@@ -27,6 +27,4 @@ public interface MemberService {
     // 로그인 ID 중복 체크
     boolean checkLoginIdDuplicate(String loginId);
     
-    // 로그인 처리
-    MemberDTO login(String loginId, String password);
 }

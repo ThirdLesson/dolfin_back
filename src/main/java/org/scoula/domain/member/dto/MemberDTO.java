@@ -79,4 +79,8 @@ public class MemberDTO {
 			.currency(this.currency)
 			.build();
 	}
+
+	public void changePassword(String newPassword) {
+		this.password = newPassword;
+	}
 }

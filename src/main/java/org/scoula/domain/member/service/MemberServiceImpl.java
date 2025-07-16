@@ -1,9 +1,13 @@
 package org.scoula.domain.member.service;
 
+import static org.scoula.global.exception.errorCode.CommonErrorCode.*;
+
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.scoula.domain.member.dto.MemberDTO;
 import org.scoula.domain.member.entity.Member;
+import org.scoula.domain.member.exception.DuplicateMemberException;
+import org.scoula.domain.member.exception.MemberNotFoundException;
 import org.scoula.domain.member.mapper.MemberMapper;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -32,7 +36,7 @@ public class MemberServiceImpl implements MemberService {
         log.info("getMemberById: {}", memberId);
         Member member = memberMapper.selectMemberById(memberId);
         if (member == null) {
-            throw new RuntimeException("회원을 찾을 수 없습니다. ID: " + memberId);
+            throw new MemberNotFoundException(INVALID_VALUE);
         }
         return MemberDTO.from(member);
     }
@@ -42,7 +46,7 @@ public class MemberServiceImpl implements MemberService {
         log.info("getMemberByLoginId: {}", loginId);
         Member member = memberMapper.selectMemberByLoginId(loginId);
         if (member == null) {
-            throw new RuntimeException("회원을 찾을 수 없습니다. Login ID: " + loginId);
+            throw new MemberNotFoundException(INVALID_VALUE);
         }
         return MemberDTO.from(member);
     }
@@ -54,7 +58,7 @@ public class MemberServiceImpl implements MemberService {
 
         // 로그인 ID 중복 체크
         if (checkLoginIdDuplicate(memberDTO.getLoginId())) {
-            throw new RuntimeException("이미 사용중인 로그인 ID입니다.");
+            throw new DuplicateMemberException(INVALID_VALUE);
         }
 
         // 임시로 비밀번호를 그대로 저장 (나중에 암호화 추가)
@@ -72,13 +76,11 @@ public class MemberServiceImpl implements MemberService {
         // 기존 회원 정보 조회
         Member existingMember = memberMapper.selectMemberById(memberId);
         if (existingMember == null) {
-            throw new RuntimeException("회원을 찾을 수 없습니다. ID: " + memberId);
+            throw new MemberNotFoundException(INVALID_VALUE);
         }
 
         // 수정할 정보 설정
-        memberDTO.setMemberId(memberId);
-        memberDTO.setLoginId(existingMember.getLoginId()); // 로그인 ID는 변경 불가
-        memberDTO.setPassword(existingMember.getPassword()); // 비밀번호는 별도 메서드로 변경
+        memberDTO.changePassword(existingMember.getPassword());
 
         Member member = memberDTO.toEntity();
         memberMapper.updateMember(member);
@@ -94,7 +96,7 @@ public class MemberServiceImpl implements MemberService {
 
         Member member = memberMapper.selectMemberById(memberId);
         if (member == null) {
-            throw new RuntimeException("회원을 찾을 수 없습니다. ID: " + memberId);
+            throw new MemberNotFoundException(INVALID_VALUE);
         }
 
         memberMapper.deleteMember(memberId);
@@ -106,20 +108,4 @@ public class MemberServiceImpl implements MemberService {
         return memberMapper.checkLoginIdDuplicate(loginId) > 0;
     }
 
-    @Override
-    public MemberDTO login(String loginId, String password) {
-        log.info("login attempt: {}", loginId);
-
-        Member member = memberMapper.selectMemberByLoginId(loginId);
-        if (member == null) {
-            throw new RuntimeException("아이디 또는 비밀번호가 일치하지 않습니다.");
-        }
-
-        // 임시로 비밀번호를 직접 비교 (나중에 암호화 추가)
-        if (!password.equals(member.getPassword())) {
-            throw new RuntimeException("아이디 또는 비밀번호가 일치하지 않습니다.");
-        }
-
-        return MemberDTO.from(member);
-    }
 }

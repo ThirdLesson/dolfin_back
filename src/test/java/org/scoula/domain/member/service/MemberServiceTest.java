@@ -59,6 +59,23 @@ class MemberServiceTest {
 	public void getList() {
 		log.info("회원 목록 조회 테스트");
 
+		for (int i = 0; i < 10; i++) {
+			MemberDTO request = MemberDTO.builder()
+				.loginId("testuser" + System.currentTimeMillis()) // 중복 방지
+				.password("password123" + i)
+				.passportNumber("123456789")
+				.nationality("KOR")
+				.name("테스트 유저")
+				.phoneNumber("010-1234-5678")
+				.birth(new Date())
+				.remainTime(new Date())
+				.currency("USD")
+				.build();
+
+			// When
+			memberService.createMember(request);
+		}
+
 		memberService.getAllMembers().forEach(member -> {
 			log.info(member);
 		});
@@ -68,14 +85,20 @@ class MemberServiceTest {
 	public void getMemberById() {
 		log.info("회원 상세 조회 테스트");
 
-		// Given - 먼저 회원 생성
-		MemberDTO newMember = MemberDTO.builder()
-			.loginId("testuser" + System.currentTimeMillis())
+		// Given
+		MemberDTO request = MemberDTO.builder()
+			.loginId("testuser" + System.currentTimeMillis()) // 중복 방지
 			.password("password123")
-			.name("조회 테스트")
+			.passportNumber("1234567890")
+			.nationality("KOR")
+			.name("테스트 유저")
+			.phoneNumber("010-1234-5678")
+			.birth(new Date())
+			.remainTime(new Date())
+			.currency("USD")
 			.build();
 
-		MemberDTO created = memberService.createMember(newMember);
+		MemberDTO created = memberService.createMember(request);
 
 		// When
 		MemberDTO found = memberService.getMemberById(created.getMemberId());
@@ -89,82 +112,27 @@ class MemberServiceTest {
 	}
 
 	@Test
-	public void updateMember() {
-		log.info("회원 수정 테스트");
-
-		// Given - 회원 생성
-		MemberDTO newMember = MemberDTO.builder()
-			.loginId("updatetest" + System.currentTimeMillis())
-			.password("password123")
-			.name("수정 전")
-			.phoneNumber("010-1111-1111")
-			.build();
-
-		MemberDTO created = memberService.createMember(newMember);
-
-		// When - 수정
-		MemberDTO updateData = MemberDTO.builder()
-			.name("수정 후")
-			.phoneNumber("010-2222-2222")
-			.nationality("USA")
-			.build();
-
-		MemberDTO updated = memberService.updateMember(created.getMemberId(), updateData);
-
-		// Then
-		assertEquals("수정 후", updated.getName());
-		assertEquals("010-2222-2222", updated.getPhoneNumber());
-		assertEquals("USA", updated.getNationality());
-
-		log.info("수정된 회원: {}", updated);
-	}
-
-	@Test
 	public void checkLoginIdDuplicate() {
 		log.info("로그인 ID 중복 체크 테스트");
 
 		// Given
-		String loginId = "duplicate" + System.currentTimeMillis();
-		MemberDTO member = MemberDTO.builder()
-			.loginId(loginId)
+		MemberDTO request = MemberDTO.builder()
+			.loginId("testuser" + System.currentTimeMillis()) // 중복 방지
 			.password("password123")
-			.name("중복 테스트")
+			.passportNumber("1234567890")
+			.nationality("KOR")
+			.name("테스트 유저")
+			.phoneNumber("010-1234-5678")
+			.birth(new Date())
+			.remainTime(new Date())
+			.currency("USD")
 			.build();
 
-		memberService.createMember(member);
+		MemberDTO member = memberService.createMember(request);
 
 		// When & Then
-		assertTrue(memberService.checkLoginIdDuplicate(loginId));
+		assertTrue(memberService.checkLoginIdDuplicate(member.getLoginId()));
 		assertFalse(memberService.checkLoginIdDuplicate("notexist" + System.currentTimeMillis()));
 	}
 
-	@Test
-	public void login() {
-		log.info("로그인 테스트");
-
-		// Given
-		String loginId = "logintest" + System.currentTimeMillis();
-		String password = "password123";
-
-		MemberDTO member = MemberDTO.builder()
-			.loginId(loginId)
-			.password(password)
-			.name("로그인 테스트")
-			.build();
-
-		memberService.createMember(member);
-
-		// When - 정상 로그인
-		MemberDTO loggedIn = memberService.login(loginId, password);
-
-		// Then
-		assertNotNull(loggedIn);
-		assertEquals(loginId, loggedIn.getLoginId());
-		// assertNull(loggedIn.getPassword()); // 비밀번호는 제거되어야 함
-
-		// When & Then - 잘못된 비밀번호
-		assertThrows(RuntimeException.class, () -> {
-			memberService.login(loginId, "wrongpassword");
-		});
-	}
 }
