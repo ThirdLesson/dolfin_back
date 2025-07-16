@@ -1,14 +1,14 @@
 package org.scoula.domain.member.service;
 
+import static org.scoula.domain.member.exception.MemberErrorCode.*;
 import static org.scoula.global.exception.errorCode.CommonErrorCode.*;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.scoula.domain.member.dto.MemberDTO;
 import org.scoula.domain.member.entity.Member;
-import org.scoula.domain.member.exception.DuplicateMemberException;
-import org.scoula.domain.member.exception.MemberNotFoundException;
 import org.scoula.domain.member.mapper.MemberMapper;
+import org.scoula.global.exception.CustomException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -35,8 +35,9 @@ public class MemberServiceImpl implements MemberService {
     public MemberDTO getMemberById(Long memberId) {
         log.info("getMemberById: {}", memberId);
         Member member = memberMapper.selectMemberById(memberId);
+
         if (member == null) {
-            throw new MemberNotFoundException(INVALID_VALUE);
+            throw new CustomException(MEMBER_NOT_FOUND);
         }
         return MemberDTO.from(member);
     }
@@ -46,7 +47,7 @@ public class MemberServiceImpl implements MemberService {
         log.info("getMemberByLoginId: {}", loginId);
         Member member = memberMapper.selectMemberByLoginId(loginId);
         if (member == null) {
-            throw new MemberNotFoundException(INVALID_VALUE);
+            throw new CustomException(MEMBER_NOT_FOUND);
         }
         return MemberDTO.from(member);
     }
@@ -58,7 +59,7 @@ public class MemberServiceImpl implements MemberService {
 
         // 로그인 ID 중복 체크
         if (checkLoginIdDuplicate(memberDTO.getLoginId())) {
-            throw new DuplicateMemberException(INVALID_VALUE);
+            throw new CustomException(MEMBER_ALREADY_EXISTS);
         }
 
         // 임시로 비밀번호를 그대로 저장 (나중에 암호화 추가)
@@ -67,7 +68,6 @@ public class MemberServiceImpl implements MemberService {
 
         return MemberDTO.from(member);
     }
-
     @Override
     @Transactional
     public MemberDTO updateMember(Long memberId, MemberDTO memberDTO) {
@@ -76,7 +76,7 @@ public class MemberServiceImpl implements MemberService {
         // 기존 회원 정보 조회
         Member existingMember = memberMapper.selectMemberById(memberId);
         if (existingMember == null) {
-            throw new MemberNotFoundException(INVALID_VALUE);
+            throw new CustomException(MEMBER_NOT_FOUND);
         }
 
         // 수정할 정보 설정
@@ -96,7 +96,7 @@ public class MemberServiceImpl implements MemberService {
 
         Member member = memberMapper.selectMemberById(memberId);
         if (member == null) {
-            throw new MemberNotFoundException(INVALID_VALUE);
+            throw new CustomException(MEMBER_NOT_FOUND);
         }
 
         memberMapper.deleteMember(memberId);

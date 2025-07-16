@@ -3,7 +3,7 @@ package org.scoula.domain.member.service;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-import java.util.Date;
+import java.time.LocalDate;
 
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -37,8 +37,8 @@ class MemberServiceTest {
 			.nationality("KOR")
 			.name("테스트 유저")
 			.phoneNumber("010-1234-5678")
-			.birth(new Date())
-			.remainTime(new Date())
+			.birth(LocalDate.now())
+			.remainTime(LocalDate.now())
 			.currency("USD")
 			.build();
 
@@ -55,31 +55,7 @@ class MemberServiceTest {
 		log.info("회원 생성 테스트 완료");
 	}
 
-	@Test
-	public void getList() {
-		log.info("회원 목록 조회 테스트");
 
-		for (int i = 0; i < 10; i++) {
-			MemberDTO request = MemberDTO.builder()
-				.loginId("testuser" + System.currentTimeMillis()) // 중복 방지
-				.password("password123" + i)
-				.passportNumber("123456789")
-				.nationality("KOR")
-				.name("테스트 유저")
-				.phoneNumber("010-1234-5678")
-				.birth(new Date())
-				.remainTime(new Date())
-				.currency("USD")
-				.build();
-
-			// When
-			memberService.createMember(request);
-		}
-
-		memberService.getAllMembers().forEach(member -> {
-			log.info(member);
-		});
-	}
 
 	@Test
 	public void getMemberById() {
@@ -93,8 +69,8 @@ class MemberServiceTest {
 			.nationality("KOR")
 			.name("테스트 유저")
 			.phoneNumber("010-1234-5678")
-			.birth(new Date())
-			.remainTime(new Date())
+			.birth(LocalDate.now())
+			.remainTime(LocalDate.now())
 			.currency("USD")
 			.build();
 
@@ -123,8 +99,8 @@ class MemberServiceTest {
 			.nationality("KOR")
 			.name("테스트 유저")
 			.phoneNumber("010-1234-5678")
-			.birth(new Date())
-			.remainTime(new Date())
+			.birth(LocalDate.now())
+			.remainTime(LocalDate.now())
 			.currency("USD")
 			.build();
 

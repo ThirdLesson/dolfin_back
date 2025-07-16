@@ -10,7 +10,6 @@ import lombok.NoArgsConstructor;
 import org.scoula.domain.member.entity.Member;
 
 import java.time.LocalDate;
-import java.util.Date;
 
 @Getter
 @NoArgsConstructor
