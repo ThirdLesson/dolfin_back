@@ -1,0 +1,85 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="org.scoula.domain.member.mapper.MemberMapper">
+
+    <!-- ResultMap 정의 -->
+    <resultMap id="memberResultMap" type="org.scoula.domain.member.entity.Member">
+        <id property="memberId" column="member_id"/>
+        <result property="loginId" column="login_id"/>
+        <result property="password" column="password"/>
+        <result property="passportNumber" column="passport_number"/>
+        <result property="nationality" column="nationality"/>
+        <result property="birth" column="birth"/>
+        <result property="name" column="name"/>
+        <result property="phoneNumber" column="phone_number"/>
+        <result property="remainTime" column="remain_time"/>
+        <result property="currency" column="currency"/>
+    </resultMap>
+
+    <!-- 회원 전체 조회 -->
+    <select id="selectAllMembers" resultMap="memberResultMap">
+        SELECT member_id, login_id, password, passport_number, nationality,
+               birth, name, phone_number, remain_time, currency
+        FROM member
+        ORDER BY member_id DESC
+    </select>
+
+    <!-- 회원 상세 조회 -->
+    <select id="selectMemberById" parameterType="long" resultMap="memberResultMap">
+        SELECT member_id, login_id, password, passport_number, nationality,
+               birth, name, phone_number, remain_time, currency
+        FROM member
+        WHERE member_id = #{memberId}
+    </select>
+
+    <!-- 로그인 ID로 회원 조회 -->
+    <select id="selectMemberByLoginId" parameterType="string" resultMap="memberResultMap">
+        SELECT member_id, login_id, password, passport_number, nationality,
+               birth, name, phone_number, remain_time, currency
+        FROM member
+        WHERE login_id = #{loginId}
+    </select>
+
+    <!-- 회원 등록 -->
+    <insert id="insertMember" parameterType="org.scoula.domain.member.dto.MemberDTO"
+            useGeneratedKeys="true" keyProperty="memberId">
+        INSERT INTO member (
+            login_id, password, passport_number, nationality,
+            birth, name, phone_number, remain_time, currency
+        ) VALUES (
+                     #{loginId}, #{password}, #{passportNumber}, #{nationality},
+                     #{birth}, #{name}, #{phoneNumber}, #{remainTime}, #{currency}
+                 )
+    </insert>
+
+    <!-- 회원 정보 수정 -->
+    <update id="updateMember" parameterType="org.scoula.domain.member.dto.MemberDTO">
+        UPDATE member
+        SET passport_number = #{passportNumber},
+            nationality = #{nationality},
+            birth = #{birth},
+            name = #{name},
+            phone_number = #{phoneNumber},
+            remain_time = #{remainTime},
+            currency = #{currency}
+        WHERE member_id = #{memberId}
+    </update>
+
+
+    <!-- 회원 삭제 -->
+    <delete id="deleteMember" parameterType="long">
+        DELETE FROM member
+        WHERE member_id = #{memberId}
+    </delete>
+
+    <!-- 로그인 ID 중복 체크 -->
+    <select id="checkLoginIdDuplicate" parameterType="string" resultType="int">
+        SELECT COUNT(*)
+        FROM member
+        WHERE login_id = #{loginId}
+    </select>
+
+</mapper>
