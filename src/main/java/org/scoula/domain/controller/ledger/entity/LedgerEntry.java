@@ -10,8 +10,8 @@ public class LedgerEntry {
 
 	private Long ledgerEntryId;
 	private Long amount;                // 금액
-	private LedgerType ledgerType;  // 차변/대변
-	private LedgerCode ledgerCode;    // 회계 코드
+	private LedgerType ledgerType; 		// 차변/대변
+	private LedgerCode ledgerCode;      // 회계 코드
 	private Long ledgerVoucherId;       // 전표 ID (FK)
 
 }
