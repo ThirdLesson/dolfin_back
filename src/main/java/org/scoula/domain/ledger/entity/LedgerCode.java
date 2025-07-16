@@ -1,4 +1,4 @@
-package org.scoula.domain.controller.ledger.entity;
+package org.scoula.domain.ledger.entity;
 
 import lombok.AccessLevel;
 import lombok.Getter;

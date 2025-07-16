@@ -1,4 +1,4 @@
-package org.scoula.domain.controller.ledger.entity;
+package org.scoula.domain.ledger.entity;
 
 import java.time.LocalDateTime;
 import java.util.List;
