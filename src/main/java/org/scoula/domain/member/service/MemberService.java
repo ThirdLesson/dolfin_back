@@ -18,9 +18,7 @@ public interface MemberService {
     // 회원 등록
     MemberDTO createMember(MemberDTO memberDTO);
     
-    // 회원 정보 수정
-    MemberDTO updateMember(Long memberId, MemberDTO memberDTO);
-    
+
     // 회원 삭제
     void deleteMember(Long memberId);
     
