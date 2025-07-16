@@ -4,14 +4,15 @@ import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
-import lombok.Data;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 import org.scoula.domain.member.entity.Member;
 
+import java.time.LocalDate;
 import java.util.Date;
 
-@Data
+@Getter
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
@@ -34,7 +35,7 @@ public class MemberDTO {
 	private String nationality;
 
 	@ApiModelProperty(value = "생년월일")
-	private Date birth;
+	private LocalDate birth;
 
 	@ApiModelProperty(value = "성명", example = "홍길동", required = true)
 	private String name;
@@ -43,7 +44,7 @@ public class MemberDTO {
 	private String phoneNumber;
 
 	@ApiModelProperty(value = "잔여 체류기간")
-	private Date remainTime;
+	private LocalDate remainTime;
 
 	@ApiModelProperty(value = "설정 통화", example = "USD")
 	private String currency;

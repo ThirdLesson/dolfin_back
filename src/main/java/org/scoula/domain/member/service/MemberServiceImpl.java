@@ -1,9 +1,12 @@
 package org.scoula.domain.member.service;
 
+import static org.scoula.global.exception.errorCode.CommonErrorCode.*;
+
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.scoula.domain.member.dto.MemberDTO;
 import org.scoula.domain.member.entity.Member;
+import org.scoula.domain.member.exception.MemberNotFound;
 import org.scoula.domain.member.mapper.MemberMapper;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -22,7 +25,8 @@ public class MemberServiceImpl implements MemberService {
     @Override
     public List<MemberDTO> getAllMembers() {
         log.info("getAllMembers");
-        return memberMapper.selectAllMembers().stream()
+        return memberMapper.selectAllMembers()
+            .stream()
             .map(MemberDTO::from)
             .collect(Collectors.toList());
     }
@@ -32,7 +36,7 @@ public class MemberServiceImpl implements MemberService {
         log.info("getMemberById: {}", memberId);
         Member member = memberMapper.selectMemberById(memberId);
         if (member == null) {
-            throw new RuntimeException("회원을 찾을 수 없습니다. ID: " + memberId);
+            throw new MemberNotFound(INVALID_VALUE);
         }
         return MemberDTO.from(member);
     }
@@ -60,28 +64,6 @@ public class MemberServiceImpl implements MemberService {
         // 임시로 비밀번호를 그대로 저장 (나중에 암호화 추가)
         Member member = memberDTO.toEntity();
         memberMapper.insertMember(member);
-
-        return MemberDTO.from(member);
-    }
-
-    @Override
-    @Transactional
-    public MemberDTO updateMember(Long memberId, MemberDTO memberDTO) {
-        log.info("updateMember: {}", memberId);
-
-        // 기존 회원 정보 조회
-        Member existingMember = memberMapper.selectMemberById(memberId);
-        if (existingMember == null) {
-            throw new RuntimeException("회원을 찾을 수 없습니다. ID: " + memberId);
-        }
-
-        // 수정할 정보 설정
-        memberDTO.setMemberId(memberId);
-        memberDTO.setLoginId(existingMember.getLoginId()); // 로그인 ID는 변경 불가
-        memberDTO.setPassword(existingMember.getPassword()); // 비밀번호는 별도 메서드로 변경
-
-        Member member = memberDTO.toEntity();
-        memberMapper.updateMember(member);
 
         return MemberDTO.from(member);
     }
