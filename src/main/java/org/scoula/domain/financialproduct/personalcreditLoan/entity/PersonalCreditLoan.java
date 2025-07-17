@@ -7,15 +7,18 @@ import lombok.NoArgsConstructor;
 
 import java.math.BigDecimal;
 
+/**
+ * 개인신용대출
+ */
 @Getter
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
 public class PersonalCreditLoan {
 
-    private Long personalCreditLoanId;   // 개인신용대출 아이디
-    private Long financialCompanyId;     // 금융회사 아이디
-    private String name;         // 금융상품명
+    private Long personalCreditLoanId;   // 개인신용대출 아이디 (PK)
+    private Long financialCompanyId;     // 금융회사 아이디 (FK)
+    private String name;                 // 금융상품명
     private String joinWay;              // 가입 방법
     private String crdtPrdtTypeNm;       // 대출상품유형
     private String cbName;               // CB회사명

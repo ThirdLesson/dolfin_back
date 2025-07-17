@@ -1,11 +1,15 @@
 package org.scoula.domain.MemberRemittanceGroup.entity;
 
+import java.math.BigDecimal;
+
 import lombok.AllArgsConstructor;
 import lombok.Builder;
-import lombok.Data;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
+/**
+ * 사용자_단체 송금 정보
+ */
 @Getter
 @NoArgsConstructor
 @AllArgsConstructor
@@ -23,8 +27,7 @@ public class MemberRemittanceGroup {
 	private String receiverNationality;   // 수취인 국가
 	private String receiverAddress;       // 수취인 주소
 	private String purpose;               // 거래목적
-	private Long amount;                  // 환전을 원하는 금액(원화)
-	private Long exchangeAmount;          // 환전이 완료된 금액
-	private RemittanceStatus status;      // 진행(진행중, 성공, 실패)
-
+	private BigDecimal amount;            // 환전을 원하는 금액(원화)
+	private BigDecimal exchangeAmount;    // 환전이 완료된 금액
+	private Status status;      // 진행 / PENDING(진행중), SUCCESS(성공), FAILED(실패)
 }
