@@ -1,7 +1,24 @@
+// buildscript는 맨 위에 와야 함
+buildscript {
+    ext {
+        flywayVersion = '10.19.0'  // 최신 버전
+    }
+    repositories {
+        mavenCentral()
+    }
+    dependencies {
+        classpath "org.flywaydb:flyway-gradle-plugin:${flywayVersion}"
+        classpath "org.flywaydb:flyway-mysql:${flywayVersion}"  // MySQL 8.4 지원을 위해 추가
+    }
+}
+
 plugins {
     id 'java'
     id 'war'
 }
+
+// flyway 플러그인 적용
+apply plugin: 'org.flywaydb.flyway'
 
 group 'org.scoula'
 version '1.0-SNAPSHOT'
@@ -45,8 +62,11 @@ dependencies {
     implementation "org.aspectj:aspectjrt:${aspectjVersion}"
     implementation "org.aspectj:aspectjweaver:${aspectjVersion}"
 
+
+    // Servlet API (Tomcat이 제공하므로 provided)
+    providedCompile 'javax.servlet:javax.servlet-api:4.0.1'
+
     // JSP, SERVLET, JSTL
-    compileOnly 'javax.servlet:javax.servlet-api:4.0.1'
     compileOnly 'javax.servlet.jsp:javax.servlet.jsp-api:2.3.3'
     implementation 'javax.servlet:jstl:1.2'
 
@@ -89,8 +109,16 @@ dependencies {
     implementation 'io.springfox:springfox-swagger-ui:2.9.2'
 
 
+    // Flyway 최신 버전
+    implementation 'org.flywaydb:flyway-core:10.19.0'
+    implementation 'org.flywaydb:flyway-mysql:10.19.0'  // MySQL 8.4 지원
+
+
 }
+
 
 test {
     useJUnitPlatform()
 }
+
+

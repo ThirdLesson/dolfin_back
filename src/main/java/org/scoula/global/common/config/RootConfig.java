@@ -1,8 +1,11 @@
 package org.scoula.global.common.config;
 
+import java.util.Map;
+
 import com.zaxxer.hikari.HikariConfig;
 import com.zaxxer.hikari.HikariDataSource;
 import org.apache.ibatis.session.SqlSessionFactory;
+import org.flywaydb.core.Flyway;
 import org.mybatis.spring.SqlSessionFactoryBean;
 import org.mybatis.spring.annotation.MapperScan;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -37,6 +40,11 @@ public class RootConfig {
         config.setJdbcUrl(url);
         config.setUsername(username);
         config.setPassword(password);
+        config.setMaximumPoolSize(50);
+        config.setMinimumIdle(5);
+        config.setConnectionTimeout(30000);
+        config.setIdleTimeout(600000);
+        config.setMaxLifetime(1800000);
         HikariDataSource dataSource = new HikariDataSource(config);
         return dataSource;
     }
@@ -46,17 +54,38 @@ public class RootConfig {
     ApplicationContext applicationContext;
 
     @Bean
+    public Flyway flyway(DataSource dataSource) {
+        Flyway flyway = Flyway.configure()
+            .dataSource(dataSource)
+            .locations("classpath:db/migration")
+            .baselineVersion("0.0")  // 초기 마이그레이션 버전 설정
+            .baselineOnMigrate(true)
+            .encoding("UTF-8")
+            .cleanDisabled(true)  // 안전을 위해 clean 비활성화
+            .validateMigrationNaming(true)
+            .load();
+        // Flyway 설정
+
+
+        // 수동으로 migrate 호출
+        flyway.migrate();
+
+        return flyway;
+    }
+
+    @Bean
     public SqlSessionFactory sqlSessionFactory() throws Exception {
         SqlSessionFactoryBean sqlSessionFactory = new SqlSessionFactoryBean();
-        sqlSessionFactory.setConfigLocation(applicationContext.getResource("classpath:/mybatis-config.xml"));
+        sqlSessionFactory.setConfigLocation(
+            applicationContext.getResource("classpath:/mybatis-config.xml")
+        );
         sqlSessionFactory.setDataSource(dataSource());
         return (SqlSessionFactory) sqlSessionFactory.getObject();
     }
 
     @Bean
-    public DataSourceTransactionManager transactionManager(){
-        DataSourceTransactionManager manager = new DataSourceTransactionManager(dataSource());
-        return manager;
+    public DataSourceTransactionManager transactionManager() {
+        return new DataSourceTransactionManager(dataSource());
     }
 
 
