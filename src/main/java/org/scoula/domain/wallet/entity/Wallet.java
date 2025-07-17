@@ -1,5 +1,7 @@
 package org.scoula.domain.wallet.entity;
 
+import java.math.BigDecimal;
+
 import org.scoula.global.entity.BaseEntity;
 
 import lombok.AccessLevel;
@@ -10,6 +12,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class Wallet extends BaseEntity {
 	private Long walletId;
-	private Long balance;
+	private BigDecimal balance;
 	private String password;
+	private Long memberId;
 }
