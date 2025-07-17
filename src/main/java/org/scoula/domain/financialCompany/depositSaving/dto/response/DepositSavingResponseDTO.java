@@ -25,7 +25,7 @@ public class DepositSavingResponseDTO {
     private Long financialCompanyId;
 
     @ApiModelProperty(value = "상품 유형 (예금/적금)", example = "SAVING")
-    private DepositSavingType type; // enum 변경
+    private DepositSavingType type;
 
     @ApiModelProperty(value = "상품명", example = "정기적금 1호")
     private String name;

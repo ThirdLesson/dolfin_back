@@ -14,7 +14,7 @@ import java.math.BigDecimal;
 public class DepositSaving  {
     private Long depositSavingId; // 아이디
     private Long financialCompanyId; // FK
-    private DepositSavingType type;          //  todo 예금/적금(ENUM), string -> enum 으로 변경
+    private DepositSavingType type;       
     private String name;          // 금융 상품명
     private String joinWay;       // 가입 방법
     private String interestDescription;  // 만기 후 이자율 설명

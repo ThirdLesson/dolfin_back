@@ -22,7 +22,7 @@ public class DepositSavingRequestDTO {
     private Long financialCompanyId;
 
     @ApiModelProperty(value = "상품 유형 (예금/적금)", example = "SAVING", required = true)
-    private DepositSavingType type; //todo enum 변경 -> enum 변경
+    private DepositSavingType type;
 
     @ApiModelProperty(value = "상품명", example = "정기예금 1호", required = true)
     private String name;
