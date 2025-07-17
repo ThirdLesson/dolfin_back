@@ -1,0 +1,135 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="org.scoula.domain.financialCompany.personalCreditLoan.mapper.PersonalCreditLoanMapper">
+
+    <!-- resultMap 매핑 -->
+    <resultMap id="PersonalCreditLoanResultMap" type="org.scoula.domain.financialproduct.personalcreditLoan.entity.PersonalCreditLoan">
+        <id property="personalCreditLoanId" column="personal_credit_loan_id"/>
+        <result property="financialCompanyId" column="financial_company_id"/>
+        <result property="name" column="name"/>
+        <result property="joinWay" column="join_way"/>
+        <result property="crdtPrdtTypeNm" column="crdt_prdt_type_nm"/>
+        <result property="cbName" column="cb_name"/>
+        <result property="crdtGrad1" column="crdt_grad1"/>
+        <result property="crdtGrad4" column="crdt_grad4"/>
+        <result property="crdtGrad5" column="crdt_grad5"/>
+        <result property="crdtGrad6" column="crdt_grad6"/>
+        <result property="crdtGrad10" column="crdt_grad10"/>
+        <result property="crdtGrad11" column="crdt_grad11"/>
+        <result property="crdtGrad12" column="crdt_grad12"/>
+        <result property="crdtGrad13" column="crdt_grad13"/>
+        <result property="crdtGradAvg" column="crdt_grad_avg"/>
+    </resultMap>
+
+    <!-- Insert -->
+    <insert id="insertPersonalCreditLoan" parameterType="org.scoula.domain.financialproduct.personalcreditLoan.entity.PersonalCreditLoan" useGeneratedKeys="true" keyProperty="personalCreditLoanId">
+        INSERT INTO personal_credit_loan (
+            financial_company_id,
+            name,
+            join_way,
+            crdt_prdt_type_nm,
+            cb_name,
+            crdt_grad1,
+            crdt_grad4,
+            crdt_grad5,
+            crdt_grad6,
+            crdt_grad10,
+            crdt_grad11,
+            crdt_grad12,
+            crdt_grad13,
+            crdt_grad_avg
+        ) VALUES (
+                     #{financialCompanyId},
+                     #{name},
+                     #{joinWay},
+                     #{crdtPrdtTypeNm},
+                     #{cbName},
+                     #{crdtGrad1},
+                     #{crdtGrad4},
+                     #{crdtGrad5},
+                     #{crdtGrad6},
+                     #{crdtGrad10},
+                     #{crdtGrad11},
+                     #{crdtGrad12},
+                     #{crdtGrad13},
+                     #{crdtGradAvg}
+                 )
+    </insert>
+
+    <!-- Select By Id -->
+    <select id="selectPersonalCreditLoanById" parameterType="long" resultMap="PersonalCreditLoanResultMap">
+        SELECT
+            personal_credit_loan_id,
+            financial_company_id,
+            name,
+            join_way,
+            crdt_prdt_type_nm,
+            cb_name,
+            crdt_grad1,
+            crdt_grad4,
+            crdt_grad5,
+            crdt_grad6,
+            crdt_grad10,
+            crdt_grad11,
+            crdt_grad12,
+            crdt_grad13,
+            crdt_grad_avg
+        FROM
+            personal_credit_loan
+        WHERE
+            personal_credit_loan_id = #{personalCreditLoanId}
+    </select>
+
+    <!-- Select All -->
+    <select id="selectAllPersonalCreditLoans" resultMap="PersonalCreditLoanResultMap">
+        SELECT
+            personal_credit_loan_id,
+            financial_company_id,
+            name,
+            join_way,
+            crdt_prdt_type_nm,
+            cb_name,
+            crdt_grad1,
+            crdt_grad4,
+            crdt_grad5,
+            crdt_grad6,
+            crdt_grad10,
+            crdt_grad11,
+            crdt_grad12,
+            crdt_grad13,
+            crdt_grad_avg
+        FROM
+            personal_credit_loan
+    </select>
+
+    <!-- Update -->
+    <update id="updatePersonalCreditLoan" parameterType="org.scoula.domain.financialproduct.personalcreditLoan.entity.PersonalCreditLoan">
+        UPDATE personal_credit_loan
+        SET
+            financial_company_id = #{financialCompanyId},
+            name = #{name},
+            join_way = #{joinWay},
+            crdt_prdt_type_nm = #{crdtPrdtTypeNm},
+            cb_name = #{cbName},
+            crdt_grad1 = #{crdtGrad1},
+            crdt_grad4 = #{crdtGrad4},
+            crdt_grad5 = #{crdtGrad5},
+            crdt_grad6 = #{crdtGrad6},
+            crdt_grad10 = #{crdtGrad10},
+            crdt_grad11 = #{crdtGrad11},
+            crdt_grad12 = #{crdtGrad12},
+            crdt_grad13 = #{crdtGrad13},
+            crdt_grad_avg = #{crdtGradAvg}
+        WHERE
+            personal_credit_loan_id = #{personalCreditLoanId}
+    </update>
+
+    <!-- Delete -->
+    <delete id="deletePersonalCreditLoan" parameterType="long">
+        DELETE FROM personal_credit_loan WHERE personal_credit_loan_id = #{personalCreditLoanId}
+    </delete>
+
+</mapper>
