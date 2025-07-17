@@ -3,7 +3,9 @@ name: Java CI/CD with Gradle
 # 워크플로우가 실행될 조건을 정의합니다.
 on:
   push:
-    branches: [ “main” ] # main 브랜치에 push가 발생하면 실행됩니다.
+    branches:
+      - main
+ # main 브랜치에 push가 발생하면 실행됩니다.
 
 # 워크플로우가 접근할 수 있는 권한을 설정합니다.
 permissions:
