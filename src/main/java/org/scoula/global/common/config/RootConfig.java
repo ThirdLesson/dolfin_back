@@ -18,15 +18,19 @@ import javax.sql.DataSource;
 @Configuration
 @PropertySource({"classpath:/application.properties"})
 @ComponentScan(basePackages = {
-    // "org.scoula.service",
-    "org.scoula.mapper",
-    "org.scoula.global.swagger.config"  // Swagger 설정을 포함하기 위해 추가
+        // "org.scoula.service",
+        "org.scoula.mapper",
+        "org.scoula.global.swagger.config",  // Swagger 설정을 포함하기 위해 추가
 })
 public class RootConfig {
-    @Value("${jdbc.driver}") String driver;
-    @Value("${jdbc.url}") String url;
-    @Value("${jdbc.username}") String username;
-    @Value("${jdbc.password}") String password;
+    @Value("${jdbc.driver}")
+    String driver;
+    @Value("${jdbc.url}")
+    String url;
+    @Value("${jdbc.username}")
+    String username;
+    @Value("${jdbc.password}")
+    String password;
 
     @Bean
     public DataSource dataSource() {
@@ -52,7 +56,7 @@ public class RootConfig {
     }
 
     @Bean
-    public DataSourceTransactionManager transactionManager(){
+    public DataSourceTransactionManager transactionManager() {
         DataSourceTransactionManager manager = new DataSourceTransactionManager(dataSource());
         return manager;
     }
