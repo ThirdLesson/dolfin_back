@@ -6,11 +6,13 @@ import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
+/**
+ * 회계 코드 테이블
+ */
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class LedgerCode extends BaseEntity {
 	private Long accountCodeId;
-	private AccountType type;         // 자산/부채/자본 등
-	private Long ledgerEntryId;       // 분개 ID (FK)
+	private AccountType type;         // ASSET(자산), LIABILITY(부채), EQUITY(자본), REVENUE(수익), EXPENSE(비용)
 
 }

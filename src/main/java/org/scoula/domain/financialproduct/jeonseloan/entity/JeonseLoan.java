@@ -7,6 +7,9 @@ import lombok.NoArgsConstructor;
 
 import java.math.BigDecimal;
 
+/**
+ * 전세자금대출
+ */
 @Getter
 @NoArgsConstructor
 @AllArgsConstructor

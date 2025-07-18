@@ -1,4 +1,5 @@
 package org.scoula.domain.member.config;
+/*
 
 import com.zaxxer.hikari.HikariConfig;
 import com.zaxxer.hikari.HikariDataSource;
@@ -68,3 +69,4 @@ public class TestMemberConfig {
         return new DataSourceTransactionManager(dataSource());
     }
 }
+*/
