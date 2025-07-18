@@ -7,6 +7,8 @@ import lombok.NoArgsConstructor;
 
 import java.math.BigDecimal;
 
+import org.scoula.global.entity.BaseEntity;
+
 /**
  * 전세자금대출
  */
@@ -14,10 +16,10 @@ import java.math.BigDecimal;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class JeonseLoan {
+public class JeonseLoan extends BaseEntity {
     private Long jeonseLoanId;          // 전세자금대출 아이디
     private Long financialCompanyId;    // 금융회사 아이디
-    private String name;       // 금융상품명
+    private String name;                // 금융상품명
     private String joinWay;             // 가입 방법
     private String loanExpensive;       // 대출 부대비용
     private String erlyFee;             // 중도상환 수수료

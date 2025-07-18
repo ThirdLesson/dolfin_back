@@ -7,6 +7,8 @@ import lombok.NoArgsConstructor;
 
 import java.math.BigDecimal;
 
+import org.scoula.global.entity.BaseEntity;
+
 /**
  * 개인신용대출
  */
@@ -14,7 +16,7 @@ import java.math.BigDecimal;
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
-public class PersonalCreditLoan {
+public class PersonalCreditLoan extends BaseEntity {
 
     private Long personalCreditLoanId;   // 개인신용대출 아이디 (PK)
     private Long financialCompanyId;     // 금융회사 아이디 (FK)
