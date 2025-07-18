@@ -2,6 +2,9 @@ package org.scoula.domain.member.entity;
 
 import java.time.LocalDate;
 
+import org.apache.xerces.impl.XMLEntityManager;
+import org.scoula.global.entity.BaseEntity;
+
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -13,7 +16,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class Member {
+public class Member extends BaseEntity {
 
 	private Long memberId;          // 회원 아이디 (PK)
 	private String loginId;         // 로그인 아이디

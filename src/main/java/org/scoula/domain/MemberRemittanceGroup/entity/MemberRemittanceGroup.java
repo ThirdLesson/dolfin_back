@@ -2,8 +2,9 @@ package org.scoula.domain.MemberRemittanceGroup.entity;
 
 import java.math.BigDecimal;
 
-import lombok.AllArgsConstructor;
-import lombok.Builder;
+import org.scoula.global.entity.BaseEntity;
+
+import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
@@ -11,10 +12,8 @@ import lombok.NoArgsConstructor;
  * 사용자_단체 송금 정보
  */
 @Getter
-@NoArgsConstructor
-@AllArgsConstructor
-@Builder
-public class MemberRemittanceGroup {
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
+public class MemberRemittanceGroup extends BaseEntity {
 
 	private Long memberRemittanceGroup;   // PK
 	private Long remittanceGroupId;       // 단체송금 아이디 (FK)
@@ -29,5 +28,5 @@ public class MemberRemittanceGroup {
 	private String purpose;               // 거래목적
 	private BigDecimal amount;            // 환전을 원하는 금액(원화)
 	private BigDecimal exchangeAmount;    // 환전이 완료된 금액
-	private Status status;      // 진행 / PENDING(진행중), SUCCESS(성공), FAILED(실패)
+	private Status status;     			  // 진행 / PENDING(진행중), SUCCESS(성공), FAILED(실패)
 }

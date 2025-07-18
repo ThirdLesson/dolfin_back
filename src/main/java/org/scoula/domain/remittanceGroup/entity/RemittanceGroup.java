@@ -8,6 +8,8 @@ import lombok.NoArgsConstructor;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 
+import org.scoula.global.entity.BaseEntity;
+
 /**
  * 단체 송금
  */
@@ -15,7 +17,7 @@ import java.time.LocalDate;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class RemittanceGroup {
+public class RemittanceGroup extends BaseEntity {
     
     private Long remittanceGroupId;         // 송금 그룹 아이디 (PK)
     private String title;                   // 제목
