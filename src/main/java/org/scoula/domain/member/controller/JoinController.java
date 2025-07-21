@@ -43,6 +43,5 @@ public class JoinController {
 		return SuccessResponse.ok(null);
 	}
 
-	// TODO 핸드폰 인증
 
 }

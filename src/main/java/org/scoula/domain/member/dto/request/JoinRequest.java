@@ -1,5 +1,7 @@
 package org.scoula.domain.member.dto.request;
 
+import java.time.LocalDate;
+
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 
@@ -28,7 +30,7 @@ public record JoinRequest(
 
 	@ApiModelProperty(value = "생년월일", example = "20000101", required = true)
 	@NotNull(message = "생년월일은 필수 입력 값입니다.")
-	String birth,
+	LocalDate birth,
 
 	@ApiModelProperty(value = "여권 번호", example = "M12345678", required = true)
 	@NotBlank(message = "여권 번호는 필수 입력 값입니다.")
