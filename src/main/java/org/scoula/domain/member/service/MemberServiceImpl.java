@@ -106,10 +106,4 @@ public class MemberServiceImpl implements MemberService {
 		memberMapper.deleteMember(memberId);
 	}
 
-	@Override
-	public boolean checkLoginIdDuplicate(String loginId) {
-		log.info("checkLoginIdDuplicate: {}", loginId);
-		return memberMapper.checkLoginIdDuplicate(loginId) > 0;
-	}
-
 }
