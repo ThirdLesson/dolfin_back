@@ -58,23 +58,6 @@ public class MemberServiceImpl implements MemberService {
 
 	@Override
 	@Transactional
-	public MemberDTO createMember(MemberDTO memberDTO) {
-		log.info("createMember: {}", memberDTO.getLoginId());
-
-		// 로그인 ID 중복 체크
-		if (checkLoginIdDuplicate(memberDTO.getLoginId())) {
-			throw new CustomException(MEMBER_ALREADY_EXISTS, LogLevel.WARNING, null, Common.builder().build());
-		}
-
-		// 임시로 비밀번호를 그대로 저장 (나중에 암호화 추가)
-		Member member = memberDTO.toEntity();
-		memberMapper.insertMember(member);
-
-		return MemberDTO.from(member);
-	}
-
-	@Override
-	@Transactional
 	public MemberDTO updateMember(Long memberId, MemberDTO memberDTO) {
 		log.info("updateMember: {}", memberId);
 
@@ -104,12 +87,6 @@ public class MemberServiceImpl implements MemberService {
 		}
 
 		memberMapper.deleteMember(memberId);
-	}
-
-	@Override
-	public boolean checkLoginIdDuplicate(String loginId) {
-		log.info("checkLoginIdDuplicate: {}", loginId);
-		return memberMapper.checkLoginIdDuplicate(loginId) > 0;
 	}
 
 }

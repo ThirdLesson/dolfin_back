@@ -1,15 +1,16 @@
 package org.scoula.domain.member.dto;
 
+import java.time.LocalDate;
+
+import org.scoula.domain.member.entity.Member;
+import org.scoula.global.constants.Currency;
+
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-
-import org.scoula.domain.member.entity.Member;
-
-import java.time.LocalDate;
 
 @Getter
 @NoArgsConstructor
@@ -46,7 +47,7 @@ public class MemberDTO {
 	private LocalDate remainTime;
 
 	@ApiModelProperty(value = "설정 통화", example = "USD")
-	private String currency;
+	private Currency currency;
 
 	// Entity -> DTO 변환
 	public static MemberDTO from(Member member) {
