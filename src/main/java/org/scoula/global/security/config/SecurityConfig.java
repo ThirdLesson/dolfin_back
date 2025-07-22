@@ -62,6 +62,15 @@ public class SecurityConfig {
 
 				// 로그인 관련 api
 				.requestMatchers("/auth/**").permitAll()
+				// 스웨거 사용을 위한 허용
+				.requestMatchers(
+					"/v2/api-docs/**",
+					"/swagger-resources/**",
+					"/swagger-ui.html/**",
+					"/swagger-ui/**",
+					"/webjars/**",
+					"/configuration/**"
+				).permitAll()
 				.anyRequest().authenticated()
 		);
 
