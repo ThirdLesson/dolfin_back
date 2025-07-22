@@ -11,6 +11,8 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
@@ -24,8 +26,9 @@ public class JoinController {
 	private final JoinService joinService;
 
 	@ApiOperation(value = "회원 가입", notes = "사용자 정보를 받아 회원가입을 처리합니다.")
-	@PostMapping("/join")
-	public SuccessResponse<Void> joinMember(@RequestBody @Valid JoinRequest joinRequest) {
+	@PostMapping("/auth/join")
+	public SuccessResponse<Void> joinMember(@RequestBody @Valid JoinRequest joinRequest) throws
+		JsonProcessingException {
 		joinService.joinMember(joinRequest);
 		return SuccessResponse.noContent();
 	}
@@ -38,7 +41,6 @@ public class JoinController {
 		return SuccessResponse.ok(null);
 	}
 
-	// TODO 휴대폰 번호 인증
-
 	// TODO 잔여 체류 기간
+
 }

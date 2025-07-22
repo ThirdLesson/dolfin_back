@@ -3,6 +3,8 @@ package org.scoula.domain.member.dto;
 import java.time.LocalDate;
 
 import org.scoula.domain.member.entity.Member;
+import org.scoula.global.constants.Currency;
+import org.scoula.global.constants.NationalityCode;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
 import io.swagger.annotations.ApiModel;
@@ -32,7 +34,7 @@ public class MemberDTO {
 	private String passportNumber;
 
 	@ApiModelProperty(value = "국적", example = "KOR")
-	private String nationality;
+	private NationalityCode nationality;
 
 	@ApiModelProperty(value = "생년월일")
 	private LocalDate birth;
@@ -47,7 +49,7 @@ public class MemberDTO {
 	private LocalDate remainTime;
 
 	@ApiModelProperty(value = "설정 통화", example = "USD")
-	private String currency;
+	private Currency currency;
 
 	// Entity -> DTO 변환
 	public static MemberDTO from(Member member) {

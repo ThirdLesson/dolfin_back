@@ -1,9 +1,9 @@
 package org.scoula.domain.member.dto.request;
 
-import java.time.LocalDate;
-
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
+
+import org.scoula.global.constants.NationalityCode;
 
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
@@ -26,20 +26,19 @@ public record JoinRequest(
 	@NotBlank(message = "이름은 필수 입력 값입니다.")
 	String name,
 
-	@ApiModelProperty(value = "생년월일", example = "2000-01-01", required = true)
+	@ApiModelProperty(value = "생년월일", example = "20000101", required = true)
 	@NotNull(message = "생년월일은 필수 입력 값입니다.")
-	LocalDate birth,
+	String birth,
 
 	@ApiModelProperty(value = "여권 번호", example = "M12345678", required = true)
 	@NotBlank(message = "여권 번호는 필수 입력 값입니다.")
 	String passportNumber,
 
-	@ApiModelProperty(value = "국적", example = "KOR", required = true)
+	@ApiModelProperty(value = "국적", example = "USA", required = true)
 	@NotBlank(message = "국적은 필수 입력 값입니다.")
-	String nationality,
+	NationalityCode nationality,
 
-	@ApiModelProperty(value = "체류 만료일", example = "2026-12-31", required = true)
-	@NotNull(message = "체류 만료일은 필수 입력 값입니다.")
-	LocalDate remainTime
+	@ApiModelProperty(value = "나라", example = "덴마크 - nationality가 OTHER일 때의 나라명", required = false)
+	String country
 ) {
 }
