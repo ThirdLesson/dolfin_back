@@ -75,7 +75,7 @@ dependencies {
     implementation "org.apache.logging.log4j:log4j-api:${log4j2Version}"
     implementation "org.apache.logging.log4j:log4j-core:${log4j2Version}"
     implementation "org.apache.logging.log4j:log4j-slf4j-impl:${log4j2Version}"
-    implementation 'org.bgee.log4jdbc-log4j2:log4jdbc-log4j2-jdbc4:1.16'
+    implementation 'org.bgee.log4jdbc-log4j2:log4jdbc-log4j2-jdbc4.1:1.16'
 
     // xml내 한글 처리
     implementation 'xerces:xercesImpl:2.12.2'
@@ -116,6 +116,26 @@ dependencies {
 
     //KAFKA
     implementation "org.springframework.kafka:spring-kafka:${springKafkaVersion}"
+
+    // 스프링 시큐리티
+    implementation 'org.springframework.security:spring-security-config:5.8.10'
+    implementation 'org.springframework.security:spring-security-web:5.8.10'
+    implementation 'org.springframework.security:spring-security-core:5.8.10'
+
+    // JWT (JJWT)
+    implementation 'io.jsonwebtoken:jjwt-api:0.11.5'
+    runtimeOnly 'io.jsonwebtoken:jjwt-impl:0.11.5'
+    runtimeOnly 'io.jsonwebtoken:jjwt-jackson:0.11.5'
+
+    // Redis (Lettuce 기반 클라이언트)
+    implementation 'org.springframework.data:spring-data-redis:2.7.18'
+    implementation 'io.lettuce:lettuce-core:6.3.1.RELEASE'
+
+    // Bean Validation (JSR-380)
+    implementation 'javax.validation:validation-api:2.0.1.Final'
+    implementation 'org.hibernate.validator:hibernate-validator:6.0.20.Final'
+    implementation 'org.glassfish:javax.el:3.0.0'
+
 }
 
 
