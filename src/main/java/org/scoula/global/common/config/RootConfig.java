@@ -14,6 +14,9 @@ import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.PropertySource;
 import org.springframework.jdbc.datasource.DataSourceTransactionManager;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.web.servlet.handler.HandlerMappingIntrospector;
 
 import com.zaxxer.hikari.HikariConfig;
 import com.zaxxer.hikari.HikariDataSource;
@@ -26,7 +29,9 @@ import com.zaxxer.hikari.HikariDataSource;
 	"org.scoula.domain.member.service",  // 도메인 객체를 포함하기 위해 추가
 	"org.scoula.global.swagger.config",  // Swagger 설정을 포함하기 위해 추가
 	"org.scoula.global.kafka", // kafka 설정 포함
-	"org.scoula.global.exception" // exception handler 등록
+	"org.scoula.global.exception", // exception handler 등록
+	"org.scoula.global.redis",
+	"org.scoula.global.security"
 })
 public class RootConfig {
 	@Value("${jdbc.driver}")
@@ -91,4 +96,13 @@ public class RootConfig {
 		return new DataSourceTransactionManager(dataSource());
 	}
 
+	@Bean
+	public PasswordEncoder passwordEncoder() {
+		return new BCryptPasswordEncoder();
+	}
+
+	@Bean
+	public HandlerMappingIntrospector mvcHandlerMappingIntrospector() {
+		return new HandlerMappingIntrospector();
+	}
 }
