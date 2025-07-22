@@ -3,6 +3,7 @@ package org.scoula.domain.member.entity;
 import java.time.LocalDate;
 
 import org.scoula.global.constants.Currency;
+import org.scoula.global.constants.NationalityCode;
 import org.scoula.global.entity.BaseEntity;
 
 import lombok.AllArgsConstructor;
@@ -22,7 +23,8 @@ public class Member extends BaseEntity {
 	private String loginId;         // 로그인 아이디
 	private String password;        // 비밀번호
 	private String passportNumber;  // 여권번호
-	private String nationality;     // 국적
+	private NationalityCode nationality; // 국적
+	private String country;            // 나라
 	private LocalDate birth;        // 생년월일
 	private String name;            // 성명
 	private String phoneNumber;     // 전화번호

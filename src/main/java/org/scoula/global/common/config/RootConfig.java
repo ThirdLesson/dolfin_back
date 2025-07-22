@@ -20,12 +20,16 @@ import com.zaxxer.hikari.HikariDataSource;
 
 @Configuration
 @PropertySource({"classpath:/application.properties"})
-@MapperScan(basePackages = {"org.scoula.domain.member.mapper"})
+@MapperScan(basePackages = {"org.scoula.domain"})
 @ComponentScan(basePackages = {
-	"org.scoula.domain.member.service",  // 도메인 객체를 포함하기 위해 추가
 	"org.scoula.global.swagger.config",  // Swagger 설정을 포함하기 위해 추가
 	"org.scoula.global.kafka", // kafka 설정 포함
-	"org.scoula.global.exception" // exception handler 등록
+	"org.scoula.global.exception", // exception handler 등록
+	"org.scoula.domain.member.service",
+	"org.scoula.domain.codef.service",
+	"org.scoula.domain",
+	"org.scoula.global.redis.util",
+	"org.scoula.global.redis.config"
 })
 public class RootConfig {
 	@Value("${jdbc.driver}")

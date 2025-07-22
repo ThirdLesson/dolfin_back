@@ -4,6 +4,7 @@ import java.time.LocalDate;
 
 import org.scoula.domain.member.entity.Member;
 import org.scoula.global.constants.Currency;
+import org.scoula.global.constants.NationalityCode;
 
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
@@ -32,7 +33,7 @@ public class MemberDTO {
 	private String passportNumber;
 
 	@ApiModelProperty(value = "국적", example = "KOR")
-	private String nationality;
+	private NationalityCode nationality;
 
 	@ApiModelProperty(value = "생년월일")
 	private LocalDate birth;
