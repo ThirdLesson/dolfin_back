@@ -16,6 +16,8 @@ import org.springframework.web.servlet.view.JstlView;
 	"org.scoula.domain.**.controller",
 	// "org.scoula.domain.codef.controller",
 })
+@ComponentScan(basePackages = {"org.scoula.domain.controller",
+"org.scoula.domain"})
 public class ServletConfig implements WebMvcConfigurer {
 
 	@Override
