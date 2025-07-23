@@ -10,13 +10,12 @@ CREATE TABLE member
     login_id        VARCHAR(100) NOT NULL,
     password        VARCHAR(100) NOT NULL,
     passport_number VARCHAR(100) NOT NULL,
-    nationality     ENUM('RUSSIA', 'MONGOLIA', 'USA', 'VIETNAM', 'INDIA', 'INDONESIA', 'JAPAN', 'CHINA', 'THAILAND', 'PHILIPPINES', 'KOREAN_RUSSIAN', 'KOREAN_CHINESE', 'OTHER') NOT NULL,
-    country         VARCHAR(255),
+    nationality     VARCHAR(100) NOT NULL,
     birth           DATE         NOT NULL,
     name            VARCHAR(100) NOT NULL,
     phone_number    VARCHAR(50),
     remain_time     DATE,
-    currency        ENUM('USD', 'JPY', 'EUR', 'GBP', 'CAD', 'KRW', 'HKD', 'CNY', 'THB', 'IDR', 'VND', 'RUB', 'BDT'),
+    currency        VARCHAR(20),
     created_at      DATETIME     NOT NULL DEFAULT CURRENT_TIMESTAMP,
     updated_at      DATETIME     NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 );
