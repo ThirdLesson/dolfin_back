@@ -22,7 +22,9 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
+@Slf4j
 @Service
 @Transactional
 @RequiredArgsConstructor
@@ -62,7 +64,9 @@ public class MemberAuthServiceImpl implements MemberAuthService {
 	@Override
 	public RefreshResponseDto reissueToken(ReissueTokenRequestDto reissueTokenRequestDto, String refreshToken,
 		HttpServletRequest request, HttpServletResponse response) {
-		Object refreshTokenByRedis = redisUtil.get(reissueTokenRequestDto.loginId());
+		String refreshTokenByRedis = redisUtil.get(reissueTokenRequestDto.loginId());
+		log.info("레디스 저장 토큰: {}", refreshTokenByRedis);
+		log.info("사용자 토큰: {}", refreshToken);
 		if (!refreshTokenByRedis.equals(refreshToken)) {
 			throw new CustomException(JwtErrorMessage.NOT_MATCH_REFRESH_TOKEN, LogLevel.WARNING,
 				request.getHeader("txId"), Common.builder()
