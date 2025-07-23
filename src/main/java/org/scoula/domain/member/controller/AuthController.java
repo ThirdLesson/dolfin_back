@@ -2,6 +2,7 @@ package org.scoula.domain.member.controller;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import javax.validation.Valid;
 
 import org.scoula.domain.member.dto.request.ReissueTokenRequestDto;
 import org.scoula.domain.member.dto.request.SignInRequestDto;
@@ -36,7 +37,7 @@ public class AuthController {
 		@ApiResponse(code = 401, message = "아이디 또는 비밀번호가 일치하지 않습니다.")
 	})
 	@PostMapping("/signin")
-	public SuccessResponse<SignInResponseDto> signIn(@RequestBody SignInRequestDto requestDto,
+	public SuccessResponse<SignInResponseDto> signIn(@RequestBody @Valid SignInRequestDto requestDto,
 		HttpServletResponse response, HttpServletRequest request) {
 		SignInResponseDto signInResponseDto = memberAuthService.signIn(requestDto, request, response);
 		return SuccessResponse.ok(signInResponseDto);
@@ -49,11 +50,11 @@ public class AuthController {
 		@ApiResponse(code = 400, message = "로그인이 필요한 서비스입니다.")
 	})
 	@PostMapping("/refresh")
-	public SuccessResponse<RefreshResponseDto> refreshToken(@RequestBody ReissueTokenRequestDto requestDto,
+	public SuccessResponse<RefreshResponseDto> refreshToken(@RequestBody @Valid ReissueTokenRequestDto requestDto,
 		@ApiParam(value = "Refresh Token (쿠키)", required = true)
 		@CookieValue(name = "refreshToken", required = false) String refreshToken,
-		HttpServletRequest request) {
-		return SuccessResponse.ok(memberAuthService.reissueToken(requestDto, refreshToken, request));
+		HttpServletRequest request, HttpServletResponse response) {
+		return SuccessResponse.ok(memberAuthService.reissueToken(requestDto, refreshToken, request, response));
 	}
 
 	@ApiOperation(value = "로그아웃", notes = "클라이언트에서 보유한 Refresh Token을 만료시키고 로그아웃합니다.")
