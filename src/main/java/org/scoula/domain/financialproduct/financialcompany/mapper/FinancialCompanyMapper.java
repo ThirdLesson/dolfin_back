@@ -5,23 +5,28 @@ import org.apache.ibatis.annotations.Param;
 import org.scoula.domain.financialproduct.financialcompany.entity.FinancialCompany;
 
 import java.util.List;
+import java.util.Map;
 
 @Mapper
 public interface FinancialCompanyMapper {
 
-    // 1. 전체 조회
-    List<FinancialCompany> findAll();
+    // 전체 조회
+    List<FinancialCompany> selectAllFinancialCompany();
 
-    // 2. ID로 조회
-    FinancialCompany findById(@Param("financialCompanyId") Long financialCompanyId);
+    // 단건 조회
+    FinancialCompany selectFinancialCompanyById(@Param("financialCompanyId") Long id);
 
-    // 3. 등록
-    void insert(FinancialCompany financialCompany);
+    // 등록
+    int insertFinancialCompany(FinancialCompany financialCompany);
 
-    // 4. 수정
-    void update(FinancialCompany financialCompany);
+    // 수정
+    int updateFinancialCompany(FinancialCompany financialCompany);
 
-    // 5. 삭제
-    void delete(@Param("financialCompanyId") Long financialCompanyId);
+    // 배치 insert(외부 api 데이터 일괄 저장용,중복시 무시)
+    int insertFinancialCompanyBatch(@Param("list") List<FinancialCompany> financialCompanies);
 
+// 금융회사 코드 아이디로 찾기
+    String findCodeById(Long financialCompanyId);
+
+    Long findIdByCode(String finCoNo);
 }
