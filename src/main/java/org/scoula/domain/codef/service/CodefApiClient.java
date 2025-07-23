@@ -51,6 +51,9 @@ public class CodefApiClient {
 		String resultCode = response.result().code();
 
 		if (resultCode.equals("CF-00000")) {
+			if (response.data().resAuthenticity().equals("0")) {
+				throw new CustomException(STAY_AUTHENTICITY_FAILED, LogLevel.WARNING, null, null);
+			}
 			return response.data();
 		} else if (resultCode.equals("CF-00001")) {
 			throw new CustomException(CODEF_REQUIRED_PARAMETER_MISSING, LogLevel.WARNING, null, null);
