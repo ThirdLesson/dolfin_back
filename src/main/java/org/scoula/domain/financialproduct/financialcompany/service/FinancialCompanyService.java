@@ -1,19 +1,16 @@
 package org.scoula.domain.financialproduct.financialcompany.service;
 
-import org.scoula.domain.financialproduct.financialcompany.dto.request.FinancialCompanyRequestDTO;
-import org.scoula.domain.financialproduct.financialcompany.dto.response.FinancialCompanyResponseDTO;
+import org.scoula.domain.financialproduct.financialcompany.dto.FinancialCompanyDTO;
+
 
 import java.util.List;
 
 public interface FinancialCompanyService {
 
-    void create(FinancialCompanyRequestDTO requestDTO);
+    FinancialCompanyDTO getById(Long financialCompanyId);
 
-    FinancialCompanyResponseDTO getById(Long financialCompanyId);
+    List<FinancialCompanyDTO> getAll();
 
-    List<FinancialCompanyResponseDTO> getAll();
-
-    void update(Long id, FinancialCompanyRequestDTO requestDTO);
-
-    void delete(Long financialCompanyId);
+    void fetchAndSaveFinancialCompanies(); // 외부 API 호출 + 저장
 }
+
