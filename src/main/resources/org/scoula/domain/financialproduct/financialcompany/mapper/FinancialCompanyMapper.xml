@@ -6,50 +6,76 @@
 <mapper namespace="org.scoula.domain.financialproduct.financialcompany.mapper.FinancialCompanyMapper">
 
     <!-- resultMap 정의 -->
-    <resultMap id="FinancialCompanyResultMap" type="org.scoula.domain.financialproduct.financialcompany.entity.FinancialCompany">
+    <resultMap id="FinancialCompanyResultMap"
+               type="org.scoula.domain.financialproduct.financialcompany.entity.FinancialCompany">
         <id property="financialCompanyId" column="financial_company_id"/>
         <result property="name" column="name"/>
         <result property="code" column="code"/>
+        <result property="createdAt" column="created_at"/>
+        <result property="updatedAt" column="updated_at"/>
     </resultMap>
-
-    <!-- findAll -->
-    <select id="findAll" resultMap="FinancialCompanyResultMap">
-        SELECT
-            financial_company_id,
-            name,
-            code
+    <!-- 전체 조회 -->
+    <select id="selectAllFinancialCompany"
+            resultMap="FinancialCompanyResultMap">
+        SELECT financial_company_id,
+               code,
+               name,
+               created_at,
+               updated_at
         FROM financial_company
+        ORDER BY financial_company_id ASC
     </select>
 
-    <!-- select_id -->
-    <select id="findById" parameterType="long" resultMap="FinancialCompanyResultMap">
-        SELECT
-            financial_company_id,
-            name,
-            code
+    <!-- 단건조회 -->
+    <select id="selectFinancialCompanyById" parameterType="long"
+            resultMap="FinancialCompanyResultMap">
+        SELECT financial_company_id,
+               code,
+               name,
+               created_at,
+               updated_at
         FROM financial_company
         WHERE financial_company_id = #{financialCompanyId}
     </select>
 
-    <!-- insert -->
-    <insert id="insert" parameterType="org.scoula.domain.financialproduct.financialcompany.entity.FinancialCompany"
-            useGeneratedKeys="true" keyProperty="financialCompanyId">
-        INSERT INTO financial_company (name, code)
-        VALUES (#{name}, #{code})
+    <select id="findCodeById" parameterType="long" resultType="string">
+        SELECT company_code
+        FROM financial_company
+        WHERE financial_company_id = #{financialCompanyId}
+    </select>
+
+    <select id="findIdByCode" parameterType="string" resultType="long">
+        SELECT financial_company_id
+        FROM financial_company
+        WHERE company_code = #{companyCode}
+    </select>
+
+    <!-- 추가  -->
+    <insert id="insertFinancialCompany"
+            parameterType="org.scoula.domain.financialproduct.financialcompany.entity.FinancialCompany">
+        INSERT INTO financial_company (code,
+                                       name)
+        VALUES (#{code},
+                #{name})
+    </insert>
+    <!-- 배치 등록 (중복시 무시) -->
+    <insert id="insertFinancialCompanyBatch">
+        INSERT INTO financial_company(
+        name,code,created_at,updated_at
+        ) values
+        <foreach collection="list" item="company" separator=",">
+            (#{company.name},#{company.code},NOW(),NOW())
+        </foreach>
     </insert>
 
-    <!-- update -->
-    <update id="update" parameterType="org.scoula.domain.financialproduct.financialcompany.entity.FinancialCompany">
+
+    <!-- 수정 -->
+    <update id="updateFinancialCompany"
+            parameterType="org.scoula.domain.financialproduct.financialcompany.entity.FinancialCompany">
         UPDATE financial_company
-        SET name = #{name},
-            code = #{code}
+        SET name       = #{name},
+            code       = #{code},
+            updated_at = CURRENT_TIMESTAMP
         WHERE financial_company_id = #{financialCompanyId}
     </update>
-
-    <!-- 삭제 -->
-    <delete id="delete" parameterType="long">
-        DELETE FROM financial_company
-        WHERE financial_company_id = #{financialCompanyId}
-    </delete>
-
 </mapper>

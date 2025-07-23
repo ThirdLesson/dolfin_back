@@ -49,6 +49,13 @@
         SELECT *
         FROM jeonse_loan
     </select>
+    <select id="selectJeonseLoansByFinancialCompanyId"
+            resultType="org.scoula.domain.financialproduct.jeonseloan.entity.JeonseLoan"></select>
+    <select id="selectJeonseLoansByInterestRateRange"
+            resultType="org.scoula.domain.financialproduct.jeonseloan.entity.JeonseLoan"></select>
+    <select id="selectJeonseLoansByRepayType"
+            resultType="org.scoula.domain.financialproduct.jeonseloan.entity.JeonseLoan"></select>
+    <select id="existsByFinancialCompanyIdAndName" resultType="java.lang.Boolean"></select>
 
     <!-- 수정 -->
     <update id="updateJeonseLoan">

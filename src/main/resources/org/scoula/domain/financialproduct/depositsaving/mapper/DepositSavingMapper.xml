@@ -9,69 +9,22 @@
     <resultMap id="DepositSavingResultMap" type="org.scoula.domain.financialproduct.depositsaving.entity.DepositSaving">
         <id property="depositSavingId" column="deposit_saving_id"/>
         <result property="financialCompanyId" column="financial_company_id"/>
-        <result property="type" column="type" javaType="org.scoula.domain.financialproduct.depositsaving.entity.DepositSavingType"/>
+        <result property="type" column="type"
+                javaType="org.scoula.domain.financialproduct.depositsaving.entity.DepositSavingType"/>
         <result property="name" column="name"/>
         <result property="joinWay" column="join_way"/>
         <result property="interestDescription" column="interest_description"/>
-        <result property="spdCondition" column="spd_condition"/>
-        <result property="etcNote" column="etc_note"/>
+        <result property="spclCondition" column="spcl_condition"/>
+        <result property="ctcNote" column="ctc_note"/>
         <result property="maxLimit" column="max_limit"/>
         <result property="saveMonth" column="save_month"/>
         <result property="interestRate" column="interest_rate"/>
         <result property="maxInterestRate" column="max_interest_rate"/>
         <result property="interestRateType" column="interest_rate_type"/>
         <result property="reserveType" column="reserve_type"/>
+        <result property="createdAt" column="created_at"/>
+        <result property="updatedAt" column="updated_at"/>
     </resultMap>
-
-    <!-- INSERT -->
-    <insert id="insertDepositSaving" parameterType="org.scoula.domain.financialproduct.depositsaving.entity.DepositSaving">
-        INSERT INTO deposit_saving (financial_company_id,
-                                    type,
-                                    name,
-                                    join_way,
-                                    interest_description,
-                                    spd_condition,
-                                    etc_note,
-                                    max_limit,
-                                    save_month,
-                                    interest_rate,
-                                    max_interest_rate,
-                                    interest_rate_type,
-                                    reserve_type)
-        VALUES (#{financialCompanyId},
-                #{type},
-                #{name},
-                #{joinWay},
-                #{interestDescription},
-                #{spdCondition},
-                #{etcNote},
-                #{maxLimit},
-                #{saveMonth},
-                #{interestRate},
-                #{maxInterestRate},
-                #{interestRateType},
-                #{reserveType})
-    </insert>
-
-    <!-- 단일 조회 -->
-    <select id="selectDepositSavingById" parameterType="long" resultMap="DepositSavingResultMap">
-        SELECT deposit_saving_id,
-               financial_company_id,
-               type,
-               name,
-               join_way,
-               interest_description,
-               spd_condition,
-               etc_note,
-               max_limit,
-               save_month,
-               interest_rate,
-               max_interest_rate,
-               interest_rate_type,
-               reserve_type
-        FROM deposit_saving
-        WHERE deposit_saving_id = #{depositSavingId}
-    </select>
 
     <!-- 전체 조회 -->
     <select id="selectAllDepositSavings" resultMap="DepositSavingResultMap">
@@ -81,41 +34,263 @@
                name,
                join_way,
                interest_description,
-               spd_condition,
-               etc_note,
+               spcl_condition,
+               ctc_note,
                max_limit,
                save_month,
                interest_rate,
                max_interest_rate,
                interest_rate_type,
-               reserve_type
+               reserve_type,
+               created_at,
+               updated_at
         FROM deposit_saving
+        ORDER BY created_at DESC
     </select>
 
-    <!-- UPDATE -->
-    <update id="updateDepositSaving" parameterType="org.scoula.domain.financialproduct.depositsaving.entity.DepositSaving">
+    <!-- 단건 조회 -->
+    <select id="selectDepositSavingById" parameterType="long" resultMap="DepositSavingResultMap">
+        SELECT deposit_saving_id,
+               financial_company_id,
+               type,
+               name,
+               join_way,
+               interest_description,
+               spcl_condition,
+               ctc_note,
+               max_limit,
+               save_month,
+               interest_rate,
+               max_interest_rate,
+               interest_rate_type,
+               reserve_type,
+               created_at,
+               updated_at
+        FROM deposit_saving
+        WHERE deposit_saving_id = #{depositSavingId}
+    </select>
+
+    <!-- 추가 -->
+    <insert id="insertDepositSaving"
+            parameterType="org.scoula.domain.financialproduct.depositsaving.entity.DepositSaving"
+            useGeneratedKeys="true" keyProperty="depositSavingId">
+        INSERT INTO deposit_saving (financial_company_id,
+                                    type,
+                                    name,
+                                    join_way,
+                                    interest_description,
+                                    spcl_condition,
+                                    ctc_note,
+                                    max_limit,
+                                    save_month,
+                                    interest_rate,
+                                    max_interest_rate,
+                                    interest_rate_type,
+                                    reserve_type,
+                                    created_at,
+                                    updated_at)
+        VALUES (#{financialCompanyId},
+                #{type},
+                #{name},
+                #{joinWay},
+                #{interestDescription},
+                #{spclCondition},
+                #{ctcNote},
+                #{maxLimit},
+                #{saveMonth},
+                #{interestRate},
+                #{maxInterestRate},
+                #{interestRateType},
+                #{reserveType},
+                NOW(),
+                NOW())
+    </insert>
+
+    <!-- 배치 삽입 -->
+    <insert id="insertBatch" parameterType="java.util.List">
+        INSERT INTO deposit_saving (financial_company_id,
+        type,
+        name,
+        join_way,
+        interest_description,
+        spcl_condition,
+        ctc_note,
+        max_limit,
+        save_month,
+        interest_rate,
+        max_interest_rate,
+        interest_rate_type,
+        reserve_type,
+        created_at,
+        updated_at)
+        VALUES
+        <foreach collection="list" item="item" separator=",">
+            (#{item.financialCompanyId},
+            #{item.type},
+            #{item.name},
+            #{item.joinWay},
+            #{item.interestDescription},
+            #{item.spclCondition},
+            #{item.ctcNote},
+            #{item.maxLimit},
+            #{item.saveMonth},
+            #{item.interestRate},
+            #{item.maxInterestRate},
+            #{item.interestRateType},
+            #{item.reserveType},
+            NOW(),
+            NOW())
+        </foreach>
+    </insert>
+
+    <!-- 수정 -->
+    <update id="updateDepositSaving"
+            parameterType="org.scoula.domain.financialproduct.depositsaving.entity.DepositSaving">
         UPDATE deposit_saving
         SET financial_company_id = #{financialCompanyId},
             type                 = #{type},
             name                 = #{name},
             join_way             = #{joinWay},
             interest_description = #{interestDescription},
-            spd_condition        = #{spdCondition},
-            etc_note             = #{etcNote},
+            spcl_condition       = #{spclCondition},
+            ctc_note             = #{ctcNote},
             max_limit            = #{maxLimit},
             save_month           = #{saveMonth},
             interest_rate        = #{interestRate},
             max_interest_rate    = #{maxInterestRate},
             interest_rate_type   = #{interestRateType},
-            reserve_type         = #{reserveType}
+            reserve_type         = #{reserveType},
+            updated_at           = NOW()
         WHERE deposit_saving_id = #{depositSavingId}
     </update>
 
-    <!-- DELETE -->
+    <!-- 삭제 -->
     <delete id="deleteDepositSaving" parameterType="long">
         DELETE
         FROM deposit_saving
         WHERE deposit_saving_id = #{depositSavingId}
     </delete>
+
+    <!-- 타입별 조회 -->
+    <select id="selectByType" resultMap="DepositSavingResultMap">
+        SELECT deposit_saving_id,
+               financial_company_id,
+               type,
+               name,
+               join_way,
+               interest_description,
+               spcl_condition,
+               ctc_note,
+               max_limit,
+               save_month,
+               interest_rate,
+               max_interest_rate,
+               interest_rate_type,
+               reserve_type,
+               created_at,
+               updated_at
+        FROM deposit_saving
+        WHERE type = #{type}
+        ORDER BY max_interest_rate DESC, interest_rate DESC
+    </select>
+
+    <!-- 금융회사별 조회 -->
+    <select id="selectByFinancialCompany" resultMap="DepositSavingResultMap">
+        SELECT deposit_saving_id,
+               financial_company_id,
+               type,
+               name,
+               join_way,
+               interest_description,
+               spcl_condition,
+               ctc_note,
+               max_limit,
+               save_month,
+               interest_rate,
+               max_interest_rate,
+               interest_rate_type,
+               reserve_type,
+               created_at,
+               updated_at
+        FROM deposit_saving
+        WHERE financial_company_id = #{financialCompanyId}
+        ORDER BY type, max_interest_rate DESC
+    </select>
+
+    <!-- 금리 범위별 조회 -->
+    <select id="selectByInterestRateRange" resultMap="DepositSavingResultMap">
+        SELECT deposit_saving_id,
+        financial_company_id,
+        type,
+        name,
+        join_way,
+        interest_description,
+        spcl_condition,
+        ctc_note,
+        max_limit,
+        save_month,
+        interest_rate,
+        max_interest_rate,
+        interest_rate_type,
+        reserve_type,
+        created_at,
+        updated_at
+        FROM deposit_saving
+        WHERE 1=1
+        <if test="minRate != null">
+            AND interest_rate >= #{minRate}
+        </if>
+        <if test="maxRate != null">
+            AND  interest_rate &lt;= #{minRate}
+        </if>
+        ORDER BY interest_rate DESC
+    </select>
+
+    <!-- 저축기간별 조회 -->
+    <select id="selectBySaveMonth" resultMap="DepositSavingResultMap">
+        SELECT deposit_saving_id,
+               financial_company_id,
+               type,
+               name,
+               join_way,
+               interest_description,
+               spcl_condition,
+               ctc_note,
+               max_limit,
+               save_month,
+               interest_rate,
+               max_interest_rate,
+               interest_rate_type,
+               reserve_type,
+               created_at,
+               updated_at
+        FROM deposit_saving
+        WHERE save_month = #{saveMonth}
+        ORDER BY max_interest_rate DESC, interest_rate DESC
+    </select>
+
+    <!-- 금융회사 + 타입별 조회 -->
+    <select id="selectByCompanyAndType" resultMap="DepositSavingResultMap">
+        SELECT deposit_saving_id,
+               financial_company_id,
+               type,
+               name,
+               join_way,
+               interest_description,
+               spcl_condition,
+               ctc_note,
+               max_limit,
+               save_month,
+               interest_rate,
+               max_interest_rate,
+               interest_rate_type,
+               reserve_type,
+               created_at,
+               updated_at
+        FROM deposit_saving
+        WHERE financial_company_id = #{financialCompanyId}
+          AND type = #{type}
+        ORDER BY max_interest_rate DESC, save_month ASC
+    </select>
 
 </mapper>
