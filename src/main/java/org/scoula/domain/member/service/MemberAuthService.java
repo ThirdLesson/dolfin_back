@@ -15,5 +15,5 @@ public interface MemberAuthService {
 	void signOut(HttpServletResponse response);
 
 	public RefreshResponseDto reissueToken(ReissueTokenRequestDto reissueTokenRequestDto, String refreshToken,
-		HttpServletRequest request);
+		HttpServletRequest request, HttpServletResponse response);
 }
