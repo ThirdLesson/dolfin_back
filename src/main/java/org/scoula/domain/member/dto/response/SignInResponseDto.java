@@ -3,6 +3,8 @@ package org.scoula.domain.member.dto.response;
 import java.time.LocalDate;
 
 import org.scoula.domain.member.dto.MemberDTO;
+import org.scoula.global.constants.Currency;
+import org.scoula.global.constants.NationalityCode;
 import org.scoula.global.security.dto.JwtToken;
 
 import io.swagger.annotations.ApiModelProperty;
@@ -15,7 +17,7 @@ public record SignInResponseDto(
 	@ApiModelProperty(value = "여권번호", example = "M12345678")
 	String passportNumber,
 	@ApiModelProperty(value = "국적", example = "KOR")
-	String nationality,
+	NationalityCode nationality,
 	@ApiModelProperty(value = "생년월일")
 	LocalDate birth,
 	@ApiModelProperty(value = "성명", example = "홍길동", required = true)
@@ -25,7 +27,7 @@ public record SignInResponseDto(
 	@ApiModelProperty(value = "잔여 체류기간")
 	LocalDate remainTime,
 	@ApiModelProperty(value = "설정 통화", example = "USD")
-	String currency) {
+	Currency currency) {
 	public static SignInResponseDto from(JwtToken token, MemberDTO member) {
 
 		return new SignInResponseDto(token.getGrantType(),

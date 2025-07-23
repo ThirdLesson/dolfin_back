@@ -1,8 +1,8 @@
 package org.scoula.domain.member.service;
 
-import org.scoula.domain.member.dto.MemberDTO;
-
 import java.util.List;
+
+import org.scoula.domain.member.dto.MemberDTO;
 
 public interface MemberService {
     
@@ -15,14 +15,9 @@ public interface MemberService {
     // 로그인 ID로 회원 조회
     MemberDTO getMemberByLoginId(String loginId);
     
-    // 회원 등록
-    MemberDTO createMember(MemberDTO memberDTO);
-
     MemberDTO updateMember(Long memberId, MemberDTO memberDTO);
+
     // 회원 삭제
     void deleteMember(Long memberId);
-    
-    // 로그인 ID 중복 체크
-    boolean checkLoginIdDuplicate(String loginId);
     
 }

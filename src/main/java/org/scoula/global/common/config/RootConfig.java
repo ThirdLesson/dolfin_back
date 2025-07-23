@@ -23,15 +23,17 @@ import com.zaxxer.hikari.HikariDataSource;
 
 @Configuration
 @PropertySource({"classpath:/application.properties"})
-@MapperScan(basePackages = {"org.scoula.domain.member.mapper"}) // 게시판과 회원 도메인 매퍼 스캔
+@MapperScan(basePackages = {"org.scoula.domain"})
 @ComponentScan(basePackages = {
-	// "org.scoula.service",
-	"org.scoula.domain.member.service",  // 도메인 객체를 포함하기 위해 추가
 	"org.scoula.global.swagger.config",  // Swagger 설정을 포함하기 위해 추가
 	"org.scoula.global.kafka", // kafka 설정 포함
 	"org.scoula.global.exception", // exception handler 등록
 	"org.scoula.global.redis",
-	"org.scoula.global.security"
+	"org.scoula.global.security",
+	"org.scoula.domain.**.service",
+	// "org.scoula.domain.codef.service",
+	"org.scoula.global.redis.util",
+	"org.scoula.global.redis.config"
 })
 public class RootConfig {
 	@Value("${jdbc.driver}")
@@ -88,7 +90,7 @@ public class RootConfig {
 			applicationContext.getResource("classpath:/mybatis-config.xml")
 		);
 		sqlSessionFactory.setDataSource(dataSource());
-		return (SqlSessionFactory)sqlSessionFactory.getObject();
+		return sqlSessionFactory.getObject();
 	}
 
 	@Bean
