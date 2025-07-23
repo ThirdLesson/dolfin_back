@@ -1,4 +1,4 @@
-package org.scoula.domain.codef.errorCode;
+package org.scoula.domain.codef.exception;
 
 import org.scoula.global.exception.errorCode.ErrorCode;
 import org.springframework.http.HttpStatus;
