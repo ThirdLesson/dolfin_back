@@ -1,5 +1,7 @@
 package org.scoula.domain.codef.controller;
 
+import javax.servlet.http.HttpServletRequest;
+
 import org.scoula.domain.codef.dto.request.StayExpirationRequest;
 import org.scoula.domain.codef.dto.response.StayExpirationResponse;
 import org.scoula.domain.codef.service.CodefApiClient;
@@ -27,17 +29,17 @@ public class CodefController {
 
 	@ApiOperation(value = "Codef 토큰 발급 API", notes = "Codef 토큰을 발급한 후 레디스에 저장합니다.")
 	@PostMapping("/token")
-	public SuccessResponse<Void> getCodefToken() {
-		codefAuthService.issueCodefToken();
+	public SuccessResponse<Void> getCodefToken(HttpServletRequest request) {
+		codefAuthService.issueCodefToken(request);
 		return SuccessResponse.noContent();
 	}
 
 	@ApiOperation(value = "Codef 체류 기간 조회 API", notes = "체류 기간을 조회합니다.")
 	@PostMapping("/stay")
 	public SuccessResponse<StayExpirationResponse> getCodef(
-		@RequestBody StayExpirationRequest stayExpirationRequest) throws
+		@RequestBody StayExpirationRequest stayExpirationRequest, HttpServletRequest request) throws
 		JsonProcessingException {
-		StayExpirationResponse stayExpiration = codefApiClient.getStayExpiration(stayExpirationRequest);
+		StayExpirationResponse stayExpiration = codefApiClient.getStayExpiration(stayExpirationRequest, request);
 		return SuccessResponse.ok(stayExpiration);
 	}
 }

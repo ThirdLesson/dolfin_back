@@ -6,6 +6,8 @@ import static org.scoula.global.constants.Currency.*;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 
+import javax.servlet.http.HttpServletRequest;
+
 import org.scoula.domain.codef.dto.request.StayExpirationRequest;
 import org.scoula.domain.codef.dto.response.StayExpirationResponse;
 import org.scoula.domain.codef.service.CodefApiClient;
@@ -33,7 +35,7 @@ public class JoinServiceImpl implements JoinService {
 
 	@Transactional
 	@Override
-	public void joinMember(JoinRequest joinRequest) throws JsonProcessingException {
+	public void joinMember(JoinRequest joinRequest, HttpServletRequest request) throws JsonProcessingException {
 		checkLoginId(joinRequest.loginId());
 
 		StayExpirationRequest stayExpirationRequest = StayExpirationRequest.builder()
@@ -43,7 +45,7 @@ public class JoinServiceImpl implements JoinService {
 			.nationality(joinRequest.nationality().getCode())
 			.country(joinRequest.country())
 			.build();
-		LocalDate stayExpiration = getStayExpiration(stayExpirationRequest);
+		LocalDate stayExpiration = getStayExpiration(stayExpirationRequest, request);
 
 		Member member = Member.builder()
 			.loginId(joinRequest.loginId())
@@ -67,8 +69,10 @@ public class JoinServiceImpl implements JoinService {
 		}
 	}
 
-	private LocalDate getStayExpiration(StayExpirationRequest stayExpirationRequest) throws JsonProcessingException {
-		StayExpirationResponse stayExpirationResponse = codefApiClient.getStayExpiration(stayExpirationRequest);
+	private LocalDate getStayExpiration(StayExpirationRequest stayExpirationRequest, HttpServletRequest request) throws
+		JsonProcessingException {
+		StayExpirationResponse stayExpirationResponse = codefApiClient.getStayExpiration(stayExpirationRequest,
+			request);
 		String expirationDate = stayExpirationResponse.resExpirationDate();
 
 		if (stayExpirationResponse.resAuthenticity().equals("0") && expirationDate == null) {

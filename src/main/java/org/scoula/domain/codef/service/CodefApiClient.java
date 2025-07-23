@@ -5,10 +5,13 @@ import static org.scoula.domain.codef.exception.CodefErrorCode.*;
 import java.net.URLDecoder;
 import java.nio.charset.StandardCharsets;
 
+import javax.servlet.http.HttpServletRequest;
+
 import org.scoula.domain.codef.dto.common.CodefCommonResponse;
 import org.scoula.domain.codef.dto.request.StayExpirationRequest;
 import org.scoula.domain.codef.dto.response.StayExpirationResponse;
 import org.scoula.global.exception.CustomException;
+import org.scoula.global.kafka.dto.Common;
 import org.scoula.global.kafka.dto.LogLevel;
 import org.scoula.global.redis.util.RedisUtil;
 import org.springframework.http.HttpEntity;
@@ -34,31 +37,39 @@ public class CodefApiClient {
 	private final RestTemplate restTemplate;
 	private final ObjectMapper objectMapper;
 
-	public StayExpirationResponse getStayExpiration(StayExpirationRequest stayExpirationRequest) throws
+	public StayExpirationResponse getStayExpiration(StayExpirationRequest stayExpirationRequest,
+		HttpServletRequest request) throws
 		JsonProcessingException {
 		String cachedAccessToken = redisUtil.get(REDIS_ACCESS_TOKEN_KEY).toString();
 
+		Common common = Common.builder()
+			.srcIp(request.getRemoteAddr())
+			.apiMethod(request.getMethod())
+			.callApiPath(request.getRequestURI())
+			.deviceInfo(request.getHeader("user-agent"))
+			.build();
+
 		// TODO jwt 만료 로직 추가
 		if (cachedAccessToken == null) {
-			throw new CustomException(CODEF_TOKEN_NOT_FOUND, LogLevel.INFO, null, null);
+			throw new CustomException(CODEF_TOKEN_NOT_FOUND, LogLevel.INFO, null, common);
 		}
 
 		HttpEntity<StayExpirationRequest> requestEntity = getRequestHttpEntity(stayExpirationRequest,
 			cachedAccessToken);
 
-		CodefCommonResponse<StayExpirationResponse> response = getCodefCommonResponse(requestEntity);
+		CodefCommonResponse<StayExpirationResponse> response = getCodefCommonResponse(requestEntity, common);
 
 		String resultCode = response.result().code();
 
 		if (resultCode.equals("CF-00000")) {
 			if (response.data().resAuthenticity().equals("0")) {
-				throw new CustomException(STAY_AUTHENTICITY_FAILED, LogLevel.WARNING, null, null);
+				throw new CustomException(STAY_AUTHENTICITY_FAILED, LogLevel.WARNING, null, common);
 			}
 			return response.data();
 		} else if (resultCode.equals("CF-00001")) {
-			throw new CustomException(CODEF_REQUIRED_PARAMETER_MISSING, LogLevel.WARNING, null, null);
+			throw new CustomException(CODEF_REQUIRED_PARAMETER_MISSING, LogLevel.WARNING, null, common);
 		} else {
-			throw new CustomException(CODEF_STAY_EXPIRATION_API_FAILED, LogLevel.ERROR, null, null);
+			throw new CustomException(CODEF_STAY_EXPIRATION_API_FAILED, LogLevel.ERROR, null, common);
 		}
 	}
 
@@ -72,11 +83,11 @@ public class CodefApiClient {
 	}
 
 	private CodefCommonResponse<StayExpirationResponse> getCodefCommonResponse(
-		HttpEntity<StayExpirationRequest> requestEntity) throws JsonProcessingException {
+		HttpEntity<StayExpirationRequest> requestEntity, Common common) throws JsonProcessingException {
 		String rawResponse = restTemplate.postForObject(STAY_EXPIRATION_URL, requestEntity, String.class);
 
 		if (rawResponse == null) {
-			throw new CustomException(CODEF_STAY_EXPIRATION_API_FAILED, LogLevel.ERROR, null, null);
+			throw new CustomException(CODEF_STAY_EXPIRATION_API_FAILED, LogLevel.ERROR, null, common);
 		}
 		String decoded = URLDecoder.decode(rawResponse, StandardCharsets.UTF_8);
 

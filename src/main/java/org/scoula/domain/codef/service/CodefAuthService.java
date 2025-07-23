@@ -5,8 +5,11 @@ import static org.scoula.domain.codef.exception.CodefErrorCode.*;
 import java.nio.charset.StandardCharsets;
 import java.util.Base64;
 
+import javax.servlet.http.HttpServletRequest;
+
 import org.scoula.domain.codef.dto.response.CodefTokenResponse;
 import org.scoula.global.exception.CustomException;
+import org.scoula.global.kafka.dto.Common;
 import org.scoula.global.kafka.dto.LogLevel;
 import org.scoula.global.redis.util.RedisUtil;
 import org.springframework.beans.factory.annotation.Value;
@@ -36,7 +39,7 @@ public class CodefAuthService {
 	@Value("${codef.client.secret}")
 	private String clientSecret;
 
-	public void issueCodefToken() {
+	public void issueCodefToken(HttpServletRequest request) {
 		HttpEntity<MultiValueMap<String, String>> requestEntity = getRequestEntity();
 
 		ResponseEntity<CodefTokenResponse> responseEntity = restTemplate.postForEntity(
@@ -46,14 +49,21 @@ public class CodefAuthService {
 		String codefToken = response.accessToken();
 		Integer expiresIn = response.expiresIn();
 
+		Common common = Common.builder()
+			.srcIp(request.getRemoteAddr())
+			.apiMethod(request.getMethod())
+			.callApiPath(request.getRequestURI())
+			.deviceInfo(request.getHeader("user-agent"))
+			.build();
+
 		if (codefToken == null || expiresIn == null) {
-			throw new CustomException(CODEF_TOKEN_NOT_FOUND, LogLevel.INFO, null, null); // TODO 예외 처리 제대로
+			throw new CustomException(CODEF_TOKEN_NOT_FOUND, LogLevel.INFO, null, common);
 		}
 
 		if (responseEntity.getStatusCode().is2xxSuccessful()) {
 			redisUtil.set(REDIS_ACCESS_TOKEN_KEY, codefToken, expiresIn);
 		} else {
-			throw new CustomException(CODEF_TOKEN_API_FAILED, LogLevel.ERROR, null, null);
+			throw new CustomException(CODEF_TOKEN_API_FAILED, LogLevel.ERROR, null, common);
 		}
 	}
 
