@@ -61,7 +61,7 @@ public class MemberAuthServiceImpl implements MemberAuthService {
 
 	@Override
 	public RefreshResponseDto reissueToken(ReissueTokenRequestDto reissueTokenRequestDto, String refreshToken,
-		HttpServletRequest request) {
+		HttpServletRequest request, HttpServletResponse response) {
 		Object refreshTokenByRedis = redisUtil.get(reissueTokenRequestDto.loginId());
 		if (!refreshTokenByRedis.equals(refreshToken)) {
 			throw new CustomException(JwtErrorMessage.NOT_MATCH_REFRESH_TOKEN, LogLevel.WARNING,
@@ -75,6 +75,7 @@ public class MemberAuthServiceImpl implements MemberAuthService {
 
 		JwtToken jwtToken = jwtTokenProvider.generateToken(reissueTokenRequestDto.memberId(),
 			reissueTokenRequestDto.loginId());
+		CookieUtil.setCookie(response, "refreshToken", jwtToken.getRefreshToken());
 		return new RefreshResponseDto(jwtToken.getAccessToken());
 	}
 
