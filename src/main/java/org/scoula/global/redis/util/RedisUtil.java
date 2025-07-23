@@ -19,7 +19,7 @@ public class RedisUtil {
 		redisTemplate.opsForValue().set(key, o, minutes, TimeUnit.MINUTES);
 	}
 
-	public Object get(String key) {
+	public String get(String key) {
 		return redisTemplate.opsForValue().get(key);
 	}
 
