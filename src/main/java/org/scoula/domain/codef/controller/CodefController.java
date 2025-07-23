@@ -16,7 +16,7 @@ import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import lombok.RequiredArgsConstructor;
 
-@Api(tags = "Codef Auth API")
+@Api(tags = "Codef API")
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api/codef")
