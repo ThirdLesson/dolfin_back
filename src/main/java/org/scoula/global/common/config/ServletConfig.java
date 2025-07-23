@@ -20,6 +20,8 @@ import org.springframework.web.servlet.view.JstlView;
 	"org.scoula.domain.**.controller",
 	"org.scoula.global.exception" // exception handler 등록
 })
+@ComponentScan(basePackages = {"org.scoula.domain.controller",
+"org.scoula.domain"})
 public class ServletConfig implements WebMvcConfigurer {
 
 	@Override
