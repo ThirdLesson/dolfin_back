@@ -30,10 +30,8 @@ import com.zaxxer.hikari.HikariDataSource;
 	"org.scoula.global.exception", // exception handler 등록
 	"org.scoula.global.redis",
 	"org.scoula.global.security",
-	"org.scoula.global.exception", // exception handler 등록
-	"org.scoula.domain.member.service",
-	"org.scoula.domain.codef.service",
-	"org.scoula.domain",
+	"org.scoula.domain.**.service",
+	// "org.scoula.domain.codef.service",
 	"org.scoula.global.redis.util",
 	"org.scoula.global.redis.config"
 })

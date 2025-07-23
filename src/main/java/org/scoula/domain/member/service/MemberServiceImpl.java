@@ -58,23 +58,6 @@ public class MemberServiceImpl implements MemberService {
 
 	@Override
 	@Transactional
-	public MemberDTO createMember(MemberDTO memberDTO) {
-		log.info("createMember: {}", memberDTO.getLoginId());
-
-		// 로그인 ID 중복 체크
-		if (checkLoginIdDuplicate(memberDTO.getLoginId())) {
-			throw new CustomException(MEMBER_ALREADY_EXISTS, LogLevel.WARNING, null, Common.builder().build());
-		}
-		memberDTO.PasswordEncrypt(passwordEncoder);
-
-		Member member = memberDTO.toEntity();
-		memberMapper.insertMember(member);
-
-		return MemberDTO.from(member);
-	}
-
-	@Override
-	@Transactional
 	public MemberDTO updateMember(Long memberId, MemberDTO memberDTO) {
 		log.info("updateMember: {}", memberId);
 
