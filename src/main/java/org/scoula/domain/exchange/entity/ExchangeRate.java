@@ -7,14 +7,18 @@ import java.time.LocalDateTime;
 import org.scoula.global.entity.BaseEntity;
 
 import lombok.AccessLevel;
+import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 /**
  * 환율
  */
 @Getter
+@Setter  // MyBatis는 setter가 필요합니다!
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
+@AllArgsConstructor
 public class ExchangeRate extends BaseEntity {
 
 	private Long exchangeId;
@@ -23,6 +27,5 @@ public class ExchangeRate extends BaseEntity {
 	private BigDecimal exchangeValue; 	// 환율 값
 	private String bankName; 			// 은행 이름
 	private LocalDate ExchangeDate; 	// 환율 적용 날짜
-	private Type type;                  // 환전 타입 / GETCASH(현금 인출), SELFCASH(현금 입금), SEND(송금), RECEIVE(수취), BASE(기준 환율)
-
+	private Type type;                  // 환전 타입 / SELLCASH(현금 송금), GETCASH(현금 수취), SEND(송금), RECEIVE(수취), BASE(기준 환율)
 }

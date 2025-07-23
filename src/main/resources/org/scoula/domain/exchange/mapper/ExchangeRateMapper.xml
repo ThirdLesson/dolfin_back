@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="org.scoula.domain.exchange.mapper.ExchangeRateMapper">
+    <!-- Result Map for ExchangeRate Entity -->
+    <resultMap id="exchangeRateMap" type="org.scoula.domain.exchange.entity.ExchangeRate">
+        <id property="exchangeId" column="exchange_id"/>
+        <result property="baseExchange" column="base_exchange"/>
+        <result property="targetExchange" column="target_exchange"/>
+        <result property="exchangeValue" column="exchange_value"/>
+        <result property="bankName" column="bank_name"/>
+        <result property="exchangeDate" column="exchange_date"/>
+        <result property="type" column="type"/>
+        <result property="createdAt" column="created_at"/>
+        <result property="updatedAt" column="updated_at"/>
+    </resultMap>
+
+    <!-- 특정 은행의 최신 환율 정보 조회 -->
+    <select id="findLatestExchangeRate" resultMap="exchangeRateMap">
+        SELECT
+            exchange_id,
+            base_exchange,
+            target_exchange,
+            exchange_value,
+            bank_name,
+            exchange_date,
+            type,
+            created_at,
+            updated_at
+        FROM exchange_rate
+        WHERE bank_name = #{bankName}
+          AND type = #{type}
+          AND base_exchange = 'KRW'
+          AND target_exchange = #{targetCurrency}
+          AND exchange_value > 0
+        ORDER BY exchange_date DESC, created_at DESC
+            LIMIT 1
+    </select>
+
+
+
+
+
+</mapper>

@@ -21,17 +21,25 @@ import org.springframework.web.servlet.handler.HandlerMappingIntrospector;
 import com.zaxxer.hikari.HikariConfig;
 import com.zaxxer.hikari.HikariDataSource;
 
+/**
+ * RootConfig: 비즈니스 로직 (Service, Mapper, DataSource)
+ * 와일드카드 패턴 사용 (**)
+ *
+ * org.scoula.domain.**.mapper - 모든 도메인의 mapper 자동 스캔
+ * org.scoula.domain.**.service - 모든 도메인의 service 자동 스캔
+ * org.scoula.domain.**.controller - 모든 도메인의 controller 자동 스캔
+ */
 @Configuration
 @PropertySource({"classpath:/application.properties"})
-@MapperScan(basePackages = {"org.scoula.domain.member.mapper"}) // 게시판과 회원 도메인 매퍼 스캔
+@MapperScan(basePackages = {"org.scoula.domain.**.mapper"}) // 게시판과 회원 도메인 매퍼 스캔
 @ComponentScan(basePackages = {
 	// "org.scoula.service",
-	"org.scoula.domain.member.service",  // 도메인 객체를 포함하기 위해 추가
+	"org.scoula.domain.**.service",  // 도메인 객체를 포함하기 위해 추가
 	"org.scoula.global.swagger.config",  // Swagger 설정을 포함하기 위해 추가
 	"org.scoula.global.kafka", // kafka 설정 포함
 	"org.scoula.global.exception", // exception handler 등록
-	"org.scoula.global.redis",
-	"org.scoula.global.security"
+	"org.scoula.global.redis", // 공통 설정 포함
+	"org.scoula.global.security", // security 설정 포함
 })
 public class RootConfig {
 	@Value("${jdbc.driver}")
