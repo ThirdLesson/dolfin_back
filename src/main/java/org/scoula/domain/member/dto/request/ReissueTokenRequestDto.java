@@ -1,5 +1,6 @@
 package org.scoula.domain.member.dto.request;
 
+import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 
 import io.swagger.annotations.ApiModelProperty;
@@ -10,7 +11,7 @@ public record ReissueTokenRequestDto(
 	Long memberId,
 
 	@ApiModelProperty(value = "회원 로그인 아이디", example = "ss7622")
-	@NotNull(message = "로그인 아이디는 필수 입니다.")
+	@NotBlank(message = "로그인 아이디는 필수 입니다.")
 	String loginId
 ) {
 }
