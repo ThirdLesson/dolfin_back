@@ -21,13 +21,13 @@ import lombok.RequiredArgsConstructor;
 
 @Api(tags = "회원 가입 API")
 @RestController
-@RequestMapping("/api")
+@RequestMapping("/auth")
 @RequiredArgsConstructor
 public class JoinController {
 	private final JoinService joinService;
 
 	@ApiOperation(value = "회원 가입", notes = "사용자 정보를 받아 회원가입을 처리합니다.")
-	@PostMapping("/auth/join")
+	@PostMapping("/join")
 	public SuccessResponse<Void> joinMember(@RequestBody @Valid JoinRequest joinRequest,
 		HttpServletRequest request) throws
 		JsonProcessingException {

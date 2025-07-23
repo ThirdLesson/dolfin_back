@@ -21,7 +21,7 @@ import lombok.RequiredArgsConstructor;
 @Api(tags = "Codef API")
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/api/codef")
+@RequestMapping("/codef")
 public class CodefController {
 
 	private final CodefAuthService codefAuthService;
