@@ -1,5 +1,6 @@
 package org.scoula.domain.member.controller;
 
+import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
 import javax.validation.constraints.NotBlank;
 
@@ -27,9 +28,10 @@ public class JoinController {
 
 	@ApiOperation(value = "회원 가입", notes = "사용자 정보를 받아 회원가입을 처리합니다.")
 	@PostMapping("/auth/join")
-	public SuccessResponse<Void> joinMember(@RequestBody @Valid JoinRequest joinRequest) throws
+	public SuccessResponse<Void> joinMember(@RequestBody @Valid JoinRequest joinRequest,
+		HttpServletRequest request) throws
 		JsonProcessingException {
-		joinService.joinMember(joinRequest);
+		joinService.joinMember(joinRequest, request);
 		return SuccessResponse.noContent();
 	}
 
