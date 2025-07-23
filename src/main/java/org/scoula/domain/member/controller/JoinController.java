@@ -41,6 +41,6 @@ public class JoinController {
 		return SuccessResponse.ok(null);
 	}
 
-	// TODO 잔여 체류 기간
+	// TODO 핸드폰 인증
 
 }

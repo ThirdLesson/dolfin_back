@@ -1,6 +1,6 @@
 package org.scoula.domain.codef.service;
 
-import static org.scoula.domain.codef.errorCode.CodefErrorCode.*;
+import static org.scoula.domain.codef.exception.CodefErrorCode.*;
 
 import java.nio.charset.StandardCharsets;
 import java.util.Base64;
