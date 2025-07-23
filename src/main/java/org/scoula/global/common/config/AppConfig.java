@@ -7,7 +7,6 @@ import org.springframework.context.annotation.PropertySource;
 import org.springframework.web.client.RestTemplate;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.PropertyNamingStrategies;
 
 @Configuration
 @PropertySource("classpath:application.properties")
@@ -21,9 +20,7 @@ public class AppConfig {
 
 	@Bean
 	public ObjectMapper objectMapper() {
-		ObjectMapper mapper = new ObjectMapper();
-		mapper.setPropertyNamingStrategy(PropertyNamingStrategies.SNAKE_CASE);
-		return mapper;
+		return new ObjectMapper();
 	}
 }
 
