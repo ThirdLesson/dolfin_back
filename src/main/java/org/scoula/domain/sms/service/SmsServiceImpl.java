@@ -35,6 +35,9 @@ public class SmsServiceImpl implements SmsService {
 	@Value("${coolsms.secretKey}")
 	private String apiSecret;
 
+	@Value("${coolsms.caller}")
+	private String callerNumber;
+
 	// 인증번호 전송하기
 	@Transactional
 	@Override
@@ -51,7 +54,7 @@ public class SmsServiceImpl implements SmsService {
 
 		// 발신 정보 설정
 		Message message = new Message();
-		message.setFrom("계정에서 등록한 발신번호 입력"); // TODO
+		message.setFrom(callerNumber);
 		message.setTo(phoneNumber);
 		message.setText("[Dolfin] 인증번호 [" + randomNum + "]를 입력해주세요.");
 
