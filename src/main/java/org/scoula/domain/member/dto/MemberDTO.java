@@ -1,15 +1,16 @@
 package org.scoula.domain.member.dto;
 
+import java.time.LocalDate;
+
+import org.scoula.domain.member.entity.Member;
+import org.springframework.security.crypto.password.PasswordEncoder;
+
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-
-import org.scoula.domain.member.entity.Member;
-
-import java.time.LocalDate;
 
 @Getter
 @NoArgsConstructor
@@ -78,6 +79,10 @@ public class MemberDTO {
 			.remainTime(this.remainTime)
 			.currency(this.currency)
 			.build();
+	}
+
+	public void PasswordEncrypt(PasswordEncoder passwordEncoder) {
+		password = passwordEncoder.encode(this.password);
 	}
 
 	public void changePassword(String newPassword) {

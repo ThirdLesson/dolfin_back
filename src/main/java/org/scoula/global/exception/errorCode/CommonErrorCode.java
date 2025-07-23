@@ -13,6 +13,7 @@ public enum CommonErrorCode implements ErrorCode {
 	INVALID_VALUE(HttpStatus.BAD_REQUEST, "C-001", "입력값이 올바르지 않습니다."),
 	INVALID_ARGUMENT(HttpStatus.BAD_REQUEST, "C-002", "잘못된 인자입니다."),
 	MISSING_PARAMETER(HttpStatus.BAD_REQUEST, "C-005", "필수 파라미터가 누락되었습니다."),
+	NOT_FOUND(HttpStatus.valueOf(404), "C-003", "존재하지 않는 경로입니다."),
 	INTERNAL_SERVER_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "C-006", "내부 에러 메세지 사용 예정");
 
 	private final HttpStatus httpStatus;

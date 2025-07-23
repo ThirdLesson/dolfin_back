@@ -28,7 +28,6 @@ public class KafkaProducer {
 		try {
 			String message = objectMapper.writeValueAsString(logMessage);
 			kafkaTemplate.send(logTopic, message);
-			System.out.println("로그 전송 됨 ????ㅇㅇㅇㅇㅇㅇㅇㅇㅇㅇㅇㅇㅇㅇㅇㅇㅇㅇㅇㅇㅇㅇㅇㅇㅇㅇ");
 		} catch (Exception e) {
 			throw new RuntimeException(e);
 		}

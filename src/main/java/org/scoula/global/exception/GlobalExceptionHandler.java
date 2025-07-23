@@ -17,6 +17,7 @@ import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.MissingServletRequestParameterException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
+import org.springframework.web.servlet.NoHandlerFoundException;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -94,6 +95,22 @@ public class GlobalExceptionHandler {
 			.body(ErrorResponse.error(errorCode.getCode(), errorCode.getMessage()));
 	}
 
+	@ExceptionHandler(NoHandlerFoundException.class)
+	public ResponseEntity<ErrorResponse<Void>> handleNoHandlerFoundException(NoHandlerFoundException e) {
+		ErrorCode errorCode = CommonErrorCode.NOT_FOUND;
+
+		kafkaProducer.sendToLogTopic(LogMessageMapper.buildLogMessage(
+			LogLevel.WARNING,
+			null,
+			errorCode.getMessage(),
+			Common.builder().build(),
+			e.getMessage()
+		));
+
+		return ResponseEntity.status(errorCode.getHttpStatus())
+			.body(ErrorResponse.error(errorCode.getCode(), errorCode.getMessage()));
+	}
+
 	/**
 	 * 예상하지 못한 모든 예외 처리
 	 */
@@ -109,7 +126,9 @@ public class GlobalExceptionHandler {
 			e.getMessage()
 		));
 
+		log.error(e.getMessage(), e);
+
 		return ResponseEntity.status(errorCode.getHttpStatus())
-			.body(ErrorResponse.error(errorCode.getCode(), e.getMessage()));
+			.body(ErrorResponse.error(errorCode.getCode(), String.valueOf(e)));
 	}
 }
