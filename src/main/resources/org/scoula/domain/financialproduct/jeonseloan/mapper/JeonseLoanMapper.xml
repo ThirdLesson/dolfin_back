@@ -3,7 +3,7 @@
         PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 
-<mapper namespace="org.scoula.domain.financialCompany.jeonseLoan.mapper.JeonseLoanMapper">
+<mapper namespace="org.scoula.domain.financialproduct.jeonseloan.mapper.JeonseLoanMapper">
 
     <!-- resultMap -->
     <resultMap id="JeonseLoanResultMap" type="org.scoula.domain.financialproduct.jeonseloan.entity.JeonseLoan">
@@ -49,6 +49,13 @@
         SELECT *
         FROM jeonse_loan
     </select>
+    <select id="selectJeonseLoansByFinancialCompanyId"
+            resultType="org.scoula.domain.financialproduct.jeonseloan.entity.JeonseLoan"></select>
+    <select id="selectJeonseLoansByInterestRateRange"
+            resultType="org.scoula.domain.financialproduct.jeonseloan.entity.JeonseLoan"></select>
+    <select id="selectJeonseLoansByRepayType"
+            resultType="org.scoula.domain.financialproduct.jeonseloan.entity.JeonseLoan"></select>
+    <select id="existsByFinancialCompanyIdAndName" resultType="java.lang.Boolean"></select>
 
     <!-- 수정 -->
     <update id="updateJeonseLoan">
