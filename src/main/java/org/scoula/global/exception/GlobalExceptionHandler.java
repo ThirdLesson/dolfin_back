@@ -126,7 +126,9 @@ public class GlobalExceptionHandler {
 			e.getMessage()
 		));
 
+		log.error(e.getMessage(), e);
+
 		return ResponseEntity.status(errorCode.getHttpStatus())
-			.body(ErrorResponse.error(errorCode.getCode(), e.getMessage()));
+			.body(ErrorResponse.error(errorCode.getCode(), String.valueOf(e)));
 	}
 }
