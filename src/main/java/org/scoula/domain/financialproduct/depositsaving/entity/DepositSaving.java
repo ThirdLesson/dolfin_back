@@ -20,8 +20,8 @@ public class DepositSaving extends BaseEntity {
 	private String name;                 // 금융 상품명
 	private String joinWay;              // 가입 방법
 	private String interestDescription;  // 만기 후 이자율 설명
-	private String spdCondition;         // 우대조건
-	private String etcNote;              // 기타 유의사항
+	private String spclCondition;         // 우대조건
+	private String ctcNote;              // 기타 유의사항
 	private String maxLimit;             // 최고 한도
 	private Integer saveMonth;           // 저축 기간(개월)
 	private BigDecimal interestRate;     // 기본 금리

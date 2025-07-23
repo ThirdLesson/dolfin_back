@@ -1,4 +1,4 @@
-package org.scoula.domain.financialproduct.personalcreditLoan.entity;
+package org.scoula.domain.financialproduct.personalcreditloan.entity;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -9,9 +9,7 @@ import java.math.BigDecimal;
 
 import org.scoula.global.entity.BaseEntity;
 
-/**
- * 개인신용대출
- */
+
 @Getter
 @AllArgsConstructor
 @NoArgsConstructor
