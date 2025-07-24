@@ -17,7 +17,3 @@ ALTER TABLE deposit_saving MODIFY COLUMN max_interest_rate DECIMAL(5,2) NULL;
 -- interest_rate 컬럼도 함께 확인
 ALTER TABLE deposit_saving MODIFY COLUMN interest_rate DECIMAL(5,2) NULL;
 
--- 금융회사ID + 상품코드 + 옵션 조합으로 UNIQUE 제약조건
-ALTER TABLE deposit_saving
-    ADD CONSTRAINT uk_deposit_saving_unique
-        UNIQUE (financial_company_id, name, save_month, interest_rate, type);

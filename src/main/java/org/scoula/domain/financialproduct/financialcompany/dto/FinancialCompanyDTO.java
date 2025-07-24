@@ -14,12 +14,16 @@ import org.scoula.domain.financialproduct.financialcompany.entity.FinancialCompa
 public class FinancialCompanyDTO {
     private String fin_co_no; // 금융회사 코드
     private String kor_co_nm; // 금융회사 이름
+    private String cal_tel; // 콜센터전화번호
+    private String homp_url; // 홈페이지 주소
 
     //    dto -> entity
     public FinancialCompany toEntity() {
         return FinancialCompany.builder()
                 .code(fin_co_no)
                 .name(kor_co_nm)
+                .callNumber(cal_tel)
+                .hompageUrl(homp_url)
                 .build();
     }
 
@@ -29,6 +33,8 @@ public class FinancialCompanyDTO {
         return FinancialCompanyDTO.builder()
                 .fin_co_no(entity.getCode())
                 .kor_co_nm(entity.getName())
+                .cal_tel(entity.getCallNumber())
+                .homp_url(entity.getHompageUrl())
                 .build();
     }
 
