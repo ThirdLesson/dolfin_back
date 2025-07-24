@@ -155,13 +155,44 @@ public class JeonseLoanServiceImpl implements JeonseLoanService {
     @Transactional
     public void fetchAndSaveJeonseLoansFromApi() {
         try {
+            log.info("=== API 호출 시작 ===");
+
+            // 1. URL 확인
             String url = buildApiUrl(null, 1);
+            log.info("API URL: {}", url);
+
+            // 2. API 응답 확인
             JsonNode response = callApiAndParseJson(url);
+            log.info("API 응답 받음: {}", response != null ? "성공" : "실패");
 
+            if (response != null) {
+                log.info("응답 구조 확인:");
+                log.info("- has result: {}", response.has("result"));
+
+                if (response.has("result")) {
+                    JsonNode result = response.get("result");
+                    log.info("- result baseList exists: {}", result.has("baseList"));
+                    log.info("- result optionList exists: {}", result.has("optionList"));
+
+                    if (result.has("baseList")) {
+                        JsonNode baseList = result.get("baseList");
+                        log.info("- baseList size: {}", baseList.size());
+                    }
+                }
+            }
+
+            // 3. DTO 변환 확인
             List<JeonseLoanDTO> dtos = convertJsonToDtos(response);
-            createJeonseLoans(dtos);
+            log.info("변환된 DTO 개수: {}", dtos.size());
 
+            if (!dtos.isEmpty()) {
+                log.info("첫 번째 DTO: {}", dtos.get(0).getName());
+            }
+
+            // 4. 저장 시도
+            createJeonseLoans(dtos);
             log.info("API에서 {}개의 전세대출 데이터를 성공적으로 저장했습니다.", dtos.size());
+
         } catch (Exception e) {
             log.error("API에서 전세대출 데이터 가져오기 실패", e);
             throw new CustomException(FinancialErrorCode.JEONSE_LOAN_API_CALL_FAILED, LogLevel.ERROR, null, null);
@@ -229,8 +260,13 @@ public class JeonseLoanServiceImpl implements JeonseLoanService {
                 .append("?auth=").append(apiKey)
                 .append("&pageNo=").append(pageNo);
 
+        // topFinGrpNo가 null인 경우 기본값 설정
         if (topFinGrpNo != null) {
             url.append("&topFinGrpNo=").append(topFinGrpNo);
+        } else {
+            // 모든 금융권 조회를 위한 기본값들
+            // 020000: 은행, 030200: 여신전문금융회사, 030300: 보험회사, 050000: 기타
+            url.append("&topFinGrpNo=020000"); // 은행부터 시작
         }
 
         return url.toString();
@@ -238,13 +274,24 @@ public class JeonseLoanServiceImpl implements JeonseLoanService {
 
     private JsonNode callApiAndParseJson(String url) {
         try {
+            log.info("API 호출 중: {}", url);
+
             RestTemplate restTemplate = new RestTemplate();
             ObjectMapper objectMapper = new ObjectMapper();
+
+            // HTTP 응답 확인
             String json = restTemplate.getForObject(url, String.class);
+            log.info("HTTP 응답 길이: {}", json != null ? json.length() : 0);
+            log.info("응답 내용 일부: {}", json != null ? json.substring(0, Math.min(200, json.length())) : "null");
+
             if (json == null || json.trim().isEmpty()) {
                 throw new CustomException(FinancialErrorCode.API_RESPONSE_EMPTY, LogLevel.ERROR, null, null);
             }
-            return objectMapper.readTree(json);
+
+            JsonNode parsed = objectMapper.readTree(json);
+            log.info("JSON 파싱 성공");
+
+            return parsed;
         } catch (Exception e) {
             log.error("API 호출 또는 파싱 실패: {}", url, e);
             throw new CustomException(FinancialErrorCode.API_RESPONSE_PARSING_FAILED, LogLevel.ERROR, null, null);
@@ -252,7 +299,10 @@ public class JeonseLoanServiceImpl implements JeonseLoanService {
     }
 
     private List<JeonseLoanDTO> convertJsonToDtos(JsonNode response) {
+        log.info("=== DTO 변환 시작 ===");
+
         if (response == null || !response.has("result")) {
+            log.warn("응답이 null이거나 result가 없음");
             return new ArrayList<>();
         }
 
@@ -261,12 +311,16 @@ public class JeonseLoanServiceImpl implements JeonseLoanService {
         JsonNode optionList = result.get("optionList");
 
         if (baseList == null || !baseList.isArray() || baseList.size() == 0) {
+            log.warn("baseList가 null이거나 비어있음");
             return new ArrayList<>();
         }
 
-        // OptionItem을 Map으로 변환 (성능 최적화)
+        log.info("baseList 아이템 수: {}", baseList.size());
+
+        // OptionItem을 Map으로 변환
         Map<String, List<JsonNode>> optionMap = new HashMap<>();
         if (optionList != null && optionList.isArray()) {
+            log.info("optionList 아이템 수: {}", optionList.size());
             for (JsonNode option : optionList) {
                 String finPrdtCd = option.path("fin_prdt_cd").asText();
                 optionMap.computeIfAbsent(finPrdtCd, k -> new ArrayList<>()).add(option);
@@ -277,28 +331,29 @@ public class JeonseLoanServiceImpl implements JeonseLoanService {
 
         for (JsonNode baseItem : baseList) {
             String finPrdtCd = baseItem.path("fin_prdt_cd").asText();
+            String finCoNo = baseItem.path("fin_co_no").asText();
+
+            log.debug("처리 중인 상품: {} (회사코드: {})", finPrdtCd, finCoNo);
 
             // 금융회사 코드 → ID 매핑
-            Long financialCompanyId = financialCompanyMapper.findIdByCode(
-                    baseItem.path("fin_co_no").asText());
+            Long financialCompanyId = financialCompanyMapper.findIdByCode(finCoNo);
             if (financialCompanyId == null) {
-                log.warn("해당 코드의 금융회사 ID 없음: {}", baseItem.path("fin_co_no").asText());
-                continue; // 금융회사를 찾을 수 없으면 스킵
+                log.warn("해당 코드의 금융회사 ID 없음: {}", finCoNo);
+                continue;
             }
 
             List<JsonNode> options = optionMap.getOrDefault(finPrdtCd, new ArrayList<>());
 
             if (options.isEmpty()) {
-                // 옵션 없는 경우
                 result_list.add(createDtoFromJson(baseItem, null, financialCompanyId));
             } else {
-                // 각 옵션별로 별도 DTO 생성
                 for (JsonNode option : options) {
                     result_list.add(createDtoFromJson(baseItem, option, financialCompanyId));
                 }
             }
         }
 
+        log.info("최종 변환된 DTO 수: {}", result_list.size());
         return result_list;
     }
 
@@ -330,56 +385,4 @@ public class JeonseLoanServiceImpl implements JeonseLoanService {
             return null;
         }
     }
-//    @Transactional
-//    @Override
-//    public void fetchEndPoint() {
-//        try {
-//            String url = "https://finlife.fss.or.kr/finlifeapi/rentHouseLoanProductsSearch.json?auth=85f009c463b85117ad9ea087af635230&topFinGrpNo=050000&pageNo=1";
-//
-//            String json = restTemplate.getForObject(url, String.class);
-//            JeonseLoanApiResponse response = objectMapper.readValue(json, JeonseLoanApiResponse.class);
-//
-//            List<JeonseLoanApiResponse.Result.BaseItem> baseItems = response.getResult().getBaseList();
-//            List<JeonseLoanApiResponse.Result.OptionItem> optionItems = response.getResult().getOptionList();
-//
-//            Map<String, JeonseLoanApiResponse.Result.OptionItem> optionMap = optionItems.stream()
-//                    .collect(Collectors.toMap(
-//                            JeonseLoanApiResponse.Result.OptionItem::getFin_prdt_cd,
-//                            option -> option,
-//                            (a, b) -> a
-//                    ));
-//
-//            for (JeonseLoanApiResponse.Result.BaseItem base : baseItems) {
-//                JeonseLoanApiResponse.Result.OptionItem option = optionMap.get(base.getFin_prdt_cd());
-//
-//                // 금융회사 코드 → ID 매핑
-//                Long financialCompanyId = financialCompanyMapper.findIdByCode(base.getFin_co_no());
-//                if (financialCompanyId == null) {
-//                    log.warn("해당 코드의 금융회사 ID 없음: {}", base.getFin_co_no());
-//                    continue;
-//                }
-//
-//                JeonseLoan jeonseLoan = JeonseLoan.builder()
-//                        .financialCompanyId(financialCompanyId)
-//                        .name(base.getFin_prdt_nm())
-//                        .joinWay(base.getJoin_way())
-//                        .loanExpensive(base.getLoan_inci_expn())
-//                        .erlyFee(base.getErly_rpay_fee())
-//                        .dlyRate(base.getDly_rate())
-//                        .loanLmt(base.getLoan_lmt())
-//                        .repayTypeName(option != null ? option.getRpay_type_nm() : null)
-//                        .lendRateTypeName(option != null ? option.getLend_rate_type_nm() : null)
-//                        .lendRateMin(option != null ? option.getLend_rate_min() : null)
-//                        .lendRateMax(option != null ? option.getLend_rate_max() : null)
-//                        .lendRateAvg(option != null ? option.getLend_rate_avg() : null)
-//                        .build();
-//
-//                jeonseLoanMapper.insertJeonseLoan(jeonseLoan);
-//            }
-//
-//        } catch (Exception e) {
-//            log.error("전세자금대출 fetch 실패", e);
-//        }
-
-//    }
 }

@@ -11,6 +11,8 @@
         <id property="financialCompanyId" column="financial_company_id"/>
         <result property="name" column="name"/>
         <result property="code" column="code"/>
+        <result property="callNumber" column="callnumber"/>
+        <result property="hompageUrl" column="homp_url"/>
         <result property="createdAt" column="created_at"/>
         <result property="updatedAt" column="updated_at"/>
     </resultMap>
@@ -20,6 +22,8 @@
         SELECT financial_company_id,
                code,
                name,
+               callnumber,
+               homp_url,
                created_at,
                updated_at
         FROM financial_company
@@ -33,13 +37,15 @@
                code,
                name,
                created_at,
-               updated_at
+               updated_at,
+               callnumber,
+               homp_url
         FROM financial_company
         WHERE financial_company_id = #{financialCompanyId}
     </select>
 
     <select id="findCodeById" parameterType="long" resultType="string">
-        SELECT company_code
+        SELECT code
         FROM financial_company
         WHERE financial_company_id = #{financialCompanyId}
     </select>
@@ -47,24 +53,28 @@
     <select id="findIdByCode" parameterType="string" resultType="long">
         SELECT financial_company_id
         FROM financial_company
-        WHERE company_code = #{companyCode}
+        WHERE code = #{companyCode}
     </select>
 
     <!-- 추가  -->
     <insert id="insertFinancialCompany"
             parameterType="org.scoula.domain.financialproduct.financialcompany.entity.FinancialCompany">
         INSERT INTO financial_company (code,
-                                       name)
+                                       name,
+                                       callnumber,
+                                       homp_url)
         VALUES (#{code},
-                #{name})
+                #{name},
+                #{callNumber},
+                #{hompageUrl})
     </insert>
     <!-- 배치 등록 (중복시 무시) -->
     <insert id="insertFinancialCompanyBatch">
         INSERT INTO financial_company(
-        name,code,created_at,updated_at
+        name,code,created_at,updated_at,callnumber,homp_url
         ) values
         <foreach collection="list" item="company" separator=",">
-            (#{company.name},#{company.code},NOW(),NOW())
+            (#{company.name},#{company.code},NOW(),NOW(),#{company.callNumber},#{company.hompageUrl})
         </foreach>
     </insert>
 
@@ -75,6 +85,8 @@
         UPDATE financial_company
         SET name       = #{name},
             code       = #{code},
+            callnumber = #{callNumber},
+            homp_url   = #{hompageUrl},
             updated_at = CURRENT_TIMESTAMP
         WHERE financial_company_id = #{financialCompanyId}
     </update>
