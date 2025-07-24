@@ -17,6 +17,7 @@ import org.scoula.domain.member.mapper.MemberMapper;
 import org.scoula.global.exception.CustomException;
 import org.scoula.global.kafka.dto.Common;
 import org.scoula.global.kafka.dto.LogLevel;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -32,6 +33,7 @@ public class JoinServiceImpl implements JoinService {
 	private static final DateTimeFormatter DATE_TIME_FORMATTER = DateTimeFormatter.ofPattern("yyyyMMdd");
 	private final MemberMapper memberMapper;
 	private final CodefApiClient codefApiClient;
+	private final PasswordEncoder passwordEncoder;
 
 	@Transactional
 	@Override
@@ -49,7 +51,7 @@ public class JoinServiceImpl implements JoinService {
 
 		Member member = Member.builder()
 			.loginId(joinRequest.loginId())
-			.password(joinRequest.password())
+			.password(encodePassword(joinRequest.password()))
 			.passportNumber(joinRequest.passportNumber())
 			.name(joinRequest.name())
 			.birth(LocalDate.parse(joinRequest.birth(), DATE_TIME_FORMATTER))
@@ -84,6 +86,10 @@ public class JoinServiceImpl implements JoinService {
 
 	private boolean checkLoginIdDuplicate(String loginId) {
 		return memberMapper.checkLoginIdDuplicate(loginId) > 0;
+	}
+
+	private String encodePassword(String password) {
+		return passwordEncoder.encode(password);
 	}
 
 }
