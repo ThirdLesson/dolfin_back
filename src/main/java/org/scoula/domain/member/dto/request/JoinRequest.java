@@ -35,7 +35,7 @@ public record JoinRequest(
 	String passportNumber,
 
 	@ApiModelProperty(value = "국적", example = "USA", required = true)
-	@NotBlank(message = "국적은 필수 입력 값입니다.")
+	@NotNull(message = "국적은 필수 입력 값입니다.")
 	NationalityCode nationality,
 
 	@ApiModelProperty(value = "나라", example = "덴마크 - nationality가 OTHER일 때의 나라명", required = false)

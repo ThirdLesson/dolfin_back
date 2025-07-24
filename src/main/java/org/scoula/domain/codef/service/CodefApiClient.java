@@ -4,6 +4,8 @@ import static org.scoula.domain.codef.exception.CodefErrorCode.*;
 
 import java.net.URLDecoder;
 import java.nio.charset.StandardCharsets;
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 
 import javax.servlet.http.HttpServletRequest;
 
@@ -63,7 +65,16 @@ public class CodefApiClient {
 
 		if (resultCode.equals("CF-00000")) {
 			if (response.data().resAuthenticity().equals("0")) {
-				throw new CustomException(STAY_AUTHENTICITY_FAILED, LogLevel.WARNING, null, common);
+				// throw new CustomException(STAY_AUTHENTICITY_FAILED, LogLevel.WARNING, null, common);
+				return new StayExpirationResponse(
+					"0",                                      // resAuthenticity
+					"현재 체류중인 외국인이 아닙니다.",              // resAuthenticityDesc
+					null,                                     // resPassportNo
+					null,                                     // resNationality
+					null,                                     // commBirthDate
+					null,                                     // resStatus
+					LocalDate.now().format(DateTimeFormatter.ofPattern("yyyyMMdd")) // resExpirationDate
+				);
 			}
 			return response.data();
 		} else if (resultCode.equals("CF-00001")) {
