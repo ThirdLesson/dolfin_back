@@ -8,7 +8,6 @@ import org.scoula.domain.financialproduct.depositsaving.dto.DepositSavingDTO;
 import org.scoula.domain.financialproduct.depositsaving.entity.DepositSaving;
 import org.scoula.domain.financialproduct.depositsaving.service.DepositSavingService;
 import org.scoula.global.response.SuccessResponse;
-import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
