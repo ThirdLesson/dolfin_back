@@ -34,7 +34,8 @@ public record JoinRequest(
 	@NotBlank(message = "여권 번호는 필수 입력 값입니다.")
 	String passportNumber,
 
-	@ApiModelProperty(value = "국적", example = "USA", required = true)
+	@ApiModelProperty(value = "국적", example = "USA", required = true,
+		allowableValues = "RUSSIA, MONGOLIA, USA, VIETNAM, INDIA, INDONESIA, JAPAN, CHINA, THAILAND, PHILIPPINES, KOREAN_RUSSIAN, KOREAN_CHINESE, OTHER")
 	@NotNull(message = "국적은 필수 입력 값입니다.")
 	NationalityCode nationality,
 
