@@ -1,7 +1,6 @@
 package org.scoula.domain.exchange.dto.response;
 
 import java.math.BigDecimal;
-import java.util.List;
 
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
@@ -14,13 +13,10 @@ import lombok.Data;
 public class ExchangeQuickResponse {
     
     @ApiModelProperty(value = "요청한 원화 금액", example = "1000000")
-    private BigDecimal requestedAmountKRW;
-    
+    private BigDecimal requestedAmount;
+
     @ApiModelProperty(value = "목표 통화 코드", example = "VND")
     private String targetCurrency;
-
-    @ApiModelProperty(value = "5.3", example = "5.3")
-    private BigDecimal ResultRate;
 
     @ApiModelProperty(value = "5.3 VND(100)", example = "5.3 VND")
     private String ResultRateDisplay;
