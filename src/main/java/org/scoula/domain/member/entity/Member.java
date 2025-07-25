@@ -10,10 +10,13 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
+
 /**
  * 회원
  */
 @Getter
+@Setter
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
@@ -30,5 +33,6 @@ public class Member extends BaseEntity {
 	private String phoneNumber;     // 전화번호
 	private LocalDate remainTime;   // 잔여 체류기간
 	private Currency currency;      // 설정 통화
+	private String ConnectedId; // 코데프 유저 아이디
 
 }
