@@ -19,6 +19,7 @@ public enum Currency {
 	VND("베트남", "동"),
 	RUB("러시아", "루블"),
 	BDT("방글라데시", "타카"),
+	MYR("말레이시아", "링깃"),
 	;
 
 	private final String country;

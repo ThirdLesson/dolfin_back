@@ -12,6 +12,7 @@ import org.scoula.domain.codef.dto.request.StayExpirationRequest;
 import org.scoula.domain.codef.dto.response.StayExpirationResponse;
 import org.scoula.domain.codef.service.CodefApiClient;
 import org.scoula.domain.member.dto.request.JoinRequest;
+import org.scoula.domain.member.dto.response.JoinResponse;
 import org.scoula.domain.member.entity.Member;
 import org.scoula.domain.member.mapper.MemberMapper;
 import org.scoula.global.exception.CustomException;
@@ -37,7 +38,7 @@ public class JoinServiceImpl implements JoinService {
 
 	@Transactional
 	@Override
-	public void joinMember(JoinRequest joinRequest, HttpServletRequest request) throws JsonProcessingException {
+	public JoinResponse joinMember(JoinRequest joinRequest, HttpServletRequest request) throws JsonProcessingException {
 		checkLoginId(joinRequest.loginId());
 
 		StayExpirationRequest stayExpirationRequest = StayExpirationRequest.builder()
@@ -62,6 +63,8 @@ public class JoinServiceImpl implements JoinService {
 			.build();
 
 		memberMapper.insertMember(member);
+
+		return JoinResponse.of(member);
 	}
 
 	@Override

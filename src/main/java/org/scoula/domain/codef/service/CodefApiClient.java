@@ -38,11 +38,12 @@ public class CodefApiClient {
 	private final RedisUtil redisUtil;
 	private final RestTemplate restTemplate;
 	private final ObjectMapper objectMapper;
+	private final CodefAuthService codefAuthService;
 
 	public StayExpirationResponse getStayExpiration(StayExpirationRequest stayExpirationRequest,
 		HttpServletRequest request) throws
 		JsonProcessingException {
-		String cachedAccessToken = redisUtil.get(REDIS_ACCESS_TOKEN_KEY).toString();
+		String cachedAccessToken = redisUtil.get(REDIS_ACCESS_TOKEN_KEY);
 
 		Common common = Common.builder()
 			.srcIp(request.getRemoteAddr())
@@ -51,9 +52,8 @@ public class CodefApiClient {
 			.deviceInfo(request.getHeader("user-agent"))
 			.build();
 
-		// TODO jwt 만료 로직 추가
 		if (cachedAccessToken == null) {
-			throw new CustomException(CODEF_TOKEN_NOT_FOUND, LogLevel.INFO, null, common);
+			codefAuthService.issueCodefToken(request);
 		}
 
 		HttpEntity<StayExpirationRequest> requestEntity = getRequestHttpEntity(stayExpirationRequest,

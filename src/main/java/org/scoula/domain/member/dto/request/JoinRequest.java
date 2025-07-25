@@ -27,14 +27,15 @@ public record JoinRequest(
 	String name,
 
 	@ApiModelProperty(value = "생년월일", example = "20000101", required = true)
-	@NotNull(message = "생년월일은 필수 입력 값입니다.")
+	@NotBlank(message = "생년월일은 필수 입력 값입니다.")
 	String birth,
 
 	@ApiModelProperty(value = "여권 번호", example = "M12345678", required = true)
 	@NotBlank(message = "여권 번호는 필수 입력 값입니다.")
 	String passportNumber,
 
-	@ApiModelProperty(value = "국적", example = "USA", required = true)
+	@ApiModelProperty(value = "국적", example = "USA", required = true,
+		allowableValues = "RUSSIA, MONGOLIA, USA, VIETNAM, INDIA, INDONESIA, JAPAN, CHINA, THAILAND, PHILIPPINES, KOREAN_RUSSIAN, KOREAN_CHINESE, OTHER")
 	@NotNull(message = "국적은 필수 입력 값입니다.")
 	NationalityCode nationality,
 
