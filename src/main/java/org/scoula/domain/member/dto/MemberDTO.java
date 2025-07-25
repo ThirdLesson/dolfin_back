@@ -51,6 +51,8 @@ public class MemberDTO {
 	@ApiModelProperty(value = "설정 통화", example = "USD")
 	private Currency currency;
 
+	private String ConnectedId; // 코데프 유저 아이디
+
 	// Entity -> DTO 변환
 	public static MemberDTO from(Member member) {
 		return MemberDTO.builder()
@@ -64,6 +66,7 @@ public class MemberDTO {
 			.phoneNumber(member.getPhoneNumber())
 			.remainTime(member.getRemainTime())
 			.currency(member.getCurrency())
+			.ConnectedId(member.getConnectedId())
 			.build();
 	}
 
