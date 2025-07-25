@@ -14,8 +14,8 @@ import lombok.NoArgsConstructor;
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class Wallet extends BaseEntity {
-	private Long walletId;			// pk
-	private BigDecimal balance;		// 지갑 잔액
-	private Integer password;		// 지갑 비밀번호
-	private Long memberId;			// 회원 ID (FK)
+	private Long walletId;            // pk
+	private BigDecimal balance;        // 지갑 잔액
+	private Integer password;        // 지갑 비밀번호
+	private Long memberId;            // 회원 ID (FK)
 }

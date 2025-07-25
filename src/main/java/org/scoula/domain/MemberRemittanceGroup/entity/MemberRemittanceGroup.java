@@ -28,5 +28,5 @@ public class MemberRemittanceGroup extends BaseEntity {
 	private String purpose;               // 거래목적
 	private BigDecimal amount;            // 환전을 원하는 금액(원화)
 	private BigDecimal exchangeAmount;    // 환전이 완료된 금액
-	private Status status;     			  // 진행 / PENDING(진행중), SUCCESS(성공), FAILED(실패)
+	private Status status;                  // 진행 / PENDING(진행중), SUCCESS(성공), FAILED(실패)
 }
