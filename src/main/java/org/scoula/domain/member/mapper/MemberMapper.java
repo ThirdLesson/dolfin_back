@@ -4,6 +4,7 @@ import java.util.List;
 
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
+import org.apache.ibatis.annotations.Update;
 import org.scoula.domain.member.entity.Member;
 
 @Mapper
@@ -29,4 +30,7 @@ public interface MemberMapper {
 
 	// 로그인 ID 중복 체크
 	int checkLoginIdDuplicate(@Param("loginId") String loginId);
+
+	@Update("UPDATE member SET connected_id = #{connectedId} WHERE member_id = #{memberId}")
+	void updateConnectedId(@Param("memberId") Long memberId, @Param("connectedId") String connectedId);
 }
