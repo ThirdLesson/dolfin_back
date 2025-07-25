@@ -11,6 +11,9 @@ import lombok.Builder;
 @ApiModel("회원 가입 응답")
 @Builder
 public record JoinResponse(
+	@ApiModelProperty(value = "이름", example = "루나키키")
+	String name,
+
 	@ApiModelProperty(value = "여권 번호", example = "M1234567")
 	String passportNumber,
 
@@ -32,6 +35,7 @@ public record JoinResponse(
 		}
 
 		return JoinResponse.builder()
+			.name(member.getName())
 			.passportNumber(member.getPassportNumber())
 			.birth(member.getBirth())
 			.remainTime(member.getRemainTime())
