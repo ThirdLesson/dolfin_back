@@ -1,6 +1,6 @@
 package org.scoula.domain.member.dto.response;
 
-import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 
 import org.scoula.domain.member.entity.Member;
 
@@ -21,10 +21,10 @@ public record JoinResponse(
 	String nationality,
 
 	@ApiModelProperty(value = "생년월일", example = "19900101")
-	LocalDate birth,
+	String birth,
 
 	@ApiModelProperty(value = "잔여 체류일", example = "20251231")
-	LocalDate remainTime
+	String remainTime
 ) {
 	public static JoinResponse of(Member member) {
 		String nationality = null;
@@ -33,12 +33,13 @@ public record JoinResponse(
 		} else {
 			nationality = member.getNationality().getDescription();
 		}
+		DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyyMMdd");
 
 		return JoinResponse.builder()
 			.name(member.getName())
 			.passportNumber(member.getPassportNumber())
-			.birth(member.getBirth())
-			.remainTime(member.getRemainTime())
+			.birth(member.getBirth().format(formatter))
+			.remainTime(member.getRemainTime().format(formatter))
 			.nationality(nationality)
 			.build();
 	}
