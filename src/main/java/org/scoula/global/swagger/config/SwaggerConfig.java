@@ -15,26 +15,26 @@ import springfox.documentation.swagger2.annotations.EnableSwagger2;
 @Configuration
 @EnableSwagger2
 public class SwaggerConfig {
-    
-    private final String API_NAME = "dolfin API";
-    private final String API_VERSION = "1.0";
-    private final String API_DESCRIPTION = "dolfin API 명세서";
-    
-    private ApiInfo apiInfo() {
-        return new ApiInfoBuilder()
-                .title(API_NAME)
-                .description(API_DESCRIPTION)
-                .version(API_VERSION)
-                .build();
-    }
-    
-    @Bean
-    public Docket api() {
-        return new Docket(DocumentationType.SWAGGER_2)
-                .select()
-                .apis(RequestHandlerSelectors.withClassAnnotation(RestController.class))
-                .paths(PathSelectors.any())
-                .build()
-                .apiInfo(apiInfo());
-    }
+
+	private final String API_NAME = "dolfin API";
+	private final String API_VERSION = "1.0";
+	private final String API_DESCRIPTION = "dolfin API 명세서";
+
+	private ApiInfo apiInfo() {
+		return new ApiInfoBuilder()
+			.title(API_NAME)
+			.description(API_DESCRIPTION)
+			.version(API_VERSION)
+			.build();
+	}
+
+	@Bean
+	public Docket api() {
+		return new Docket(DocumentationType.SWAGGER_2)
+			.select()
+			.apis(RequestHandlerSelectors.withClassAnnotation(RestController.class))
+			.paths(PathSelectors.any())
+			.build()
+			.apiInfo(apiInfo());
+	}
 }
