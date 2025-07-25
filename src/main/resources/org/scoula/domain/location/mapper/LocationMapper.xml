@@ -1,0 +1,112 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="org.scoula.domain.location.mapper.LocationMapper">
+    <resultMap id="LocationResultMap" type="org.scoula.domain.location.entity.Location">
+        <id property="locationId" column="location_id"/>
+        <result property="locationName" column="location_name"/>
+        <result property="address" column="address"/>
+        <result property="point" column="point" typeHandler="org.scoula.domain.location.entity.PointTypeHandler"/>
+        <result property="locationNumber" column="location_number"/>
+        <result property="locationType" column="location_type"/>
+        <result property="createdAt" column="created_at"/>
+        <result property="updatedAt" column="updated_at"/>
+    </resultMap>
+
+    <!-- 단일 Location 삽입 -->
+    <insert id="insertLocation" parameterType="org.scoula.domain.location.entity.Location" useGeneratedKeys="true"
+            keyProperty="locationId">
+        INSERT INTO location (location_name,
+                              address,
+                              point,
+                              location_number,
+                              location_type,
+                              created_at,
+                              updated_at)
+        VALUES (#{locationName},
+                #{address},
+                ST_GeomFromText(#{point, typeHandler=org.scoula.domain.location.entity.PointTypeHandler}),
+                #{locationNumber},
+                #{locationType, typeHandler=org.apache.ibatis.type.EnumTypeHandler},
+                NOW(),
+                NOW())
+    </insert>
+
+    <!-- 배치 삽입 -->
+    <insert id="insertLocationBatch" parameterType="java.util.List">
+        INSERT INTO location (
+        location_name,
+        address,
+        point,
+        location_number,
+        location_type,
+        created_at,
+        updated_at
+        ) VALUES
+        <foreach collection="locations" item="location" separator=",">
+            (
+            #{location.locationName},
+            #{location.address},
+            ST_GeomFromText(#{location.point, typeHandler=org.scoula.domain.location.entity.PointTypeHandler}),
+            #{location.locationNumber},
+            #{location.locationType, typeHandler=org.apache.ibatis.type.EnumTypeHandler},
+            NOW(),
+            NOW()
+            )
+        </foreach>
+    </insert>
+
+    <!-- ID로 Location 조회 -->
+    <select id="selectLocationById" parameterType="Long" resultMap="LocationResultMap">
+        SELECT location_id,
+               location_name,
+               address,
+               ST_AsText(point) as point,
+               location_number,
+               location_type,
+               created_at,
+               updated_at
+        FROM location
+        WHERE location_id = #{locationId}
+    </select>
+
+
+
+    <!-- 전화번호로 존재 여부 확인 -->
+    <select id="existsByLocationNumber" parameterType="String" resultType="boolean">
+        SELECT COUNT(*) > 0
+        FROM location
+        WHERE location_number = #{locationNumber}
+    </select>
+
+    <!-- CENTER만 조회 -->
+    <select id="selectAllCenters" resultMap="LocationResultMap">
+        SELECT location_id,
+               location_name,
+               address,
+               ST_AsText(point) as point,
+               location_number,
+               location_type,
+               created_at,
+               updated_at
+        FROM location
+        WHERE location_type = 'CENTER'
+        ORDER BY created_at DESC
+    </select>
+    <select id="selectAllBanks" resultMap="LocationResultMap">
+        SELECT location_id,
+               location_name,
+               address,
+               ST_AsText(point) as point,
+               location_number,
+               location_type,
+               created_at,
+               updated_at
+        FROM location
+        WHERE location_type = 'BANK'
+        ORDER BY created_at DESC
+    </select>
+
+
+</mapper>

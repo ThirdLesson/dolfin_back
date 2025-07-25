@@ -48,11 +48,22 @@ public class ExchangeRateServiceImpl implements ExchangeRateService {
 		for (String bank : banks) {
 			ExchangeRate latestExchangeRate = exchangeRateMapper
 				.findLatestExchangeRate(bank, request.getType(), request.getTargetCurrency());
-			if (latestExchangeRate != null) {
-				log.info("은행: {}, 환율: {}", bank, latestExchangeRate.getExchangeValue());
-				BankRateInfo bankRateInfo = calculateBankRate(latestExchangeRate, request.getAmountInKRW());
-				rates.add(bankRateInfo);
+			log.info("Bank: {}, Type: {}, Target Currency: {}, Rate: {}",
+				bank, request.getType(), request.getTargetCurrency(), latestExchangeRate.getExchangeId());
+			if (latestExchangeRate == null) {
+				throw new CustomException(
+					ExchangeErrorCode.EXCHANGE_REQUIRED_PARAMETER_MISSING, LogLevel.ERROR,
+					httpServletRequest.getHeader("txId"),
+					Common.builder()
+						.srcIp(httpServletRequest.getRemoteAddr())
+						.callApiPath(httpServletRequest.getRequestURI())
+						.deviceInfo(httpServletRequest.getHeader("user-agent"))
+						.retryCount(0)
+						.build());
 			}
+
+			BankRateInfo bankRateInfo = calculateBankRate(latestExchangeRate, request.getAmount());
+			rates.add(bankRateInfo);
 
 		}
 
@@ -66,7 +77,7 @@ public class ExchangeRateServiceImpl implements ExchangeRateService {
 		List<BankRateInfo> sortedRates = sortByExchangeType(rates, request.getType());
 
 		return ExchangeBankResponse.builder()
-			.requestedAmountKRW(request.getAmountInKRW())
+			.requestedAmount(request.getAmount())
 			.targetCurrency(request.getTargetCurrency())
 			.exchangeType(request.getType())
 			.allBanks(sortedRates)
@@ -87,16 +98,16 @@ public class ExchangeRateServiceImpl implements ExchangeRateService {
 			case "SELLCASH":  // 현찰 팔 때 - 낮은 환율이 유리
 			case "SEND":      // 송금 보낼 때 - 낮은 환율이 유리
 			case "BASE":      // 기준율 - 낮은 순으로 정렬
-				comparator = Comparator.comparing(BankRateInfo::getExchangeRate);
+				comparator = Comparator.comparing(BankRateInfo::getOperator);
 				break;
 
 			case "GETCASH":   // 현찰 살 때 - 높은 환율이 유리
 			case "RECEIVE":   // 송금 받을 때 - 높은 환율이 유리
-				comparator = Comparator.comparing(BankRateInfo::getExchangeRate).reversed();
+				comparator = Comparator.comparing(BankRateInfo::getOperator).reversed();
 				break;
 
 			default:
-				comparator = Comparator.comparing(BankRateInfo::getExchangeRate);
+				comparator = Comparator.comparing(BankRateInfo::getOperator);
 		}
 
 		return rates.stream()
@@ -113,17 +124,15 @@ public class ExchangeRateServiceImpl implements ExchangeRateService {
 		targetAmount = amountInKRW.divide(rate.getExchangeValue(), 2, RoundingMode.HALF_UP);
 
 		// 환율 표시 (1 목표통화 = X KRW)
-		rateDisplay = String.format("1 %s = %s KRW",
+		rateDisplay = String.format("1 %s 당 %s KRW",
 			rate.getTargetExchange(),
 			rateFormatter.format(rate.getExchangeValue()));
 
-
 		return BankRateInfo.builder()
 			.bankName(rate.getBankName())
-			.exchangeRate(rate.getExchangeValue())
-			.rateDisplay(rateDisplay)
-			.totalAmount(targetAmount)
-			.totalAmountDisplay(String.format("%s %s",
+			.operator(rate.getExchangeValue())
+			.exchangeRate(rateDisplay)
+			.totalAmount(String.format("%s %s",
 				currencyFormatter.format(targetAmount.setScale(2, RoundingMode.HALF_UP)),
 				rate.getTargetExchange()))
 			.build();
@@ -132,16 +141,15 @@ public class ExchangeRateServiceImpl implements ExchangeRateService {
 	private ExchangeQuickResponse calculateExchangeQuickNormal(ExchangeQuickRequest request) {
 
 		// 기준 통화(KRW)에서 목표 통화로의 환율 조회
-		ExchangeRate baseRate = exchangeRateMapper.findLatestExchangeRate(
-			"KB국민은행", "BASE", request.getTargetCurrency());
+		ExchangeRate baseRate = exchangeRateMapper.findLatestExchangeRate("KB국민은행", "BASE", request.getTargetCurrency());
 
 		if (baseRate == null) {
-			throw new CustomException(
-				ExchangeErrorCode.EXCHANGE_NOT_FOUND, LogLevel.ERROR, null, Common.builder().build()
-			);
+			return ExchangeQuickResponse
+				.builder()
+				.build();
 		}
 
-		BigDecimal targetAmount = request.getAmountInKRW().divide(
+		BigDecimal targetAmount = request.getAmount().divide(
 			baseRate.getExchangeValue(), 2, RoundingMode.HALF_UP);
 
 		String rateDisplay = String.format("%s %s",
@@ -149,9 +157,8 @@ public class ExchangeRateServiceImpl implements ExchangeRateService {
 			request.getTargetCurrency());
 
 		return ExchangeQuickResponse.builder()
-			.requestedAmountKRW(request.getAmountInKRW())
+			.requestedAmount(request.getAmount())
 			.targetCurrency(request.getTargetCurrency())
-			.ResultRate(targetAmount)
 			.ResultRateDisplay(rateDisplay)
 			.build();
 	}

@@ -14,7 +14,7 @@ public class ExchangeBankRequest {
 		required = true,
 		position = 1
 	)
-	private BigDecimal amountInKRW;
+	private BigDecimal amount;
 
 	@ApiModelProperty(
 		value = "목표 통화 코드",

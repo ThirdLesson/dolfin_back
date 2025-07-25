@@ -7,7 +7,7 @@ import org.scoula.domain.exchange.dto.request.ExchangeQuickRequest;
 import org.scoula.domain.exchange.dto.response.ExchangeBankResponse;
 import org.scoula.domain.exchange.dto.response.ExchangeQuickResponse;
 import org.scoula.domain.exchange.service.ExchangeRateService;
-import org.springframework.http.ResponseEntity;
+import org.scoula.global.response.SuccessResponse;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -38,22 +38,31 @@ public class ExchangeRateController {
 		@ApiResponse(code = 400, message = "잘못된 요청입니다."),
 		@ApiResponse(code = 500, message = "서버에서 오류가 발생했습니다.")
 	})
-	@PostMapping("/calculate/bank-rates")
-	public ResponseEntity<ExchangeBankResponse> calculateExchangeRateBank(
+	@PostMapping("/check")
+	public SuccessResponse<ExchangeBankResponse> calculateExchangeRateBank(
 		@RequestBody ExchangeBankRequest requestBody,
 		HttpServletRequest httpServletRequest) {
 		ExchangeBankResponse response = exchangeRateService.calculateExchangeBank(requestBody, httpServletRequest);
 
-		return ResponseEntity.ok(response);
+		return SuccessResponse.ok(response);
 	}
 
-	@PostMapping("/calculate/quick-rate")
-	public ResponseEntity<ExchangeQuickResponse> calculateExchangeQuickNormal(
+	@ApiOperation(
+		value = "환율 빠른 계산",
+		notes = "KRW 기준으로 목표 통화에 대한 환율 1개를 빠르게 계산합니다. "
+	)
+	@ApiResponses({
+		@ApiResponse(code = 200, message = "성공적으로 요청이 처리되었습니다.", response = ExchangeBankResponse.class),
+		@ApiResponse(code = 400, message = "잘못된 요청입니다."),
+		@ApiResponse(code = 500, message = "서버에서 오류가 발생했습니다.")
+	})
+	@PostMapping("/calculate")
+	public SuccessResponse<ExchangeQuickResponse> calculateExchangeQuickNormal(
 		@RequestBody ExchangeQuickRequest requestBody,
 		HttpServletRequest httpServletRequest) {
 		ExchangeQuickResponse response = exchangeRateService.calculateExchangeQuick(requestBody, httpServletRequest);
 
-		return ResponseEntity.ok(response);
+		return SuccessResponse.ok(response);
 	}
 
 }
