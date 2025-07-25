@@ -32,10 +32,10 @@ import com.zaxxer.hikari.HikariDataSource;
 @Configuration
 @PropertySource({"classpath:/application.properties"})
 @MapperScan(basePackages = {"org.scoula.domain.member.mapper",// 게시판과 회원 도메인 매퍼 스캔
-        "org.scoula.domain.financialproduct.depositsaving.mapper",
-        "org.scoula.domain.financialproduct.financialcompany.mapper",
-        "org.scoula.domain.financialproduct.jeonseloan.mapper",
-        "org.scoula.domain.financialproduct.personalcreditloan.mapper"})
+	"org.scoula.domain.financialproduct.depositsaving.mapper",
+	"org.scoula.domain.financialproduct.financialcompany.mapper",
+	"org.scoula.domain.financialproduct.jeonseloan.mapper",
+	"org.scoula.domain.financialproduct.personalcreditloan.mapper"})
 @MapperScan(basePackages = {"org.scoula.domain.**.mapper"}) // 게시판과 회원 도메인 매퍼 스캔
 @ComponentScan(basePackages = {
 	// "org.scoula.service",
@@ -45,61 +45,61 @@ import com.zaxxer.hikari.HikariDataSource;
 	"org.scoula.global.exception", // exception handler 등록
 	"org.scoula.global.redis", // 공통 설정 포함
 	"org.scoula.global.security", // security 설정 포함
-        // "org.scoula.service",
-//	"org.scoula.domain.member.service",  // 도메인 객체를 포함하기 위해 추가
-//	"org.scoula.global.swagger.config",  // Swagger 설정을 포함하기 위해 추가
-//	"org.scoula.global.kafka", // kafka 설정 포함
-//	"org.scoula.global.exception", // exception handler 등록
-        "org.scoula.domain",
-        "org.scoula.global"
+	// "org.scoula.service",
+	//	"org.scoula.domain.member.service",  // 도메인 객체를 포함하기 위해 추가
+	//	"org.scoula.global.swagger.config",  // Swagger 설정을 포함하기 위해 추가
+	//	"org.scoula.global.kafka", // kafka 설정 포함
+	//	"org.scoula.global.exception", // exception handler 등록
+	"org.scoula.domain",
+	"org.scoula.global"
 })
 public class RootConfig {
-    @Value("${jdbc.driver}")
-    String driver;
-    @Value("${jdbc.url}")
-    String url;
-    @Value("${jdbc.username}")
-    String username;
-    @Value("${jdbc.password}")
-    String password;
+	@Value("${jdbc.driver}")
+	String driver;
+	@Value("${jdbc.url}")
+	String url;
+	@Value("${jdbc.username}")
+	String username;
+	@Value("${jdbc.password}")
+	String password;
 
-    @Bean
-    public DataSource dataSource() {
-        HikariConfig config = new HikariConfig();
-        config.setDriverClassName(driver);
-        config.setJdbcUrl(url);
-        config.setUsername(username);
-        config.setPassword(password);
-        config.setMaximumPoolSize(50);
-        config.setMinimumIdle(5);
-        config.setConnectionTimeout(30000);
-        config.setIdleTimeout(600000);
-        config.setMaxLifetime(1800000);
-        HikariDataSource dataSource = new HikariDataSource(config);
-        return dataSource;
-    }
+	@Bean
+	public DataSource dataSource() {
+		HikariConfig config = new HikariConfig();
+		config.setDriverClassName(driver);
+		config.setJdbcUrl(url);
+		config.setUsername(username);
+		config.setPassword(password);
+		config.setMaximumPoolSize(50);
+		config.setMinimumIdle(5);
+		config.setConnectionTimeout(30000);
+		config.setIdleTimeout(600000);
+		config.setMaxLifetime(1800000);
+		HikariDataSource dataSource = new HikariDataSource(config);
+		return dataSource;
+	}
 
-    @Autowired
-    ApplicationContext applicationContext;
+	@Autowired
+	ApplicationContext applicationContext;
 
-    @Bean
-    public Flyway flyway(DataSource dataSource) {
-        Flyway flyway = Flyway.configure()
-                .dataSource(dataSource)
-                .locations("classpath:db/migration")
-                .baselineVersion("0.0")  // 초기 마이그레이션 버전 설정
-                .baselineOnMigrate(true)
-                .encoding("UTF-8")
-                .cleanDisabled(true)  // 안전을 위해 clean 비활성화
-                .validateMigrationNaming(true)
-                .load();
-        // Flyway 설정
+	@Bean
+	public Flyway flyway(DataSource dataSource) {
+		Flyway flyway = Flyway.configure()
+			.dataSource(dataSource)
+			.locations("classpath:db/migration")
+			.baselineVersion("0.0")  // 초기 마이그레이션 버전 설정
+			.baselineOnMigrate(true)
+			.encoding("UTF-8")
+			.cleanDisabled(true)  // 안전을 위해 clean 비활성화
+			.validateMigrationNaming(true)
+			.load();
+		// Flyway 설정
 
-        // 수동으로 migrate 호출
-        flyway.migrate();
+		// 수동으로 migrate 호출
+		flyway.migrate();
 
-        return flyway;
-    }
+		return flyway;
+	}
 
 	@Bean
 	public SqlSessionFactory sqlSessionFactory() throws Exception {
@@ -111,10 +111,10 @@ public class RootConfig {
 		return sqlSessionFactory.getObject();
 	}
 
-    @Bean
-    public DataSourceTransactionManager transactionManager() {
-        return new DataSourceTransactionManager(dataSource());
-    }
+	@Bean
+	public DataSourceTransactionManager transactionManager() {
+		return new DataSourceTransactionManager(dataSource());
+	}
 
 	@Bean
 	public PasswordEncoder passwordEncoder() {

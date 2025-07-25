@@ -6,27 +6,27 @@ import static org.junit.jupiter.api.Assertions.*;
 
 class JeonseLoanServiceImplTest {
 
-    @Test
-    void fetchEndPoint() {
-    }
+	@Test
+	void fetchEndPoint() {
+	}
 
-    @Test
-    void createJeonseLoan() {
-    }
+	@Test
+	void createJeonseLoan() {
+	}
 
-    @Test
-    void getJeonseLoanById() {
-    }
+	@Test
+	void getJeonseLoanById() {
+	}
 
-    @Test
-    void getAllJeonseLoans() {
-    }
+	@Test
+	void getAllJeonseLoans() {
+	}
 
-    @Test
-    void updateJeonseLoan() {
-    }
+	@Test
+	void updateJeonseLoan() {
+	}
 
-    @Test
-    void deleteJeonseLoan() {
-    }
+	@Test
+	void deleteJeonseLoan() {
+	}
 }
