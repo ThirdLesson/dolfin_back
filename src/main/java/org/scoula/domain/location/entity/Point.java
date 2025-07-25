@@ -1,17 +1,14 @@
 package org.scoula.domain.location.entity;
 
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.NoArgsConstructor;
 
 // 내부 클래스로 Point 정의
-@NoArgsConstructor
-@AllArgsConstructor
-@Builder
-public class Point {
-	private Double longitude;   // 경도 (x)
-	private Double latitude;    // 위도 (y)
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
+public record Point(Double longitude,
+					Double latitude) {
+
+	@JsonIgnore
 	// WKT(Well-Known Text) 형식으로 변환
 	public String toWKT() {
 		return String.format("POINT(%f %f)", longitude, latitude);

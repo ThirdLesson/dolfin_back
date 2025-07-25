@@ -2,10 +2,14 @@ package org.scoula.domain.member.controller;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
-import javax.validation.constraints.NotBlank;
 
+import org.scoula.domain.member.dto.request.CheckIdRequest;
 import org.scoula.domain.member.dto.request.JoinRequest;
+import org.scoula.domain.member.dto.request.PhoneNumRequest;
+import org.scoula.domain.member.dto.request.PhoneVerificationRequest;
+import org.scoula.domain.member.dto.response.JoinResponse;
 import org.scoula.domain.member.service.JoinService;
+import org.scoula.domain.sms.service.SmsService;
 import org.scoula.global.response.SuccessResponse;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -25,24 +29,38 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class JoinController {
 	private final JoinService joinService;
+	private final SmsService smsService;
 
 	@ApiOperation(value = "회원 가입", notes = "사용자 정보를 받아 회원가입을 처리합니다.")
 	@PostMapping("/join")
-	public SuccessResponse<Void> joinMember(@RequestBody @Valid JoinRequest joinRequest,
+	public SuccessResponse<JoinResponse> joinMember(@RequestBody @Valid JoinRequest joinRequest,
 		HttpServletRequest request) throws
 		JsonProcessingException {
-		joinService.joinMember(joinRequest, request);
-		return SuccessResponse.noContent();
+		JoinResponse joinResponse = joinService.joinMember(joinRequest, request);
+		return SuccessResponse.ok(joinResponse);
 	}
 
 	@ApiOperation(value = "아이디 중복 확인", notes = "입력한 아이디의 중복 여부를 확인합니다.")
 	@PostMapping("/check-id")
 	public SuccessResponse<Void> verifyLoginId(@ApiParam(value = "확인할 로그인 아이디")
-	@RequestBody @NotBlank(message = "아이디를 입력해주세요.") String loginId) {
-		joinService.checkLoginId(loginId);
+	@Valid @RequestBody CheckIdRequest checkIdRequest) {
+		joinService.checkLoginId(checkIdRequest.loginId());
 		return SuccessResponse.ok(null);
 	}
 
-	// TODO 핸드폰 인증
+	@ApiOperation(value = "휴대폰 인증번호 전송", notes = "회원가입 시 입력한 전화번호로 인증번호를 전송합니다.")
+	@PostMapping("/send-code")
+	public SuccessResponse<Void> sendSms(
+		@RequestBody @Valid PhoneNumRequest phoneNumRequest) {
+		smsService.certificateSMS(phoneNumRequest);
+		return SuccessResponse.noContent();
+	}
 
+	@ApiOperation(value = "휴대폰 인증번호 확인", notes = "입력한 인증번호가 유효한지 확인합니다.")
+	@PostMapping("/verify-code")
+	public SuccessResponse<Void> verifySms(
+		@RequestBody @Valid PhoneVerificationRequest request) {
+		smsService.verifySMS(request);
+		return SuccessResponse.noContent();
+	}
 }

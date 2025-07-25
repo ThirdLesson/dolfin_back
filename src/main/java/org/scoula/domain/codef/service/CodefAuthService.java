@@ -61,7 +61,7 @@ public class CodefAuthService {
 		}
 
 		if (responseEntity.getStatusCode().is2xxSuccessful()) {
-			redisUtil.set(REDIS_ACCESS_TOKEN_KEY, codefToken, expiresIn);
+			redisUtil.set(REDIS_ACCESS_TOKEN_KEY, codefToken, expiresIn / 60);
 		} else {
 			throw new CustomException(CODEF_TOKEN_API_FAILED, LogLevel.ERROR, null, common);
 		}
