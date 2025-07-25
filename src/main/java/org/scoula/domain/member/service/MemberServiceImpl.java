@@ -89,4 +89,10 @@ public class MemberServiceImpl implements MemberService {
 		memberMapper.deleteMember(memberId);
 	}
 
+	@Override
+	@Transactional
+	public void updateConnectedId(Long memberId, String connectedId) {
+		memberMapper.updateConnectedId(memberId, connectedId);
+	}
+
 }

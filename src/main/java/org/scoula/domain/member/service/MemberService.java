@@ -5,19 +5,22 @@ import java.util.List;
 import org.scoula.domain.member.dto.MemberDTO;
 
 public interface MemberService {
-    
-    // 회원 전체 조회
-    List<MemberDTO> getAllMembers();
-    
-    // 회원 상세 조회
-    MemberDTO getMemberById(Long memberId);
-    
-    // 로그인 ID로 회원 조회
-    MemberDTO getMemberByLoginId(String loginId);
-    
-    MemberDTO updateMember(Long memberId, MemberDTO memberDTO);
 
-    // 회원 삭제
-    void deleteMember(Long memberId);
-    
+	// 회원 전체 조회
+	List<MemberDTO> getAllMembers();
+
+	// 회원 상세 조회
+	MemberDTO getMemberById(Long memberId);
+
+	// 로그인 ID로 회원 조회
+	MemberDTO getMemberByLoginId(String loginId);
+
+	MemberDTO updateMember(Long memberId, MemberDTO memberDTO);
+
+	// 회원 삭제
+	void deleteMember(Long memberId);
+
+	// 커넥티드 아이디 업데이트
+	void updateConnectedId(Long memberId, String connectedId);
+
 }
