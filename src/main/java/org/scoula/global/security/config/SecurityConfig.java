@@ -33,7 +33,7 @@ public class SecurityConfig {
 		CorsConfiguration corsConfiguration = new CorsConfiguration();
 
 		corsConfiguration.setAllowedOriginPatterns(
-			List.of("http://localhost:3000", "https://localhost:3000"));
+			List.of("http://localhost:5173", "https://localhost:5173"));
 
 		corsConfiguration.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "HEAD", "OPTIONS", "PATCH"));
 		corsConfiguration.setAllowedHeaders(List.of("Authorization", "Cache-Control", "Content-Type"));
@@ -62,8 +62,6 @@ public class SecurityConfig {
 
 				// 로그인 관련 api
 				.requestMatchers("/auth/**").permitAll()
-				// codef 관련 api
-				.requestMatchers("/codef/**").permitAll()
 				// 스웨거 사용을 위한 허용
 				.requestMatchers(
 					"/v2/api-docs/**",
