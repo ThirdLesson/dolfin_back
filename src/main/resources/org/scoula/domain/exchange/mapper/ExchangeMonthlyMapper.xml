@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="org.scoula.domain.exchange.mapper.ExchangeMonthlyMapper">
+
+    <resultMap id="exchangeMonthlyResultMap" type="org.scoula.domain.exchange.entity.ExchangeMonthly">
+        <id property="exchangeId" column="exchange_id"/>
+        <result property="targetExchange" column="target_exchange"/>
+        <result property="exchangeValue" column="exchange_value"/>
+        <result property="exchangeDate" column="exchange_date"/>
+    </resultMap>
+    <select id="findLatestExchangeMonthly" resultMap="exchangeMonthlyResultMap">
+        SELECT exchange_id,
+               target_exchange,
+               exchange_value,
+               exchange_date
+        FROM exchange_monthly
+        WHERE target_exchange = #{targetExchage}
+        ORDER BY exchange_date ASC
+    </select>
+
+
+</mapper>
