@@ -1,5 +1,7 @@
 package org.scoula.domain.account.service;
 
+import static org.scoula.domain.account.exception.AccountErrorCode.*;
+
 import java.util.Optional;
 
 import javax.servlet.http.HttpServletRequest;
@@ -11,6 +13,7 @@ import org.scoula.domain.account.mapper.AccountMapper;
 import org.scoula.domain.member.dto.MemberDTO;
 import org.scoula.domain.member.exception.MemberErrorCode;
 import org.scoula.domain.member.service.MemberService;
+import org.scoula.domain.wallet.dto.request.TransferToAccountRequest;
 import org.scoula.global.exception.CustomException;
 import org.scoula.global.kafka.dto.Common;
 import org.scoula.global.kafka.dto.LogLevel;
@@ -46,5 +49,15 @@ public class AccountServiceImpl implements AccountService {
 						String.valueOf(createAccountRequest.getMemberId())).build());
 		}
 		accountMapper.createAccount(createAccountRequest);
+	}
+
+	@Transactional
+	public void depositToAccount(TransferToAccountRequest request) {
+		boolean externalTransferSuccess = true;
+
+		if (!externalTransferSuccess) {
+			throw new CustomException(ACCOUNT_TRANSFER_FAILED, LogLevel.ERROR, null, null,
+				"은행 계좌 이체 실패: " + request.accountNumber());
+		}
 	}
 }

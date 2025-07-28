@@ -22,7 +22,7 @@ public record SignInResponseDto(
 	LocalDate birth,
 	@ApiModelProperty(value = "성명", example = "홍길동", required = true)
 	String name,
-	@ApiModelProperty(value = "전화번호", example = "010-1234-5678")
+	@ApiModelProperty(value = "전화번호", example = "01012345678")
 	String phoneNumber,
 	@ApiModelProperty(value = "잔여 체류기간")
 	LocalDate remainTime,

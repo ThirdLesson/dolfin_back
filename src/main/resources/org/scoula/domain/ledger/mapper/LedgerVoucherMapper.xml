@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="org.scoula.domain.ledger.mapper.LedgerVoucherMapper">
+
+    <resultMap id="ledgerVoucherResultMap" type="org.scoula.domain.ledger.entity.LedgerVoucher">
+        <id property="ledgerVoucherId" column="ledger_voucher_id"/>
+        <result property="voucherNo" column="voucher_no"/>
+        <result property="transactionId" column="transaction_id"/>
+        <result property="entryDate" column="entry_date"/>
+        <result property="type" column="voucher_type"/>
+    </resultMap>
+
+    <insert id="insert" parameterType="org.scoula.domain.ledger.entity.LedgerVoucher"
+            useGeneratedKeys="true" keyProperty="ledgerVoucherId">
+        INSERT INTO ledger_voucher (voucher_no,
+                                    transaction_id,
+                                    entry_date,
+                                    voucher_type)
+        VALUES (#{voucherNo},
+                #{transactionId},
+                #{entryDate},
+                #{type})
+    </insert>
+
+</mapper>

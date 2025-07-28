@@ -7,6 +7,7 @@ import org.scoula.domain.transaction.entity.TransactionType;
 import org.scoula.global.entity.BaseEntity;
 
 import lombok.AccessLevel;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
@@ -17,11 +18,18 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class LedgerVoucher extends BaseEntity {
 	private Long ledgerVoucherId;
-	private String voucherNo;          // 전표 번호
-	private Long transactionId;        // 거래내역 UUID
+	private String voucherNo;          // 전표 번호(날짜+UUID 축약)
+	private String transactionId;        // 거래내역 UUID
 	private LocalDateTime entryDate;   // 거래 일자
 	private TransactionType type;  	   // 거래 타입 (CHARGE(충전), TRANSFER(송금))
 
 	private List<LedgerEntry> entries; // 분개 목록
 
+	@Builder
+	public LedgerVoucher(String voucherNo, String transactionId, LocalDateTime entryDate, TransactionType type) {
+		this.voucherNo = voucherNo;
+		this.transactionId = transactionId;
+		this.entryDate = entryDate;
+		this.type = type;
+	}
 }

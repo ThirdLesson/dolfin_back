@@ -14,7 +14,8 @@ import org.scoula.domain.codef.service.CodefApiClient;
 import org.scoula.domain.codef.service.CodefAuthService;
 import org.scoula.domain.wallet.service.WalletService;
 import org.scoula.global.response.SuccessResponse;
-import org.springframework.web.bind.annotation.PathVariable;
+import org.scoula.global.security.dto.CustomUserDetails;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -24,7 +25,6 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
-import io.swagger.annotations.ApiParam;
 import lombok.RequiredArgsConstructor;
 
 @Api(tags = "Codef API")
@@ -55,31 +55,32 @@ public class CodefController {
 	}
 
 	@ApiOperation(value = "Codef 계좌 등록 및 확인 api", notes = "Codef 사용자 계좌 조회 후 1원을 보냅니다. 인증번호 반환하니 그거 그대로 다시 보내주시면 됩니다.")
-	@PostMapping("/account/{memberId}")
+	@PostMapping("/account")
 	public SuccessResponse<CodefVerifyCodeResponse> associateAccount(
 		@RequestBody @Valid CodefConnectedIdRequest codefConnectedIdRequest,
-		@PathVariable(name = "memberId") @ApiParam(value = "PathVariable로 유저 id 넘겨주세요") Long memberId,
+		@AuthenticationPrincipal CustomUserDetails customUserDetails,
 		HttpServletRequest request) {
-		codefAccountService.requestConnectedIdCreate(codefConnectedIdRequest, memberId, request);
-		return SuccessResponse.ok(codefAccountService.sendVerifyCode(codefConnectedIdRequest, memberId, request));
+		codefAccountService.requestConnectedIdCreate(codefConnectedIdRequest, customUserDetails.getMember(), request);
+		return SuccessResponse.ok(
+			codefAccountService.sendVerifyCode(codefConnectedIdRequest, customUserDetails.getMember().getMemberId(),
+				request));
 	}
 
 	@ApiOperation(value = "Codef 인증번호 확인 api", notes = "1원 인증에 사용된 인증번호를 입력합니다. 만료 시간은 5분입니다.")
-	@PostMapping("/account/verify/{memberId}")
+	@PostMapping("/account/verify")
 	public SuccessResponse<Void> verifyCode(@RequestBody @Valid CodefVerifyCodeRequest codefVerifyCodeRequest,
-		@PathVariable(name = "memberId") @ApiParam(value = "PathVariable로 유저 id 넘겨주세요") Long memberId,
+		@AuthenticationPrincipal CustomUserDetails customUserDetails,
 		HttpServletRequest request) {
-		codefAccountService.verifyCode(codefVerifyCodeRequest, memberId, request);
+		codefAccountService.verifyCode(codefVerifyCodeRequest, customUserDetails.getMember().getMemberId(), request);
 		return SuccessResponse.noContent();
 	}
 
 	@ApiOperation(value = "전자지갑 비밀번호 설정", notes = "전자 지갑 비밀번호를 설정하며, 전자지갑 및 연결 계좌를 생성합니다.")
-	@PostMapping("/account/wallet/{memberId}")
+	@PostMapping("/account/wallet")
 	public SuccessResponse<Void> associateAccount(@RequestBody @Valid WalletRequest walletRequest,
-		@PathVariable(name = "memberId") @ApiParam(value = "PathVariable로 유저 id 넘겨주세요") Long memberId,
+		@AuthenticationPrincipal CustomUserDetails customUserDetails,
 		HttpServletRequest request) {
-		walletService.createWallet(walletRequest, memberId, request);
+		walletService.createWallet(walletRequest, customUserDetails.getMember().getMemberId(), request);
 		return SuccessResponse.noContent();
 	}
-
 }
