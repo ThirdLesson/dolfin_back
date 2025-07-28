@@ -48,8 +48,6 @@ public class ExchangeRateServiceImpl implements ExchangeRateService {
 		for (String bank : banks) {
 			ExchangeRate latestExchangeRate = exchangeRateMapper
 				.findLatestExchangeRate(bank, request.getType(), request.getTargetCurrency());
-			log.info("Bank: {}, Type: {}, Target Currency: {}, Rate: {}",
-				bank, request.getType(), request.getTargetCurrency(), latestExchangeRate.getExchangeId());
 			if (latestExchangeRate == null) {
 				throw new CustomException(
 					ExchangeErrorCode.EXCHANGE_REQUIRED_PARAMETER_MISSING, LogLevel.ERROR,
@@ -128,6 +126,11 @@ public class ExchangeRateServiceImpl implements ExchangeRateService {
 			rate.getTargetExchange(),
 			rateFormatter.format(rate.getExchangeValue()));
 
+
+		// kb 글자 빼기
+		if( rate.getBankName().startsWith("KB")) {
+			rate.setBankName(rate.getBankName().substring(2));
+		}
 		return BankRateInfo.builder()
 			.bankName(rate.getBankName())
 			.operator(rate.getExchangeValue())
