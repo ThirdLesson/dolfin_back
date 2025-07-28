@@ -97,7 +97,16 @@ public class CodefApiClient {
 		CodefCommonResponse<DepositorResponse> response = getCodefCommonResponse(entity, null,
 			ACCOUNT_URL, DepositorResponse.class, CODEF_ACCOUNT_HOLDER_API_FAILED);
 
-		return response.data();
+		String resultCode = response.result().code();
+
+		if (resultCode.equals("CF-00000")) {
+			return response.data();
+		} else if (resultCode.equals("CF-00001")) {
+			throw new CustomException(CODEF_REQUIRED_PARAMETER_MISSING, LogLevel.WARNING, null, null,
+				response.result().extraMessage() + "가 누락되었습니다.");
+		} else {
+			throw new CustomException(CODEF_ACCOUNT_HOLDER_API_FAILED, LogLevel.ERROR, null, null);
+		}
 	}
 
 	private String getCachedAccessToken(HttpServletRequest request) {
