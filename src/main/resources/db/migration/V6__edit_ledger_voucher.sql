@@ -8,4 +8,5 @@ ALTER TABLE ledger_code
     ADD COLUMN name VARCHAR(100) UNIQUE NOT NULL AFTER type;
 
 INSERT INTO ledger_code (account_code_id, name, type)
-VALUES (101, 'WALLET_ASSET', 'ASSET');
+VALUES (101, 'WALLET_ASSET', 'ASSET'),
+       (201, 'BANK_PAYABLE', 'LIABILITY');

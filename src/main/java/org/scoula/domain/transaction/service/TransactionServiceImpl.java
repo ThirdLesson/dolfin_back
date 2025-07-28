@@ -23,6 +23,10 @@ public class TransactionServiceImpl implements TransactionService {
 	@Transactional
 	public void saveTransferTransaction(Wallet senderWallet, BigDecimal senderNewBalance, Wallet receiverWallet,
 		BigDecimal receiverNewBalance, Long memberId, Long receiverId, String transactionGroupId, BigDecimal amount) {
+		Long receiverWalletId = null;
+		if (receiverId != null) {
+			receiverWalletId = receiverWallet.getWalletId();
+		}
 		Transaction senderTransaction = Transaction.builder()
 			.walletId(senderWallet.getWalletId())
 			.memberId(memberId)
@@ -32,7 +36,7 @@ public class TransactionServiceImpl implements TransactionService {
 			.afterBalance(senderNewBalance)
 			.transactionType(TRANSFER)
 			.counterPartyMemberId(receiverId)
-			.counterPartyWalletId(receiverWallet.getWalletId())
+			.counterPartyWalletId(receiverWalletId)
 			.status(SUCCESS)
 			.build();
 		transactionMapper.insert(senderTransaction);

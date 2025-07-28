@@ -3,8 +3,8 @@ package org.scoula.domain.wallet.controller;
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
 
+import org.scoula.domain.account.entity.BankType;
 import org.scoula.domain.codef.service.CodefApiClient;
-import org.scoula.domain.wallet.dto.request.AccountDepositorRequest;
 import org.scoula.domain.wallet.dto.request.TransferToAccountRequest;
 import org.scoula.domain.wallet.dto.request.TransferToWalletRequest;
 import org.scoula.domain.wallet.dto.response.DepositorResponse;
@@ -13,7 +13,6 @@ import org.scoula.global.response.SuccessResponse;
 import org.scoula.global.security.dto.CustomUserDetails;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -54,9 +53,10 @@ public class TransferController {
 	@ApiOperation(value = "계좌번호로 예금주명 확인 API", notes = "은행코드와 계좌번호로 예금주명을 확인합니다.")
 	@GetMapping("/account")
 	public SuccessResponse<DepositorResponse> getReceiverNameByAccount(
-		@Valid @ModelAttribute AccountDepositorRequest verificationRequest, HttpServletRequest request
+		@RequestParam BankType bankType,
+		@RequestParam String accountNumber, HttpServletRequest request
 	) throws JsonProcessingException {
-		DepositorResponse response = codefApiClient.verifyAccountHolder(verificationRequest, request);
+		DepositorResponse response = codefApiClient.verifyAccountHolder(bankType, accountNumber, request);
 		return SuccessResponse.ok(response);
 	}
 

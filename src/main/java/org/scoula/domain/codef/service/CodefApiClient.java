@@ -9,6 +9,7 @@ import java.time.format.DateTimeFormatter;
 
 import javax.servlet.http.HttpServletRequest;
 
+import org.scoula.domain.account.entity.BankType;
 import org.scoula.domain.codef.dto.common.CodefCommonResponse;
 import org.scoula.domain.codef.dto.request.StayExpirationRequest;
 import org.scoula.domain.codef.dto.response.StayExpirationResponse;
@@ -84,11 +85,13 @@ public class CodefApiClient {
 		}
 	}
 
-	public DepositorResponse verifyAccountHolder(AccountDepositorRequest verificationRequest,
+	public DepositorResponse verifyAccountHolder(BankType bankType, String accountNumber,
 		HttpServletRequest request) throws JsonProcessingException {
 		String cachedAccessToken = getCachedAccessToken(request);
+		AccountDepositorRequest accountDepositorRequest = new AccountDepositorRequest(bankType.getCode(),
+			accountNumber);
 
-		HttpEntity<AccountDepositorRequest> entity = getRequestHttpEntity(verificationRequest,
+		HttpEntity<AccountDepositorRequest> entity = getRequestHttpEntity(accountDepositorRequest,
 			cachedAccessToken);
 
 		CodefCommonResponse<DepositorResponse> response = getCodefCommonResponse(entity, null,

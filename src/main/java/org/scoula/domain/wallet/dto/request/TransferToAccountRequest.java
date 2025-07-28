@@ -14,8 +14,8 @@ import io.swagger.annotations.ApiModelProperty;
 
 @ApiModel(value = "계좌번호로 송금 요청", description = "계좌번호로 송금하기 위한 요청 DTO")
 public record TransferToAccountRequest(
-	@ApiModelProperty(value = "은행코드", example = "0004", required = true)
-	@NotBlank(message = "은행코드는 필수입니다.")
+	@ApiModelProperty(value = "은행", example = "국민은행", required = true)
+	@NotNull(message = "은행은 필수입니다.")
 	BankType bankType,
 
 	@ApiModelProperty(value = "계좌번호", example = "46570104048943", required = true)
