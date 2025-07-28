@@ -26,7 +26,7 @@ public record JoinRequest(
 	@NotBlank(message = "이름은 필수 입력 값입니다.")
 	String name,
 
-	@ApiModelProperty(value = "생년월일", example = "20000101", required = true)
+	@ApiModelProperty(value = "생년월일", example = "2000-01-01", required = true)
 	@NotBlank(message = "생년월일은 필수 입력 값입니다.")
 	String birth,
 
