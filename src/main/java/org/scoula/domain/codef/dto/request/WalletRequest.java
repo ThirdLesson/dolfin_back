@@ -20,7 +20,7 @@ import lombok.Setter;
 public class WalletRequest {
 	@ApiModelProperty(notes = "무시하셔도 됩니다.", example = "", required = false)
 	Long walletId;
-	@ApiModelProperty(notes = "전자지갑 비밀번호로 미이 전자지갑이 존재하는 경우에는 안 보내셔도 됩니다.", example = "1234", required = true)
+	@ApiModelProperty(notes = "전자지갑 비밀번호로 이미 전자지갑이 존재하는 경우에는 안 보내셔도 됩니다.", example = "1234", required = true)
 	String walletPassword;
 	@ApiModelProperty(notes = "계좌번호", example = "94320200955935", required = true)
 	@NotBlank(message = "계좌번호는 필수입니다.")

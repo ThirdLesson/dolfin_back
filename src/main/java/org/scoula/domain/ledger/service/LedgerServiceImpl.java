@@ -17,6 +17,8 @@ import org.scoula.domain.ledger.entity.LedgerVoucher;
 import org.scoula.domain.ledger.mapper.LedgerCodeMapper;
 import org.scoula.domain.ledger.mapper.LedgerEntryMapper;
 import org.scoula.domain.ledger.mapper.LedgerVoucherMapper;
+import org.scoula.domain.transaction.entity.TransactionType;
+import org.scoula.domain.wallet.dto.request.ChargeWalletRequest;
 import org.scoula.domain.wallet.dto.request.TransferToAccountRequest;
 import org.scoula.domain.wallet.dto.request.TransferToWalletRequest;
 import org.scoula.global.exception.CustomException;
@@ -38,7 +40,7 @@ public class LedgerServiceImpl implements LedgerService {
 	@Override
 	@Transactional
 	public void accountForWalletTransfer(TransferToWalletRequest request, String transactionGroupId) {
-		LedgerVoucher ledgerVoucher = getLedgerVoucher(transactionGroupId);
+		LedgerVoucher ledgerVoucher = getLedgerVoucher(transactionGroupId, TRANSFER);
 
 		List<LedgerEntry> ledgerEntries = new ArrayList<>();
 
@@ -67,7 +69,7 @@ public class LedgerServiceImpl implements LedgerService {
 	@Override
 	public void accountForAccountTransfer(TransferToAccountRequest request, String transactionGroupId) {
 		BigDecimal amount = request.amount();
-		LedgerVoucher ledgerVoucher = getLedgerVoucher(transactionGroupId);
+		LedgerVoucher ledgerVoucher = getLedgerVoucher(transactionGroupId, TRANSFER);
 
 		List<LedgerEntry> ledgerEntries = new ArrayList<>();
 
@@ -95,14 +97,45 @@ public class LedgerServiceImpl implements LedgerService {
 		ledgerEntryMapper.insertBatch(ledgerEntries);
 	}
 
-	private LedgerVoucher getLedgerVoucher(String transactionGroupId) {
+	@Override
+	public void chargeTransfer(ChargeWalletRequest request, String transactionGroupId) {
+		BigDecimal amount = request.amount();
+		LedgerVoucher ledgerVoucher = getLedgerVoucher(transactionGroupId, CHARGE);
+
+		List<LedgerEntry> ledgerEntries = new ArrayList<>();
+
+		LedgerCode walletAsset = ledgerCodeMapper.findByName("WALLET_ASSET")
+			.orElseThrow(() -> new CustomException(LEDGER_CODE_NOT_FOUND, LogLevel.ERROR, null, null));
+		LedgerCode bankPayable = ledgerCodeMapper.findByName("BANK_PAYABLE")
+			.orElseThrow(() -> new CustomException(LEDGER_CODE_NOT_FOUND, LogLevel.ERROR, null, null));
+
+		LedgerEntry debitEntry = LedgerEntry.builder()
+			.ledgerVoucherId(ledgerVoucher.getLedgerVoucherId())
+			.ledgerType(DEBIT)
+			.accountCodeId(walletAsset.getAccountCodeId())
+			.amount(amount)
+			.build();
+		ledgerEntries.add(debitEntry);
+
+		LedgerEntry creditEntry = LedgerEntry.builder()
+			.ledgerVoucherId(ledgerVoucher.getLedgerVoucherId())
+			.ledgerType(CREDIT)
+			.accountCodeId(bankPayable.getAccountCodeId())
+			.amount(amount)
+			.build();
+		ledgerEntries.add(creditEntry);
+
+		ledgerEntryMapper.insertBatch(ledgerEntries);
+	}
+
+	private LedgerVoucher getLedgerVoucher(String transactionGroupId, TransactionType transactionType) {
 		String voucherNo = getVoucherNo();
 
 		LedgerVoucher ledgerVoucher = LedgerVoucher.builder()
 			.voucherNo(voucherNo)
 			.transactionId(transactionGroupId)
 			.entryDate(LocalDateTime.now())
-			.type(TRANSFER)
+			.type(transactionType)
 			.build();
 		ledgerVoucherMapper.insert(ledgerVoucher);
 		return ledgerVoucher;

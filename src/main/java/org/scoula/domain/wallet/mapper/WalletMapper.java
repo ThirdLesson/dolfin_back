@@ -3,11 +3,14 @@ package org.scoula.domain.wallet.mapper;
 import java.math.BigDecimal;
 import java.util.Optional;
 
+import java.math.BigDecimal;
+
 import org.apache.ibatis.annotations.Insert;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Options;
 import org.apache.ibatis.annotations.Param;
 import org.apache.ibatis.annotations.Select;
+import org.apache.ibatis.annotations.Update;
 import org.scoula.domain.codef.dto.request.WalletRequest;
 import org.scoula.domain.wallet.entity.Wallet;
 
@@ -31,4 +34,20 @@ public interface WalletMapper {
 	Optional<Wallet> findByMemberIdWithLock(Long memberId);
 
 	void updateBalance(@Param("walletId") Long walletId, @Param("newBalance") BigDecimal newBalance);
+
+	@Select("""
+		    SELECT wallet_id, balance, password, member_id, created_at, updated_at
+		    FROM wallet
+		    WHERE wallet_id = #{walletId}
+		""")
+	Wallet findByWalletId(Long walletId);
+
+	@Select("""
+		    SELECT wallet_id, balance, password, member_id, created_at, updated_at
+		    FROM wallet
+		    WHERE wallet_id = #{walletId}
+		    FOR UPDATE
+		""")
+	Wallet findByWalletIdForUpdate(Long walletId);
+
 }
