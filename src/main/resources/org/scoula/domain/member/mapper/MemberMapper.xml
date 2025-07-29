@@ -17,6 +17,7 @@
         <result property="phoneNumber" column="phone_number"/>
         <result property="remainTime" column="remain_time"/>
         <result property="currency" column="currency"/>
+        <result property="connectedId" column="connected_id"/>
     </resultMap>
 
     <!-- 회원 전체 조회 -->
@@ -46,7 +47,8 @@
                name,
                phone_number,
                remain_time,
-               currency
+               currency,
+               connected_id
         FROM member
         WHERE member_id = #{memberId}
     </select>
