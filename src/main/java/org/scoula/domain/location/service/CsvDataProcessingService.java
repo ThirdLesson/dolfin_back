@@ -69,6 +69,7 @@ public class CsvDataProcessingService {
 		// Point 객체 생성 (경도, 위도 순서)
 		Point point = new Point(dto.getLongitude(), dto.getLatitude());
 
+
 		// 315991700 -> 035-599-1700
 		// 25030070 -> 025-030-070
 		// 3180455572 -> 031-8045-5572
