@@ -32,7 +32,8 @@ public class LocationService {
 			.locationName(location.getLocationName())
 			.address(location.getAddress())
 			.point(location.getPoint())
-			.locationNumber(location.getLocationNumber())
+			.tel(location.getTel())
+			.homepageUrl(location.getHomepageUrl())
 			.locationType(location.getLocationType())
 			.build();
 	}

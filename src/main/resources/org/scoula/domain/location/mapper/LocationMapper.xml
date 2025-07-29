@@ -8,7 +8,8 @@
         <result property="locationName" column="location_name"/>
         <result property="address" column="address"/>
         <result property="point" column="point" typeHandler="org.scoula.domain.location.entity.PointTypeHandler"/>
-        <result property="locationNumber" column="location_number"/>
+        <result property="tel" column="tel"/>
+        <result property="homepageUrl" column="homepage_url"/>
         <result property="locationType" column="location_type"/>
         <result property="createdAt" column="created_at"/>
         <result property="updatedAt" column="updated_at"/>
@@ -39,7 +40,8 @@
         location_name,
         address,
         point,
-        location_number,
+        homepage_url,
+        tel,
         location_type,
         created_at,
         updated_at
@@ -49,7 +51,8 @@
             #{location.locationName},
             #{location.address},
             ST_GeomFromText(#{location.point, typeHandler=org.scoula.domain.location.entity.PointTypeHandler}),
-            #{location.locationNumber},
+            #{location.homepageUrl},
+            #{location.tel},
             #{location.locationType, typeHandler=org.apache.ibatis.type.EnumTypeHandler},
             NOW(),
             NOW()
@@ -63,7 +66,8 @@
                location_name,
                address,
                ST_AsText(point) as point,
-               location_number,
+               tel,
+                homepage_url,
                location_type,
                created_at,
                updated_at
@@ -74,10 +78,10 @@
 
 
     <!-- 전화번호로 존재 여부 확인 -->
-    <select id="existsByLocationNumber" parameterType="String" resultType="boolean">
+    <select id="existsByTel" parameterType="String" resultType="boolean">
         SELECT COUNT(*) > 0
         FROM location
-        WHERE location_number = #{locationNumber}
+        WHERE tel = #{tel}
     </select>
 
     <!-- CENTER만 조회 -->
@@ -86,7 +90,8 @@
                location_name,
                address,
                ST_AsText(point) as point,
-               location_number,
+               tel,
+               homepage_url,
                location_type,
                created_at,
                updated_at
@@ -99,7 +104,8 @@
                location_name,
                address,
                ST_AsText(point) as point,
-               location_number,
+               tel,
+               homepage_url,
                location_type,
                created_at,
                updated_at
