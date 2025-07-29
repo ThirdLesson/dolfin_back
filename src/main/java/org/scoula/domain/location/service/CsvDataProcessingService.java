@@ -9,10 +9,8 @@ import org.scoula.domain.location.mapper.LocationMapper;
 import org.scoula.global.exception.CustomException;
 import org.scoula.global.kafka.dto.Common;
 import org.scoula.global.kafka.dto.LogLevel;
-import org.scoula.global.security.exception.JwtErrorMessage;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.bind.annotation.RequestBody;
 
 import com.opencsv.bean.CsvToBeanBuilder;
 
@@ -28,12 +26,12 @@ import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 @Service
-@Transactional
 @RequiredArgsConstructor
 public class CsvDataProcessingService {
 
 	private final LocationMapper locationMapper;
 
+	@Transactional
 	public void processForeignCenterCsv(HttpServletRequest request, String csvFilePath) {
 		try {
 			// CSV 파일 읽기
@@ -46,7 +44,6 @@ public class CsvDataProcessingService {
 			// DTO를 Location으로 변환
 			List<Location> locations = csvData.stream()
 				.map(this::convertToLocation)
-				.filter(location -> !locationMapper.existsByLocationNumber(location.getLocationNumber()))
 				.collect(Collectors.toList());
 
 			// 배치로 저장 (성능 향상)
@@ -72,15 +69,44 @@ public class CsvDataProcessingService {
 		// Point 객체 생성 (경도, 위도 순서)
 		Point point = new Point(dto.getLongitude(), dto.getLatitude());
 
-		// 전화번호 처리 (대표전화번호 우선, 없으면 상담전화번호 사용)
-		String phoneNumber = dto.getRepresentativeTelno() != null ?
-			dto.getRepresentativeTelno() : dto.getConsultTelno();
 
+		// 315991700 -> 035-599-1700
+		// 25030070 -> 025-030-070
+		// 3180455572 -> 031-8045-5572
+		String raw = dto.getRepresentativeTelno();
+		StringBuilder phoneNumberBuilder = new StringBuilder(raw);
+
+		if (raw.startsWith("02")) {
+			if (raw.length() == 9) { // 02-XXX-XXXX
+				phoneNumberBuilder.insert(2, "-");
+				phoneNumberBuilder.insert(6, "-");
+			} else if (raw.length() == 10) { // 02-XXXX-XXXX
+				phoneNumberBuilder.insert(2, "-");
+				phoneNumberBuilder.insert(7, "-");
+			}
+		} else {
+			if (phoneNumberBuilder.length() == 8) {
+				phoneNumberBuilder.insert(0, "0");
+				phoneNumberBuilder.insert(3, "-");
+				phoneNumberBuilder.insert(7, "-");
+			} else if (phoneNumberBuilder.length() == 9) {
+				phoneNumberBuilder.insert(0, "0");
+				phoneNumberBuilder.insert(3, "-");
+				phoneNumberBuilder.insert(7, "-");
+			} else if (phoneNumberBuilder.length() == 10) {
+				phoneNumberBuilder.insert(3, "-");
+				phoneNumberBuilder.insert(7, "-");
+			} else if (phoneNumberBuilder.length() == 11) {
+				phoneNumberBuilder.insert(3, "-");
+				phoneNumberBuilder.insert(8, "-");
+			}
+		}
 		return Location.builder()
 			.locationName(dto.getCenterName())
 			.address(dto.getRoadAddress())
 			.point(point)
-			.locationNumber(phoneNumber)
+			.tel(phoneNumberBuilder.toString())
+			.homepageUrl(dto.getHomepageUrl())
 			.locationType(LocationType.CENTER)
 			.build();
 	}

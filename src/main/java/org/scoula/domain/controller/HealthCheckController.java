@@ -40,7 +40,6 @@ public class HealthCheckController {
 	@GetMapping("/swagger")
 	@ApiOperation("Swagger 연동 테스트")
 	public Map<String, String> swaggerTest() {
-		log.info("Swagger test called");
 
 		Map<String, String> response = new HashMap<>();
 		response.put("swagger", "enabled");
