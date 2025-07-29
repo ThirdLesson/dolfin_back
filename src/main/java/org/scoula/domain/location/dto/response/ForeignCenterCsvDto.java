@@ -22,4 +22,7 @@ public class ForeignCenterCsvDto {
     
     @CsvBindByName(column = "dscsnTelno")
     private String consultTelno;         // 상담전화번호
+
+    @CsvBindByName(column = "hmpgAddr")
+    private String homepageUrl;           // 센터 URL
 }

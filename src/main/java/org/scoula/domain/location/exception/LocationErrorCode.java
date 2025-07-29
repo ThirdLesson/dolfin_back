@@ -11,7 +11,7 @@ import lombok.Getter;
 public enum LocationErrorCode implements ErrorCode {
 
 	JsonParse_API_FAILED(HttpStatus.INTERNAL_SERVER_ERROR, "C-001", "json 파싱에 실패했습니다."),
-	;
+	AlreadyExistsLocation(HttpStatus.BAD_REQUEST, "L-001", "이미 존재하는 위치입니다.");
 	private final HttpStatus httpStatus;
 	private final String code;
 	private final String message;
