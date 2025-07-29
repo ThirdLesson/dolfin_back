@@ -15,7 +15,7 @@ LocationMapper {
 
     void insertLocationBatch(@Param("locations") List<Location> locations);
 
-    boolean existsByLocationNumber(@Param("locationNumber") String locationNumber);
+    boolean existsByTel(@Param("tel") String Tel);
 
     List<Location> selectAllCenters();
 
