@@ -18,7 +18,7 @@ public record JoinRequest(
 	@NotBlank(message = "비밀번호는 필수 입력 값입니다.")
 	String password,
 
-	@ApiModelProperty(value = "휴대폰 번호", example = "010-1234-5678", required = true)
+	@ApiModelProperty(value = "휴대폰 번호", example = "01012345678", required = true)
 	@NotBlank(message = "휴대폰 번호는 필수 입력 값입니다.")
 	String phoneNumber,
 
@@ -26,7 +26,7 @@ public record JoinRequest(
 	@NotBlank(message = "이름은 필수 입력 값입니다.")
 	String name,
 
-	@ApiModelProperty(value = "생년월일", example = "20000101", required = true)
+	@ApiModelProperty(value = "생년월일", example = "2000-01-01", required = true)
 	@NotBlank(message = "생년월일은 필수 입력 값입니다.")
 	String birth,
 

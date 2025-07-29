@@ -59,8 +59,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 			requestURI.startsWith("/swagger") ||
 			requestURI.startsWith("/v2") ||
 			requestURI.startsWith("/webjars") ||
-			requestURI.startsWith("/configuration") ||
-			requestURI.startsWith("/codef");
+			requestURI.startsWith("/configuration");
 	}
 
 	// Request Header에서 토큰 정보 추출

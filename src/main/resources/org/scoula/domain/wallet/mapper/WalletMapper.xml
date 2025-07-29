@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="org.scoula.domain.wallet.mapper.WalletMapper">
+
+    <update id="updateBalance">
+        UPDATE
+            wallet
+        SET balance = #{newBalance}
+        WHERE wallet_id = #{walletId}
+    </update>
+
+    <select id="findByMemberIdWithLock" resultType="org.scoula.domain.wallet.entity.Wallet">
+        SELECT wallet_id,
+               member_id,
+               balance,
+               password
+        FROM wallet
+        WHERE member_id = #{memberId}
+            FOR UPDATE
+    </select>
+
+</mapper>

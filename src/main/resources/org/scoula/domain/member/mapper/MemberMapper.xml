@@ -106,4 +106,10 @@
         WHERE login_id = #{loginId}
     </select>
 
+    <select id="selectMemberByPhoneNumber" resultType="org.scoula.domain.member.entity.Member" parameterType="string">
+        SELECT *
+        FROM member
+        WHERE phone_number = #{phoneNumber}
+    </select>
+
 </mapper>

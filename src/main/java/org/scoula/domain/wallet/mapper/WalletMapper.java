@@ -1,5 +1,8 @@
 package org.scoula.domain.wallet.mapper;
 
+import java.math.BigDecimal;
+import java.util.Optional;
+
 import org.apache.ibatis.annotations.Insert;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Options;
@@ -24,4 +27,8 @@ public interface WalletMapper {
 		    WHERE member_id = #{memberId}
 		""")
 	Wallet findByMemberId(@Param("memberId") Long memberId);
+
+	Optional<Wallet> findByMemberIdWithLock(Long memberId);
+
+	void updateBalance(@Param("walletId") Long walletId, @Param("newBalance") BigDecimal newBalance);
 }

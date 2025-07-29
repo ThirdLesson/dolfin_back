@@ -9,10 +9,14 @@ import java.time.format.DateTimeFormatter;
 
 import javax.servlet.http.HttpServletRequest;
 
+import org.scoula.domain.account.entity.BankType;
 import org.scoula.domain.codef.dto.common.CodefCommonResponse;
 import org.scoula.domain.codef.dto.request.StayExpirationRequest;
 import org.scoula.domain.codef.dto.response.StayExpirationResponse;
+import org.scoula.domain.wallet.dto.request.AccountDepositorRequest;
+import org.scoula.domain.wallet.dto.response.DepositorResponse;
 import org.scoula.global.exception.CustomException;
+import org.scoula.global.exception.errorCode.ErrorCode;
 import org.scoula.global.kafka.dto.Common;
 import org.scoula.global.kafka.dto.LogLevel;
 import org.scoula.global.redis.util.RedisUtil;
@@ -23,7 +27,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.JavaType;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import lombok.RequiredArgsConstructor;
@@ -34,6 +38,7 @@ public class CodefApiClient {
 
 	private static final String REDIS_ACCESS_TOKEN_KEY = "codef_access_token";
 	private final static String STAY_EXPIRATION_URL = "https://development.codef.io/v1/kr/public/mj/hi-korea/stay-expiration-date";
+	private static final String ACCOUNT_URL = "https://development.codef.io/v1/kr/bank/a/account/holder";
 
 	private final RedisUtil redisUtil;
 	private final RestTemplate restTemplate;
@@ -43,8 +48,7 @@ public class CodefApiClient {
 	public StayExpirationResponse getStayExpiration(StayExpirationRequest stayExpirationRequest,
 		HttpServletRequest request) throws
 		JsonProcessingException {
-		String cachedAccessToken = redisUtil.get(REDIS_ACCESS_TOKEN_KEY);
-
+		String cachedAccessToken = getCachedAccessToken(request);
 		Common common = Common.builder()
 			.srcIp(request.getRemoteAddr())
 			.apiMethod(request.getMethod())
@@ -52,14 +56,11 @@ public class CodefApiClient {
 			.deviceInfo(request.getHeader("user-agent"))
 			.build();
 
-		if (cachedAccessToken == null) {
-			codefAuthService.issueCodefToken(request);
-		}
-
 		HttpEntity<StayExpirationRequest> requestEntity = getRequestHttpEntity(stayExpirationRequest,
 			cachedAccessToken);
 
-		CodefCommonResponse<StayExpirationResponse> response = getCodefCommonResponse(requestEntity, common);
+		CodefCommonResponse<StayExpirationResponse> response = getCodefCommonResponse(requestEntity, common,
+			STAY_EXPIRATION_URL, StayExpirationResponse.class, CODEF_STAY_EXPIRATION_API_FAILED);
 
 		String resultCode = response.result().code();
 
@@ -73,7 +74,7 @@ public class CodefApiClient {
 					null,                                     // resNationality
 					null,                                     // commBirthDate
 					null,                                     // resStatus
-					LocalDate.now().format(DateTimeFormatter.ofPattern("yyyyMMdd")) // resExpirationDate
+					LocalDate.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd")) // resExpirationDate
 				);
 			}
 			return response.data();
@@ -84,25 +85,61 @@ public class CodefApiClient {
 		}
 	}
 
-	private HttpEntity<StayExpirationRequest> getRequestHttpEntity(
-		StayExpirationRequest stayExpirationRequest, String cachedAccessToken) {
+	public DepositorResponse verifyAccountHolder(BankType bankType, String accountNumber,
+		HttpServletRequest request) throws JsonProcessingException {
+		String cachedAccessToken = getCachedAccessToken(request);
+		AccountDepositorRequest accountDepositorRequest = new AccountDepositorRequest(bankType.getCode(),
+			accountNumber);
+
+		HttpEntity<AccountDepositorRequest> entity = getRequestHttpEntity(accountDepositorRequest,
+			cachedAccessToken);
+
+		CodefCommonResponse<DepositorResponse> response = getCodefCommonResponse(entity, null,
+			ACCOUNT_URL, DepositorResponse.class, CODEF_ACCOUNT_HOLDER_API_FAILED);
+
+		String resultCode = response.result().code();
+
+		if (resultCode.equals("CF-00000")) {
+			return response.data();
+		} else if (resultCode.equals("CF-00001")) {
+			throw new CustomException(CODEF_REQUIRED_PARAMETER_MISSING, LogLevel.WARNING, null, null,
+				response.result().extraMessage() + "가 누락되었습니다.");
+		} else {
+			throw new CustomException(CODEF_ACCOUNT_HOLDER_API_FAILED, LogLevel.ERROR, null, null);
+		}
+	}
+
+	private String getCachedAccessToken(HttpServletRequest request) {
+		String cachedAccessToken = redisUtil.get(REDIS_ACCESS_TOKEN_KEY);
+
+		if (cachedAccessToken == null) {
+			codefAuthService.issueCodefToken(request);
+		}
+		return cachedAccessToken;
+	}
+
+	private <T> HttpEntity<T> getRequestHttpEntity(
+		T request, String cachedAccessToken) {
 		HttpHeaders headers = new HttpHeaders();
 		headers.setBearerAuth(cachedAccessToken);
 		headers.setContentType(MediaType.APPLICATION_JSON);
 
-		return new HttpEntity<>(stayExpirationRequest, headers);
+		return new HttpEntity<>(request, headers);
 	}
 
-	private CodefCommonResponse<StayExpirationResponse> getCodefCommonResponse(
-		HttpEntity<StayExpirationRequest> requestEntity, Common common) throws JsonProcessingException {
-		String rawResponse = restTemplate.postForObject(STAY_EXPIRATION_URL, requestEntity, String.class);
+	private <T, C> CodefCommonResponse<C> getCodefCommonResponse(
+		HttpEntity<T> requestEntity, Common common, String url, Class<C> clazz, ErrorCode errorCode) throws
+		JsonProcessingException {
+		String rawResponse = restTemplate.postForObject(url, requestEntity, String.class);
 
 		if (rawResponse == null) {
-			throw new CustomException(CODEF_STAY_EXPIRATION_API_FAILED, LogLevel.ERROR, null, common);
+			throw new CustomException(errorCode, LogLevel.ERROR, null, common);
 		}
 		String decoded = URLDecoder.decode(rawResponse, StandardCharsets.UTF_8);
 
-		return objectMapper.readValue(decoded, new TypeReference<>() {
-		});
+		JavaType type = objectMapper.getTypeFactory()
+			.constructParametricType(CodefCommonResponse.class, clazz);
+
+		return objectMapper.readValue(decoded, type);
 	}
 }

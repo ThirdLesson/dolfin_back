@@ -5,6 +5,7 @@ import java.math.BigDecimal;
 import org.scoula.global.entity.BaseEntity;
 
 import lombok.AccessLevel;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
@@ -17,8 +18,14 @@ public class LedgerEntry extends BaseEntity {
 	private LedgerType ledgerType; 		// DEBIT(차변) CREDIT(대변)
 	private Long ledgerVoucherId;       // 전표 ID (FK)
 
-	private Long legderCodeId;         // 회계 코드 ID (FK)
-	private LedgerCode ledgerCode;      // 회계 코드
+	private Long accountCodeId;         // 회계 코드 ID (FK)
 
+	@Builder
+	public LedgerEntry(BigDecimal amount, LedgerType ledgerType, Long ledgerVoucherId, Long accountCodeId) {
+		this.amount = amount;
+		this.ledgerType = ledgerType;
+		this.ledgerVoucherId = ledgerVoucherId;
+		this.accountCodeId = accountCodeId;
+	}
 }
 
