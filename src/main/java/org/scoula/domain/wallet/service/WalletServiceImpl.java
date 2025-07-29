@@ -3,6 +3,7 @@ package org.scoula.domain.wallet.service;
 import static org.scoula.domain.wallet.exception.WalletErrorCode.*;
 
 import java.math.BigDecimal;
+import java.util.Optional;
 import java.util.UUID;
 
 import javax.servlet.http.HttpServletRequest;
@@ -14,6 +15,7 @@ import org.scoula.domain.ledger.service.LedgerService;
 import org.scoula.domain.member.entity.Member;
 import org.scoula.domain.member.service.MemberService;
 import org.scoula.domain.transaction.service.TransactionService;
+import org.scoula.domain.wallet.dto.request.ChargeWalletRequest;
 import org.scoula.domain.wallet.dto.request.TransferToAccountRequest;
 import org.scoula.domain.wallet.dto.request.TransferToWalletRequest;
 import org.scoula.domain.wallet.dto.response.DepositorResponse;
@@ -21,6 +23,7 @@ import org.scoula.domain.wallet.dto.response.WalletResponse;
 import org.scoula.domain.wallet.entity.Wallet;
 import org.scoula.domain.wallet.mapper.WalletMapper;
 import org.scoula.global.exception.CustomException;
+import org.scoula.global.kafka.dto.Common;
 import org.scoula.global.kafka.dto.LogLevel;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -46,15 +49,12 @@ public class WalletServiceImpl implements WalletService {
 		Wallet byMemberId = walletMapper.findByMemberId(memberId);
 
 		if (byMemberId != null) {
-			System.out.println("여기 맞음??");
-			System.out.println("byMemberId.getWalletId() = " + byMemberId.getWalletId());
 			accountService.createAccount(new CreateAccountRequest(byMemberId.getWalletId(),
 				memberId, walletRequest.getAccountNumber(), walletRequest.getBankType()), request);
 			return;
 		}
 
 		walletMapper.createWallet(walletRequest, memberId);
-		System.out.println("walletRequest = " + walletRequest.getWalletId());
 		accountService.createAccount(new CreateAccountRequest(walletRequest.getWalletId(),
 			memberId, walletRequest.getAccountNumber(), walletRequest.getBankType()), request);
 	}
@@ -152,5 +152,62 @@ public class WalletServiceImpl implements WalletService {
 			transactionGroupId, request.amount());
 
 		ledgerService.accountForAccountTransfer(request, transactionGroupId);
+	}
+
+	@Override
+	public Wallet getWallet(Long walletId, HttpServletRequest request) {
+		return validateWallet(walletId, request);
+	}
+
+	@Override
+	@Transactional
+	public void chargeWallet(ChargeWalletRequest chargeWalletRequest, Long walletId, HttpServletRequest request) {
+
+		if (chargeWalletRequest.amount().compareTo(BigDecimal.valueOf(10000)) < 0) {
+			throw new CustomException(NOT_ENOUGH_AMOUNT, LogLevel.WARNING, null,
+				Common.builder().srcIp(request.getRemoteAddr()).callApiPath(request.getRequestURI()).apiMethod(
+					request.getMethod()).deviceInfo(request.getHeader("user-agent")).build(),
+				"최소 충전 금액부족, 요청 전자지갑 ID" + walletId);
+		}
+
+		// todo 본인 계좌에서 돈을 빼는 로직 (사업자 등록이 없어 구현 불가)
+
+		Wallet wallet = Optional.ofNullable(walletMapper.findByWalletIdForUpdate(walletId)).orElseThrow(
+			() -> new CustomException(NOT_EXIST_WALLET, LogLevel.WARNING, null,
+				Common.builder().srcIp(request.getRemoteAddr()).callApiPath(request.getRequestURI()).apiMethod(
+					request.getMethod()).deviceInfo(request.getHeader("user-agent")).build(),
+				"전자지갑 조회에 실패하였습니다" + walletId)
+		);
+
+		if (!chargeWalletRequest.walletPassword().equals(wallet.getPassword())) {
+			throw new CustomException(INVALID_WALLET_PASSWORD, LogLevel.WARNING, null,
+				Common.builder()
+					.deviceInfo(request.getHeader("user-agent"))
+					.apiMethod(request.getMethod())
+					.callApiPath(request.getRequestURI())
+					.srcIp(request.getRemoteAddr())
+					.build(), "전자지갑 ID: " + walletId + "전자지갑 비밀번호 불일치");
+		}
+
+		BigDecimal newBalance = wallet.getBalance().add(chargeWalletRequest.amount());
+
+		walletMapper.updateBalance(walletId, newBalance);
+
+		String transactionGroupId = UUID.randomUUID().toString();
+		transactionService.saveChargeTransaction(
+			wallet, newBalance,
+			null, null,
+			wallet.getMemberId(), null,
+			transactionGroupId, chargeWalletRequest.amount());
+
+		ledgerService.chargeTransfer(chargeWalletRequest, transactionGroupId);
+	}
+
+	private Wallet validateWallet(Long walletId, HttpServletRequest request) {
+		return Optional.ofNullable(walletMapper.findByWalletId(walletId)).orElseThrow(
+			() -> new CustomException(NOT_EXIST_WALLET, LogLevel.WARNING, null,
+				Common.builder().srcIp(request.getRemoteAddr()).callApiPath(request.getRequestURI()).apiMethod(
+					request.getMethod()).deviceInfo(request.getHeader("user-agent")).build())
+		);
 	}
 }
