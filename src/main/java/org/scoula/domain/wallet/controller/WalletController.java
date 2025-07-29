@@ -45,4 +45,14 @@ public class WalletController {
 		walletService.chargeWallet(chargeWalletRequest, walletId, request);
 		return SuccessResponse.noContent();
 	}
+
+	@ApiOperation(value = "전자지갑에 포인트 충전 api", notes = "전자지갑에 포인트를 충전합니다.")
+	@PostMapping("/{walletId}")
+	public SuccessResponse<Void> chargePointToWallet(
+		@PathVariable("walletId") @ApiParam(value = "PathVariable로 전자지갑 id 넘겨주세요") Long walletId,
+		@RequestBody @Valid ChargeWalletRequest chargeWalletRequest,
+		HttpServletRequest request) {
+		walletService.chargeWallet(chargeWalletRequest, walletId, request);
+		return SuccessResponse.noContent();
+	}
 }
