@@ -1,5 +1,7 @@
 package org.scoula.domain.wallet.controller;
 
+import java.util.List;
+
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
 
@@ -8,6 +10,8 @@ import org.scoula.domain.codef.service.CodefApiClient;
 import org.scoula.domain.wallet.dto.request.TransferToAccountRequest;
 import org.scoula.domain.wallet.dto.request.TransferToWalletRequest;
 import org.scoula.domain.wallet.dto.response.DepositorResponse;
+import org.scoula.domain.wallet.dto.response.RecentAccountReceiversResponse;
+import org.scoula.domain.wallet.dto.response.RecentWalletReceiversResponse;
 import org.scoula.domain.wallet.service.WalletService;
 import org.scoula.global.response.SuccessResponse;
 import org.scoula.global.security.dto.CustomUserDetails;
@@ -69,4 +73,23 @@ public class TransferController {
 		walletService.transferToAccount(request, customUserDetails.getMember().getMemberId());
 		return SuccessResponse.noContent();
 	}
+
+	@ApiOperation(value = "최근 계좌 이체 수신자 목록 조회", notes = "사용자의 최근 계좌 이체 내역을 기반으로, 가장 최근의 고유한 4개의 계좌 이체 수신자 목록을 조회합니다.")
+	@GetMapping("/recent/account")
+	public SuccessResponse<List<RecentAccountReceiversResponse>> recentAccountReceivers(
+		@AuthenticationPrincipal CustomUserDetails customUserDetails) {
+		List<RecentAccountReceiversResponse> response = walletService.getRecentAccountReceivers(
+			customUserDetails.getMember());
+		return SuccessResponse.ok(response);
+	}
+
+	@ApiOperation(value = "최근 지갑 송금 수신자 목록 조회", notes = "사용자의 최근 지갑 송금 내역을 기반으로, 가장 최근의 고유한 4개의 지갑 송금 수신자 목록을 조회합니다.")
+	@GetMapping("/recent/wallet")
+	public SuccessResponse<List<RecentWalletReceiversResponse>> recentWalletReceivers(
+		@AuthenticationPrincipal CustomUserDetails customUserDetails) {
+		List<RecentWalletReceiversResponse> response = walletService.getRecentWalletReceivers(
+			customUserDetails.getMember());
+		return SuccessResponse.ok(response);
+	}
+
 }

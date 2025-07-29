@@ -40,7 +40,7 @@ public class LedgerServiceImpl implements LedgerService {
 	@Override
 	@Transactional
 	public void accountForWalletTransfer(TransferToWalletRequest request, String transactionGroupId) {
-		LedgerVoucher ledgerVoucher = getLedgerVoucher(transactionGroupId, TRANSFER);
+		LedgerVoucher ledgerVoucher = getLedgerVoucher(transactionGroupId, WALLET_TRANSFER);
 
 		List<LedgerEntry> ledgerEntries = new ArrayList<>();
 
@@ -69,7 +69,7 @@ public class LedgerServiceImpl implements LedgerService {
 	@Override
 	public void accountForAccountTransfer(TransferToAccountRequest request, String transactionGroupId) {
 		BigDecimal amount = request.amount();
-		LedgerVoucher ledgerVoucher = getLedgerVoucher(transactionGroupId, TRANSFER);
+		LedgerVoucher ledgerVoucher = getLedgerVoucher(transactionGroupId, ACCOUNT_TRANSFER);
 
 		List<LedgerEntry> ledgerEntries = new ArrayList<>();
 

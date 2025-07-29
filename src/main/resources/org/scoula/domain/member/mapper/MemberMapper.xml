@@ -112,4 +112,13 @@
         WHERE phone_number = #{phoneNumber}
     </select>
 
+    <select id="selectMembersInIds" resultMap="memberResultMap">
+        SELECT *
+        FROM member
+        WHERE member_id IN
+        <foreach item="memberId" collection="memberIds" open="(" separator="," close=")">
+            #{memberId}
+        </foreach>
+    </select>
+
 </mapper>

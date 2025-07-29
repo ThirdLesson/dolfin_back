@@ -4,6 +4,7 @@ import static org.scoula.domain.wallet.exception.WalletErrorCode.*;
 
 import java.math.BigDecimal;
 import java.util.Optional;
+import java.util.List;
 import java.util.UUID;
 
 import javax.servlet.http.HttpServletRequest;
@@ -14,11 +15,14 @@ import org.scoula.domain.codef.dto.request.WalletRequest;
 import org.scoula.domain.ledger.service.LedgerService;
 import org.scoula.domain.member.entity.Member;
 import org.scoula.domain.member.service.MemberService;
+import org.scoula.domain.transaction.entity.Transaction;
 import org.scoula.domain.transaction.service.TransactionService;
 import org.scoula.domain.wallet.dto.request.ChargeWalletRequest;
 import org.scoula.domain.wallet.dto.request.TransferToAccountRequest;
 import org.scoula.domain.wallet.dto.request.TransferToWalletRequest;
 import org.scoula.domain.wallet.dto.response.DepositorResponse;
+import org.scoula.domain.wallet.dto.response.RecentAccountReceiversResponse;
+import org.scoula.domain.wallet.dto.response.RecentWalletReceiversResponse;
 import org.scoula.domain.wallet.dto.response.WalletResponse;
 import org.scoula.domain.wallet.entity.Wallet;
 import org.scoula.domain.wallet.mapper.WalletMapper;
@@ -111,9 +115,9 @@ public class WalletServiceImpl implements WalletService {
 		walletMapper.updateBalance(receiverWallet.getWalletId(), receiverNewBalance);
 
 		String transactionGroupId = UUID.randomUUID().toString();
-		transactionService.saveTransferTransaction(senderWallet, senderNewBalance, receiverWallet, receiverNewBalance,
-			memberId,
-			receiver.getMemberId(), transactionGroupId, request.amount());
+		transactionService.saveWalletTransferTransaction(senderWallet, senderNewBalance, receiverWallet,
+			receiverNewBalance,
+			memberId, receiver.getMemberId(), transactionGroupId, request.amount());
 
 		ledgerService.accountForWalletTransfer(request, transactionGroupId);
 	}
@@ -145,13 +149,25 @@ public class WalletServiceImpl implements WalletService {
 		accountService.depositToAccount(request);
 
 		String transactionGroupId = UUID.randomUUID().toString();
-		transactionService.saveTransferTransaction(
-			senderWallet, senderNewBalance,
-			null, null,
-			memberId, null,
-			transactionGroupId, request.amount());
+		transactionService.saveAccountTransferTransaction(senderWallet, senderNewBalance, memberId, transactionGroupId,
+			request);
 
 		ledgerService.accountForAccountTransfer(request, transactionGroupId);
+	}
+
+	@Override
+	public List<RecentAccountReceiversResponse> getRecentAccountReceivers(Member member) {
+		List<Transaction> transactions = transactionService.getRecentAccountReceivers(member.getMemberId());
+		return transactions.stream().map(transaction ->
+			new RecentAccountReceiversResponse(transaction.getCounterPartyName(), transaction.getCounterPartyBankType(),
+				transaction.getCounterPartyAccountNumber())).toList();
+	}
+
+	@Override
+	public List<RecentWalletReceiversResponse> getRecentWalletReceivers(Member member) {
+		List<Member> receivers = transactionService.getRecentWalletReceivers(member.getMemberId());
+		return receivers.stream().map(receiver ->
+			new RecentWalletReceiversResponse(receiver.getName(), receiver.getPhoneNumber())).toList();
 	}
 
 	@Override
