@@ -1,6 +1,6 @@
 package org.scoula.domain.member.dto.response;
 
-import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 
 import org.scoula.domain.member.dto.MemberDTO;
 import org.scoula.global.constants.Currency;
@@ -19,20 +19,43 @@ public record SignInResponseDto(
 	@ApiModelProperty(value = "국적", example = "KOR")
 	NationalityCode nationality,
 	@ApiModelProperty(value = "생년월일")
-	LocalDate birth,
+	String birth,
 	@ApiModelProperty(value = "성명", example = "홍길동", required = true)
 	String name,
-	@ApiModelProperty(value = "전화번호", example = "01012345678")
+	@ApiModelProperty(value = "전화번호", example = "010-1234-5678")
 	String phoneNumber,
 	@ApiModelProperty(value = "잔여 체류기간")
-	LocalDate remainTime,
+	String remainTime,
 	@ApiModelProperty(value = "설정 통화", example = "USD")
 	Currency currency) {
 	public static SignInResponseDto from(JwtToken token, MemberDTO member) {
 
+		DateTimeFormatter dateFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+		String birthStr = member.getBirth().format(dateFormatter);
+		String remainStr = member.getRemainTime().format(dateFormatter);
+		String phoneStr = formatPhoneNumber(member.getPhoneNumber());
+
 		return new SignInResponseDto(token.getGrantType(),
 			token.getAccessToken(),
-			member.getMemberId(), member.getPassportNumber(), member.getNationality(), member.getBirth(),
-			member.getName(), member.getPhoneNumber(), member.getRemainTime(), member.getCurrency());
+			member.getMemberId(),
+			member.getPassportNumber(),
+			member.getNationality(),
+			birthStr,
+			member.getName(),
+			phoneStr,
+			remainStr,
+			member.getCurrency());
+	}
+
+	private static String formatPhoneNumber(String raw) {
+		if (raw == null || raw.length() < 10)
+			return raw;
+		if (raw.length() == 10) {
+			return raw.substring(0, 3) + "-" + raw.substring(3, 6) + "-" + raw.substring(6);
+		}
+		if (raw.length() == 11) {
+			return raw.substring(0, 3) + "-" + raw.substring(3, 7) + "-" + raw.substring(7);
+		}
+		return raw;
 	}
 }
