@@ -1,12 +1,16 @@
 package org.scoula.domain.account.service;
 
 import static org.scoula.domain.account.exception.AccountErrorCode.*;
+import static org.scoula.domain.wallet.exception.WalletErrorCode.*;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
 
 import javax.servlet.http.HttpServletRequest;
 
 import org.scoula.domain.account.dto.request.CreateAccountRequest;
+import org.scoula.domain.account.dto.response.AccountListResponse;
 import org.scoula.domain.account.entity.Account;
 import org.scoula.domain.account.exception.AccountErrorCode;
 import org.scoula.domain.account.mapper.AccountMapper;
@@ -14,6 +18,8 @@ import org.scoula.domain.member.dto.MemberDTO;
 import org.scoula.domain.member.exception.MemberErrorCode;
 import org.scoula.domain.member.service.MemberService;
 import org.scoula.domain.wallet.dto.request.TransferToAccountRequest;
+import org.scoula.domain.wallet.entity.Wallet;
+import org.scoula.domain.wallet.mapper.WalletMapper;
 import org.scoula.global.exception.CustomException;
 import org.scoula.global.kafka.dto.Common;
 import org.scoula.global.kafka.dto.LogLevel;
@@ -31,6 +37,7 @@ public class AccountServiceImpl implements AccountService {
 
 	private final AccountMapper accountMapper;
 	private final MemberService memberService;
+	private final WalletMapper walletMapper;
 
 	@Override
 	public void createAccount(CreateAccountRequest createAccountRequest, HttpServletRequest request) {
@@ -59,5 +66,24 @@ public class AccountServiceImpl implements AccountService {
 			throw new CustomException(ACCOUNT_TRANSFER_FAILED, LogLevel.ERROR, null, null,
 				"은행 계좌 이체 실패: " + request.accountNumber());
 		}
+	}
+
+	@Override
+	public List<AccountListResponse> getAllAccountsByWalletId(Long walletId, HttpServletRequest request) {
+		Wallet wallet = validateWallet(walletId, request);// 전자지갑이 존재하는지 검증
+		List<Account> byWalletId = accountMapper.findByWalletId(walletId);
+		List<AccountListResponse> accountListResponses = new ArrayList<>();
+		for (Account account : byWalletId) {
+			accountListResponses.add(new AccountListResponse(account.getAccountNumber(), account.getBankType().name()));
+		}
+		return accountListResponses;
+	}
+
+	private Wallet validateWallet(Long walletId, HttpServletRequest request) {
+		return Optional.ofNullable(walletMapper.findByWalletId(walletId)).orElseThrow(
+			() -> new CustomException(NOT_EXIST_WALLET, LogLevel.WARNING, null,
+				Common.builder().srcIp(request.getRemoteAddr()).callApiPath(request.getRequestURI()).apiMethod(
+					request.getMethod()).deviceInfo(request.getHeader("user-agent")).build())
+		);
 	}
 }

@@ -1,5 +1,7 @@
 package org.scoula.domain.account.mapper;
 
+import java.util.List;
+
 import org.apache.ibatis.annotations.Insert;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Select;
@@ -49,4 +51,22 @@ public interface AccountMapper {
 		    WHERE account_number = #{accountNumber}
 		""")
 	Account findByAccountNumber(String accountNumber);
+
+	@Select("""
+		    SELECT 
+		        account_id,
+		        wallet_id,
+		        member_id,
+		        account_number,
+		        password,
+		        balance,
+		        bank_type,
+		        is_verified,
+		        verified_at,
+		        created_at,
+		        updated_at
+		    FROM account
+		    WHERE wallet_id = #{walletId}
+		""")
+	List<Account> findByWalletId(Long walletId);
 }
