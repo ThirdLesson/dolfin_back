@@ -95,4 +95,10 @@ public class MemberServiceImpl implements MemberService {
 		memberMapper.updateConnectedId(memberId, connectedId);
 	}
 
+	@Override
+	public Member getMemberByPhoneNumber(String phoneNumber) {
+		return memberMapper.selectMemberByPhoneNumber(phoneNumber)
+			.orElseThrow(() -> new CustomException(MEMBER_NOT_FOUND, LogLevel.WARNING, null, null));
+	}
+
 }

@@ -20,10 +20,10 @@ public record JoinResponse(
 	@ApiModelProperty(value = "국적", example = "대한민국")
 	String nationality,
 
-	@ApiModelProperty(value = "생년월일", example = "19900101")
+	@ApiModelProperty(value = "생년월일", example = "1990-01-01")
 	String birth,
 
-	@ApiModelProperty(value = "잔여 체류일", example = "20251231")
+	@ApiModelProperty(value = "잔여 체류일", example = "2025-12-31")
 	String remainTime
 ) {
 	public static JoinResponse of(Member member) {
@@ -33,7 +33,7 @@ public record JoinResponse(
 		} else {
 			nationality = member.getNationality().getDescription();
 		}
-		DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyyMMdd");
+		DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
 
 		return JoinResponse.builder()
 			.name(member.getName())

@@ -20,8 +20,7 @@ import javax.servlet.http.HttpServletRequest;
 import org.scoula.domain.codef.dto.request.CodefConnectedIdRequest;
 import org.scoula.domain.codef.dto.request.CodefVerifyCodeRequest;
 import org.scoula.domain.codef.dto.response.CodefVerifyCodeResponse;
-import org.scoula.domain.member.dto.MemberDTO;
-import org.scoula.domain.member.exception.MemberErrorCode;
+import org.scoula.domain.member.entity.Member;
 import org.scoula.domain.member.service.MemberService;
 import org.scoula.global.exception.CustomException;
 import org.scoula.global.kafka.dto.Common;
@@ -102,12 +101,7 @@ public class CodefAccountService {
 		}
 	}
 
-	public void requestConnectedIdCreate(CodefConnectedIdRequest req, Long memberId, HttpServletRequest request) {
-		MemberDTO member = memberService.getMemberById(memberId);
-		if (member == null) {
-			throw new CustomException(MemberErrorCode.MEMBER_NOT_FOUND, LogLevel.WARNING, "회원 아이디가 존재하지 않습니다.",
-				Common.builder().build());
-		}
+	public void requestConnectedIdCreate(CodefConnectedIdRequest req, Member member, HttpServletRequest request) {
 		if (member.getConnectedId() != null)
 			return;
 
@@ -138,7 +132,7 @@ public class CodefAccountService {
 				String decoded = readResponse(conn);
 				JsonNode root = new ObjectMapper().readTree(decoded);
 				String connectedId = root.path("data").path("connectedId").asText();
-				memberService.updateConnectedId(memberId, connectedId);
+				memberService.updateConnectedId(member.getMemberId(), connectedId);
 			} else {
 				String error = readErrorResponse(conn);
 				log.info("커넥티드 코드 요청 에러 = " + error);

@@ -1,6 +1,7 @@
 package org.scoula.domain.member.mapper;
 
 import java.util.List;
+import java.util.Optional;
 
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
@@ -33,4 +34,6 @@ public interface MemberMapper {
 
 	@Update("UPDATE member SET connected_id = #{connectedId} WHERE member_id = #{memberId}")
 	void updateConnectedId(@Param("memberId") Long memberId, @Param("connectedId") String connectedId);
+
+	Optional<Member> selectMemberByPhoneNumber(String phoneNumber);
 }

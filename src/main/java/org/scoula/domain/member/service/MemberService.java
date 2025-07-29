@@ -3,6 +3,7 @@ package org.scoula.domain.member.service;
 import java.util.List;
 
 import org.scoula.domain.member.dto.MemberDTO;
+import org.scoula.domain.member.entity.Member;
 
 public interface MemberService {
 
@@ -22,5 +23,7 @@ public interface MemberService {
 
 	// 커넥티드 아이디 업데이트
 	void updateConnectedId(Long memberId, String connectedId);
+
+	Member getMemberByPhoneNumber(String phoneNumber);
 
 }

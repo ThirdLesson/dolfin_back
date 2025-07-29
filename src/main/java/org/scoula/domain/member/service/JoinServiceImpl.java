@@ -31,7 +31,8 @@ import lombok.RequiredArgsConstructor;
 @Service
 public class JoinServiceImpl implements JoinService {
 
-	private static final DateTimeFormatter DATE_TIME_FORMATTER = DateTimeFormatter.ofPattern("yyyyMMdd");
+	private static final DateTimeFormatter DATE_FORMATTER = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+	private static final DateTimeFormatter STAY_EXPIRATION_FORMATTER = DateTimeFormatter.ofPattern("yyyyMMdd");
 	private final MemberMapper memberMapper;
 	private final CodefApiClient codefApiClient;
 	private final PasswordEncoder passwordEncoder;
@@ -41,9 +42,12 @@ public class JoinServiceImpl implements JoinService {
 	public JoinResponse joinMember(JoinRequest joinRequest, HttpServletRequest request) throws JsonProcessingException {
 		checkLoginId(joinRequest.loginId());
 
+		LocalDate date = LocalDate.parse(joinRequest.birth(), DATE_FORMATTER);
+		String StayExpirationBirthDate = date.format(STAY_EXPIRATION_FORMATTER);
+
 		StayExpirationRequest stayExpirationRequest = StayExpirationRequest.builder()
 			.organization("0001") // 고정값 0001
-			.birthDate(joinRequest.birth())
+			.birthDate(StayExpirationBirthDate)
 			.passportNo(joinRequest.passportNumber())
 			.nationality(joinRequest.nationality().getCode())
 			.country(joinRequest.country())
@@ -55,7 +59,7 @@ public class JoinServiceImpl implements JoinService {
 			.password(encodePassword(joinRequest.password()))
 			.passportNumber(joinRequest.passportNumber())
 			.name(joinRequest.name())
-			.birth(LocalDate.parse(joinRequest.birth(), DATE_TIME_FORMATTER))
+			.birth(LocalDate.parse(joinRequest.birth(), DATE_FORMATTER))
 			.nationality(joinRequest.nationality())
 			.phoneNumber(joinRequest.phoneNumber())
 			.currency(USD) // default USD
@@ -84,7 +88,7 @@ public class JoinServiceImpl implements JoinService {
 			// throw new CustomException(STAY_EXPIRATION, LogLevel.WARNING, null, null);
 			return null;
 		}
-		return LocalDate.parse(expirationDate, DATE_TIME_FORMATTER);
+		return LocalDate.parse(expirationDate, DATE_FORMATTER);
 	}
 
 	private boolean checkLoginIdDuplicate(String loginId) {
