@@ -4,14 +4,29 @@ import static org.scoula.domain.transaction.entity.TransactionStatus.*;
 import static org.scoula.domain.transaction.entity.TransactionType.*;
 
 import java.math.BigDecimal;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 import org.scoula.domain.member.entity.Member;
 import org.scoula.domain.member.mapper.MemberMapper;
+import org.scoula.domain.transaction.dto.response.TransactionHistoryResponse;
+import org.scoula.domain.transaction.dto.response.TransactionResponse;
 import org.scoula.domain.transaction.entity.Transaction;
+import org.scoula.domain.transaction.entity.TransactionType;
 import org.scoula.domain.transaction.mapper.TransactionMapper;
 import org.scoula.domain.wallet.dto.request.TransferToAccountRequest;
 import org.scoula.domain.wallet.entity.Wallet;
+import org.scoula.global.constants.Period;
+import org.scoula.global.constants.SortDirection;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -108,5 +123,64 @@ public class TransactionServiceImpl implements TransactionService {
 			.status(SUCCESS)
 			.build();
 		transactionMapper.insert(chargeTransaction);
+	}
+
+	@Override
+	public Page<TransactionHistoryResponse> getTransactionHistory(Period period, TransactionType type,
+		BigDecimal minAmount, BigDecimal maxAmount, SortDirection sortDirection, int page, int size, Member member) {
+
+		LocalDateTime endDate = LocalDateTime.now();
+		LocalDateTime startDate = period.getStartDate(endDate);
+
+		long totalElements = transactionMapper.countTransactionHistory(
+			member.getMemberId(),
+			startDate,
+			endDate,
+			type,
+			minAmount,
+			maxAmount
+		);
+
+		Pageable pageable = PageRequest.of(page, size, Sort.unsorted());
+
+		List<Transaction> transactions = transactionMapper.findTransactionHistory(
+			member.getMemberId(),
+			startDate,
+			endDate,
+			type,
+			minAmount,
+			maxAmount,
+			sortDirection,
+			size,
+			(int)pageable.getOffset()
+		);
+
+		Map<LocalDate, List<TransactionResponse>> groupedByDate = transactions.stream()
+			.collect(Collectors.groupingBy(
+				transaction -> transaction.getCreatedAt().toLocalDate(),
+				Collectors.mapping(this::convertToTransactionResponse, Collectors.toList())
+			));
+
+		DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+		List<TransactionHistoryResponse> historyResponseList = groupedByDate.entrySet().stream()
+			.sorted(Map.Entry.<LocalDate, List<TransactionResponse>>comparingByKey().reversed())
+			.map(entry -> TransactionHistoryResponse.builder()
+				.date(entry.getKey().format(formatter))
+				.transactions(entry.getValue())
+				.build())
+			.toList();
+
+		return new PageImpl<>(historyResponseList, pageable, totalElements);
+	}
+
+	private TransactionResponse convertToTransactionResponse(Transaction transaction) {
+		DateTimeFormatter formatter = DateTimeFormatter.ofPattern("HH:mm:ss");
+		return TransactionResponse.builder()
+			.transactionId(transaction.getTransactionId())
+			.type(transaction.getTransactionType())
+			.amount(transaction.getAmount())
+			.createdAt(transaction.getCreatedAt().format(formatter))
+			.status(transaction.getStatus())
+			.build();
 	}
 }

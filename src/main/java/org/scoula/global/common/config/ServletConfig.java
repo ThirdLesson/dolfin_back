@@ -1,7 +1,11 @@
 package org.scoula.global.common.config;
 
+import java.util.List;
+
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.data.web.PageableHandlerMethodArgumentResolver;
+import org.springframework.web.method.support.HandlerMethodArgumentResolver;
 import org.springframework.web.servlet.config.annotation.EnableWebMvc;
 import org.springframework.web.servlet.config.annotation.ResourceHandlerRegistry;
 import org.springframework.web.servlet.config.annotation.ViewResolverRegistry;
@@ -47,5 +51,10 @@ public class ServletConfig implements WebMvcConfigurer {
 		bean.setPrefix("/WEB-INF/views/");
 		bean.setSuffix(".jsp");
 		registry.viewResolver(bean);
+	}
+
+	@Override
+	public void addArgumentResolvers(List<HandlerMethodArgumentResolver> resolvers) {
+		resolvers.add(new PageableHandlerMethodArgumentResolver());
 	}
 }

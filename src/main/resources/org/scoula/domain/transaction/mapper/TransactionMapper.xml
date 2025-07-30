@@ -119,4 +119,40 @@
         ORDER BY created_at DESC, transaction_id DESC LIMIT 4
     </select>
 
+    <sql id="transactionHistoryWhereConditions">
+        WHERE member_id = #{memberId}
+        AND created_at BETWEEN #{startDate} AND #{endDate}
+        <if test="type != null">
+            AND transaction_type = #{type}
+        </if>
+        <if test="minAmount != null">
+            AND amount &gt;= #{minAmount}
+        </if>
+        <if test="maxAmount != null">
+            AND amount &lt;= #{maxAmount}
+        </if>
+    </sql>
+
+    <select id="countTransactionHistory" resultType="java.lang.Long">
+        SELECT COUNT(*)
+        FROM transaction
+        <include refid="transactionHistoryWhereConditions"/>
+    </select>
+
+    <select id="findTransactionHistory" resultMap="transactionResultMap">
+        SELECT *
+        FROM transaction
+        <include refid="transactionHistoryWhereConditions"/>
+        ORDER BY
+        <choose>
+            <when test="sortDirection == @org.scoula.global.constants.SortDirection@OLDEST">
+                created_at ASC
+            </when>
+            <otherwise>
+                created_at DESC
+            </otherwise>
+        </choose>
+        LIMIT #{limit} OFFSET #{offset}
+    </select>
+
 </mapper>
