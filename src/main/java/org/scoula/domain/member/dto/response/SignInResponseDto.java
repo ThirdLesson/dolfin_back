@@ -14,6 +14,8 @@ public record SignInResponseDto(
 	String accessToken,
 	@ApiModelProperty(value = "회원 ID", example = "1")
 	Long memberId,
+	@ApiModelProperty(value = "회원 로그인ID", example = "loginId")
+	String loginId,
 	@ApiModelProperty(value = "여권번호", example = "M12345678")
 	String passportNumber,
 	@ApiModelProperty(value = "국적", example = "KOR")
@@ -38,6 +40,7 @@ public record SignInResponseDto(
 		return new SignInResponseDto(token.getGrantType(),
 			token.getAccessToken(),
 			member.getMemberId(),
+			member.getLoginId(),
 			member.getPassportNumber(),
 			member.getNationality(),
 			birthStr,
