@@ -132,6 +132,15 @@ public class CodefAccountService {
 				String decoded = readResponse(conn);
 				JsonNode root = new ObjectMapper().readTree(decoded);
 				String connectedId = root.path("data").path("connectedId").asText();
+				if (connectedId.isEmpty() || connectedId.isBlank()) {
+					throw new CustomException(BANK_LOGIN_FAIL, LogLevel.WARNING, null, Common.builder()
+						.srcIp(request.getRemoteAddr())
+						.callApiPath(request.getRequestURI())
+						.apiMethod(request.getMethod())
+						.deviceInfo(request.getHeader("host-agent"))
+						.memberId(String.valueOf(member.getMemberId()))
+						.build(), "은행 로그인 실패 에러");
+				}
 				memberService.updateConnectedId(member.getMemberId(), connectedId);
 			} else {
 				String error = readErrorResponse(conn);

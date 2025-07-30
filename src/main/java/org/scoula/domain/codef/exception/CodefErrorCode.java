@@ -16,6 +16,8 @@ public enum CodefErrorCode implements ErrorCode {
 	STAY_AUTHENTICITY_FAILED(HttpStatus.BAD_REQUEST, "C-005", "현재 체류중이 아닙니다."),
 	CODEF_VERIFICATION_CODE_FAIL(HttpStatus.BAD_REQUEST, "C-006", "계좌 1원 인증에 실패하였습니다."),
 	CODEF_ACCOUNT_HOLDER_API_FAILED(HttpStatus.INTERNAL_SERVER_ERROR, "C-007", "예금자명 API 연동에 실패했습니다."),
+	BANK_LOGIN_FAIL(HttpStatus.BAD_REQUEST, "C-008", "은행 아이디 또는 비밀번호가 일치하지 않습니다."),
+
 	;
 	private final HttpStatus httpStatus;
 	private final String code;
