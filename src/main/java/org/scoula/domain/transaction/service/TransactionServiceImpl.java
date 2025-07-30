@@ -67,7 +67,7 @@ public class TransactionServiceImpl implements TransactionService {
 			.amount(amount)
 			.beforeBalance(receiverWallet.getBalance())
 			.afterBalance(receiverNewBalance)
-			.transactionType(WALLET_TRANSFER)
+			.transactionType(DEPOSIT)
 			.counterPartyMemberId(senderWallet.getMemberId())
 			.counterPartyWalletId(senderWallet.getWalletId())
 			.status(SUCCESS)
