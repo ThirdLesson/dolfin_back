@@ -13,20 +13,12 @@ public interface FinancialCompanyMapper {
 	// 전체 조회
 	List<FinancialCompany> selectAllFinancialCompany();
 
-	// 단건 조회
-	FinancialCompany selectFinancialCompanyById(@Param("financialCompanyId") Long id);
+	// 금융회사 코드로 조회
+	FinancialCompany selectByCode(String code);
 
-	// 등록
-	int insertFinancialCompany(FinancialCompany financialCompany);
+	// 여러 금융회사 데이터르 한 번에 저장
+	int insertBatch(List<FinancialCompany> newCompanies);
 
-	// 수정
-	int updateFinancialCompany(FinancialCompany financialCompany);
-
-	// 배치 insert(외부 api 데이터 일괄 저장용,중복시 무시)
-	int insertFinancialCompanyBatch(@Param("list") List<FinancialCompany> financialCompanies);
-
-	// 금융회사 코드 아이디로 찾기
-	String findCodeById(Long financialCompanyId);
-
-	Long findIdByCode(String finCoNo);
+	// 금융회사 ID 조회
+	FinancialCompany selectById(Long financialCompanyId);
 }

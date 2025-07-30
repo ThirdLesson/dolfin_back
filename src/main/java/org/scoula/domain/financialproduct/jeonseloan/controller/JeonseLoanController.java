@@ -55,34 +55,10 @@ public class JeonseLoanController {
 		return SuccessResponse.noContent();
 	}
 
-	//    금리 범위 검색
-	@GetMapping("/rate")
-	public SuccessResponse<List<JeonseLoanDTO>> getByInterestRate(
-		@RequestParam(required = false) Double min,
-		@RequestParam(required = false) Double max) {
-		List<JeonseLoanDTO> jeonseLoans = jeonseLoanService.getJeonseLoansByInterestRateRange(min, max);
-		return SuccessResponse.ok(jeonseLoans);
-	}
-
 	//   외부 API 데이터 가져오기
 	@PostMapping("/sync")
 	public SuccessResponse<Void> syncFromApi() {
 		jeonseLoanService.fetchAndSaveJeonseLoansFromApi();
 		return SuccessResponse.created(null);
-	}
-
-	//    특정 금융회사 API 데이터 가져오기
-	@PostMapping("/sync/company/{financialCompanyId}")
-	public SuccessResponse<Void> syncFromApiByCompany(
-		@PathVariable Long financialCompanyId) {
-		jeonseLoanService.fetchAndSaveJeonseLoansFromApi(financialCompanyId);
-		return SuccessResponse.created(null);
-	}
-
-	//    API 데이터 동기화 (업데이트/추가)
-	@PutMapping("/sync")
-	public SuccessResponse<Void> synchronizeFromApi() {
-		jeonseLoanService.synchronizeJeonseLoansFromApi();
-		return SuccessResponse.noContent();
 	}
 }

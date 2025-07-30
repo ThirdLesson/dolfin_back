@@ -77,23 +77,21 @@ public class PersonalCreditLoanController {
 
 		return SuccessResponse.ok(personalCreditLoans);
 	}
-
-	@GetMapping("/sorted-by-rate")
+	// // 최저금리
+	// @GetMapping("/min")
+	// public SuccessResponse<List<PersonalCreditLoanDTO>> getPersonalCreditLoansMinRate(){
+	// 	log.info("최저금리순 개인신용대출 상품 조회 요청");
+	// 	List<PersonalCreditLoanDTO> minPersonalCreditLoan = personalCreditLoanService.get
+	// }
+	// 최고금리
+	// @GetMapping("/max")
+	// @GetMapping("/sorted-by-rate")
 	public SuccessResponse<List<PersonalCreditLoanDTO>> getPersonalCreditLoansSortedByRate() {
 		log.info("평균금리순 개인신용대출 상품 조회 요청");
 
 		List<PersonalCreditLoanDTO> personalCreditLoans = personalCreditLoanService.getPersonalCreditLoansOrderByAvgRate();
 
 		return SuccessResponse.ok(personalCreditLoans);
-	}
-
-	@PostMapping("/sync")
-	public SuccessResponse<Void> synchronizePersonalCreditLoanData() {
-		log.info("개인신용대출 데이터 동기화 요청");
-
-		personalCreditLoanService.synchronizePersonalCreditLoanData();
-
-		return SuccessResponse.ok(null);
 	}
 
 	@PostMapping("/batch")

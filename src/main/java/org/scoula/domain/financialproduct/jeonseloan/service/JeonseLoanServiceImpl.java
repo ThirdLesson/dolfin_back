@@ -3,11 +3,10 @@ package org.scoula.domain.financialproduct.jeonseloan.service;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
-import lombok.Builder;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
-import org.scoula.domain.financialproduct.errorCode.FinancialErrorCode;
+import org.scoula.domain.financialproduct.exception.FinancialErrorCode;
 import org.scoula.domain.financialproduct.financialcompany.mapper.FinancialCompanyMapper;
 import org.scoula.domain.financialproduct.jeonseloan.dto.JeonseLoanDTO;
 import org.scoula.domain.financialproduct.jeonseloan.entity.JeonseLoan;

@@ -16,5 +16,5 @@ public class FinancialCompany extends BaseEntity {
 	private String name;
 	private String code;
 	private String callNumber;
-	private String hompageUrl;
+	private String homepageUrl;
 }

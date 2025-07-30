@@ -2,22 +2,23 @@ package org.scoula.domain.financialproduct.depositsaving.dto;
 
 import lombok.*;
 
-import org.scoula.domain.financialproduct.depositsaving.entity.DepositSaving;
-import org.scoula.domain.financialproduct.depositsaving.entity.DepositSavingType;
+import org.scoula.domain.financialproduct.constants.DepositSpclCondition;
+import org.scoula.domain.financialproduct.depositsaving.entity.Deposit;
+import org.scoula.global.entity.BaseEntity;
 
 import java.math.BigDecimal;
+import java.util.List;
 
 @Getter
 @AllArgsConstructor
 @Builder
-public class DepositSavingDTO {
+public class DepositSavingDTO extends BaseEntity {
 	private final Long depositSavingId;
 	private final Long financialCompanyId;
-	private final DepositSavingType type;
 	private final String name;
 	private final String joinWay;
 	private final String interestDescription;
-	private final String spclCondition;
+	private final List<DepositSpclCondition> spclConditions;
 	private final String ctcNote;
 	private final String maxLimit;
 	private final Integer saveMonth;
@@ -27,42 +28,28 @@ public class DepositSavingDTO {
 	private final String reserveType;
 
 	// DTO → Entity
-	public DepositSaving toEntity() {
-		return DepositSaving.builder()
+	public Deposit toEntity() {
+		return Deposit.builder()
 			.depositSavingId(this.depositSavingId)
 			.financialCompanyId(this.financialCompanyId)
-			.type(this.type)
 			.name(this.name)
-			.joinWay(this.joinWay)
-			.interestDescription(this.interestDescription)
-			.spclCondition(this.spclCondition)
-			.ctcNote(this.ctcNote)
-			.maxLimit(this.maxLimit)
+			.spclCondition(this.spclConditions)
 			.saveMonth(this.saveMonth)
 			.interestRate(this.interestRate)
 			.maxInterestRate(this.maxInterestRate)
-			.interestRateType(this.interestRateType)
-			.reserveType(this.reserveType)
 			.build();
 	}
 
 	// Entity → DTO
-	public static DepositSavingDTO fromEntity(DepositSaving entity) {
+	public static DepositSavingDTO fromEntity(Deposit entity) {
 		return DepositSavingDTO.builder()
 			.depositSavingId(entity.getDepositSavingId())
 			.financialCompanyId(entity.getFinancialCompanyId())
-			.type(entity.getType())
 			.name(entity.getName())
-			.joinWay(entity.getJoinWay())
-			.interestDescription(entity.getInterestDescription())
-			.spclCondition(entity.getSpclCondition())
-			.ctcNote(entity.getCtcNote())
-			.maxLimit(entity.getMaxLimit())
+			.spclConditions(entity.getSpclCondition())
 			.saveMonth(entity.getSaveMonth())
 			.interestRate(entity.getInterestRate())
 			.maxInterestRate(entity.getMaxInterestRate())
-			.interestRateType(entity.getInterestRateType())
-			.reserveType(entity.getReserveType())
 			.build();
 	}
 }
