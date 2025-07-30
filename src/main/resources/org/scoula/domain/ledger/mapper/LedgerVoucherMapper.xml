@@ -9,7 +9,7 @@
         <result property="voucherNo" column="voucher_no"/>
         <result property="transactionId" column="transaction_id"/>
         <result property="entryDate" column="entry_date"/>
-        <result property="type" column="voucher_type"/>
+        <result property="type" column="type"/>
     </resultMap>
 
     <insert id="insert" parameterType="org.scoula.domain.ledger.entity.LedgerVoucher"
@@ -17,7 +17,7 @@
         INSERT INTO ledger_voucher (voucher_no,
                                     transaction_id,
                                     entry_date,
-                                    voucher_type)
+                                    type)
         VALUES (#{voucherNo},
                 #{transactionId},
                 #{entryDate},

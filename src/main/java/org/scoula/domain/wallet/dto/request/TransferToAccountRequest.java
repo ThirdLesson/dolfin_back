@@ -23,6 +23,10 @@ public record TransferToAccountRequest(
 	@Pattern(regexp = "^[0-9]+$", message = "계좌번호는 숫자만 입력해야 합니다.")
 	String accountNumber,
 
+	@ApiModelProperty(value = "예금주명", example = "홍길동", required = true)
+	@NotBlank(message = "예금주명은 필수입니다.")
+	String name,
+
 	@ApiModelProperty(value = "송금 금액", example = "1000", required = true)
 	@NotNull(message = "송금 금액은 필수입니다.")
 	@Positive(message = "송금 금액은 0보다 커야 합니다.")

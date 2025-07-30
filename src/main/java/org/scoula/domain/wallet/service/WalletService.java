@@ -1,5 +1,7 @@
 package org.scoula.domain.wallet.service;
 
+import java.util.List;
+
 import javax.servlet.http.HttpServletRequest;
 
 import org.scoula.domain.codef.dto.request.WalletRequest;
@@ -8,6 +10,8 @@ import org.scoula.domain.wallet.dto.request.ChargeWalletRequest;
 import org.scoula.domain.wallet.dto.request.TransferToAccountRequest;
 import org.scoula.domain.wallet.dto.request.TransferToWalletRequest;
 import org.scoula.domain.wallet.dto.response.DepositorResponse;
+import org.scoula.domain.wallet.dto.response.RecentAccountReceiversResponse;
+import org.scoula.domain.wallet.dto.response.RecentWalletReceiversResponse;
 import org.scoula.domain.wallet.dto.response.WalletResponse;
 import org.scoula.domain.wallet.entity.Wallet;
 
@@ -26,4 +30,8 @@ public interface WalletService {
 	DepositorResponse getMemberByPhoneNumber(String phoneNumber);
 
 	void transferToAccount(TransferToAccountRequest request, Long memberId);
+
+	List<RecentAccountReceiversResponse> getRecentAccountReceivers(Member member);
+
+	List<RecentWalletReceiversResponse> getRecentWalletReceivers(Member member);
 }

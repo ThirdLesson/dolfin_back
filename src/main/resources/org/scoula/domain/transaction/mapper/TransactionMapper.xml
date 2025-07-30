@@ -13,63 +13,15 @@
         <result property="beforeBalance" column="before_balance"/>
         <result property="afterBalance" column="after_balance"/>
         <result property="transactionType" column="transaction_type"/>
+        <result property="counterPartyName" column="counter_party_name"/>
         <result property="counterPartyMemberId" column="counterparty_member_id"/>
         <result property="counterPartyWalletId" column="counterparty_wallet_id"/>
+        <result property="counterPartyBankType" column="counter_party_bank_type"/>
+        <result property="counterPartyAccountNumber" column="counter_party_account_number"/>
         <result property="status" column="status"/>
+        <result property="createdAt" column="created_at"/>
+        <result property="updatedAt" column="updated_at"/>
     </resultMap>
-
-    <select id="findById" parameterType="java.lang.Long" resultMap="transactionResultMap">
-        SELECT transaction_id,
-               wallet_id,
-               member_id,
-               transaction_group_id,
-               amount,
-               before_balance,
-               after_balance,
-               transaction_type,
-               counterparty_member_id,
-               counterparty_wallet_id,
-               status,
-               transaction_date
-        FROM transaction
-        WHERE transaction_id = #{transactionId}
-    </select>
-
-    <select id="findByWalletId" parameterType="java.lang.Long" resultMap="transactionResultMap">
-        SELECT transaction_id,
-               wallet_id,
-               member_id,
-               transaction_group_id,
-               amount,
-               before_balance,
-               after_balance,
-               transaction_type,
-               counterparty_member_id,
-               counterparty_wallet_id,
-               status,
-               transaction_date
-        FROM transaction
-        WHERE wallet_id = #{walletId}
-        ORDER BY transaction_date DESC
-    </select>
-
-    <select id="findByTransactionGroupId" parameterType="java.lang.String" resultMap="transactionResultMap">
-        SELECT transaction_id,
-               wallet_id,
-               member_id,
-               transaction_group_id,
-               amount,
-               before_balance,
-               after_balance,
-               transaction_type,
-               counterparty_member_id,
-               counterparty_wallet_id,
-               status,
-               transaction_date
-        FROM transaction
-        WHERE transaction_group_id = #{transactionGroupId}
-        ORDER BY transaction_date ASC
-    </select>
 
     <insert id="insert" parameterType="org.scoula.domain.transaction.entity.Transaction"
             useGeneratedKeys="true" keyProperty="transactionId">
@@ -80,9 +32,14 @@
                                  before_balance,
                                  after_balance,
                                  transaction_type,
+                                 counter_party_name,
                                  counterparty_member_id,
                                  counterparty_wallet_id,
-                                 status)
+                                 counter_party_bank_type,
+                                 counter_party_account_number,
+                                 status,
+                                 created_at,
+                                 updated_at)
         VALUES (#{walletId},
                 #{memberId},
                 #{transactionGroupId},
@@ -90,9 +47,76 @@
                 #{beforeBalance},
                 #{afterBalance},
                 #{transactionType},
+                #{counterPartyName},
                 #{counterPartyMemberId},
                 #{counterPartyWalletId},
-                #{status})
+                #{counterPartyBankType},
+                #{counterPartyAccountNumber},
+                #{status},
+                NOW(),
+                NOW())
     </insert>
+
+    <select id="findByMemberIdAndAccountTransfer" resultMap="transactionResultMap">
+        SELECT transaction_id,
+               wallet_id,
+               member_id,
+               transaction_group_id,
+               amount,
+               before_balance,
+               after_balance,
+               transaction_type,
+               counter_party_name,
+               counterparty_member_id,
+               counterparty_wallet_id,
+               counter_party_bank_type,
+               counter_party_account_number,
+               status,
+               created_at,
+               updated_at
+        FROM (SELECT t.*,
+                     ROW_NUMBER() OVER (
+                    PARTITION BY counter_party_account_number -- 계좌 번호로 파티션
+                    ORDER BY created_at DESC, transaction_id DESC
+                ) as rn
+              FROM transaction t
+              WHERE t.member_id = #{memberId}
+                AND t.transaction_type = 'ACCOUNT_TRANSFER'
+                AND t.counter_party_account_number IS NOT NULL -- 계좌 번호가 있는 경우만
+             ) AS ranked_transactions
+        WHERE rn = 1
+        ORDER BY created_at DESC, transaction_id DESC LIMIT 4
+    </select>
+
+    <select id="findByMemberIdAndWalletTransfer" resultMap="transactionResultMap">
+        SELECT transaction_id,
+               wallet_id,
+               member_id,
+               transaction_group_id,
+               amount,
+               before_balance,
+               after_balance,
+               transaction_type,
+               counter_party_name,
+               counterparty_member_id,
+               counterparty_wallet_id,
+               counter_party_bank_type,
+               counter_party_account_number,
+               status,
+               created_at,
+               updated_at
+        FROM (SELECT t.*,
+                     ROW_NUMBER() OVER (
+                    PARTITION BY counterparty_wallet_id -- 지갑 ID로 파티션
+                    ORDER BY created_at DESC, transaction_id DESC
+                ) as rn
+              FROM transaction t
+              WHERE t.member_id = #{memberId}
+                AND t.transaction_type = 'WALLET_TRANSFER'
+                AND t.counterparty_wallet_id IS NOT NULL -- 상대 지갑 ID가 있는 경우만
+             ) AS ranked_transactions
+        WHERE rn = 1
+        ORDER BY created_at DESC, transaction_id DESC LIMIT 4
+    </select>
 
 </mapper>

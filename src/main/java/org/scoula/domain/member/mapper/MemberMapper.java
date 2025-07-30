@@ -36,4 +36,6 @@ public interface MemberMapper {
 	void updateConnectedId(@Param("memberId") Long memberId, @Param("connectedId") String connectedId);
 
 	Optional<Member> selectMemberByPhoneNumber(String phoneNumber);
+
+	List<Member> selectMembersInIds(@Param("memberIds") List<Long> memberIds);
 }
