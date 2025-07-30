@@ -1,0 +1,146 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="org.scoula.domain.financialproduct.depositsaving.mapper.DepositMapper">
+
+    <!-- DepositSaving Entity ResultMap -->
+    <resultMap id="DepositSavingResultMap" type="org.scoula.domain.financialproduct.depositsaving.entity.Deposit">
+        <id property="depositSavingId" column="deposit_saving_id"/>
+        <result property="financialCompanyId" column="financial_company_id"/>
+        <result property="name" column="name"/>
+        <result property="spclCondition" column="spcl_condition"/>
+        <result property="saveMonth" column="save_month"/>
+        <result property="interestRate" column="interest_rate"/>
+        <result property="maxInterestRate" column="max_interest_rate"/>
+        <result property="createdAt" column="created_at"/>
+        <result property="updatedAt" column="updated_at"/>
+    </resultMap>
+
+    <!--  전체 저장 -->
+    <insert id="InsertBatch">
+        Insert Into deposit_saving(
+        financial_company_id,
+        name,
+        spcl_condition,
+        save_month,
+        interest_rate,
+        max_interest_rate,
+        created_at,
+        updated_at
+        ) values
+        <foreach collection="list" item="item" separator=",">
+            (
+            #{item.financialCompanyId},
+            #{item.name},
+            #{item.spclCondition, typeHandler=org.apache.ibatis.type.EnumTypeHandler},
+            #{item.saveMonth},
+            #{item.interestRate},
+            #{item.maxInterestRate},
+            NOW(),
+            NOW()
+            )
+        </foreach>
+    </insert>
+
+    <!--  예금 상품 리스트 조회 -->
+    <select id="selectDepositsWithFilters" resultMap="DepositSavingResultMap">
+        SELECT
+        d.deposit_saving_id,
+        d.financial_company_id,
+        d.name,
+        d.spcl_condtition,
+        d.save_month,
+        d.interset_rate,
+        d.max_interest_rate,
+        d.created_at,
+        d.updated_at
+        FROM deposits_saving d
+        WHERE 1=1
+        <if test="productPeriod != null">
+            <choose>
+                <when test="productPeriod.name() == 'SIX_MONTH'">
+                    AND d.save_month &lt;= 6
+                </when>
+                <when test="productPeriod.name() == 'ONE_YEAR'">
+                    AND d.save_month &lt;= 12
+                </when>
+                <when test="productPeriod.name() == 'TWO_YEAR'">
+                    AND d.save_month &lt;= 24
+                </when>
+                <when test="productPeriod.name() == 'STAY_EXPIRATION'">
+                    AND d.save_month = 0
+                </when>
+            </choose>
+        </if>
+        /* 특별조건 필터링 */
+        <if test="spclConditions != null and spclConditions.size() > 0">
+            AND (
+            <foreach collection="spclConditions" item="condition" separator=" OR ">
+                FIND_IN_SET(#{condition}, d.spcl_condition)
+            </foreach>
+            )
+        </if>
+        /* 체류 기간 필터링 */
+        <if test="remainTime != null">
+            AND d.save_month &lt;= TIMESTAMPDIFF(MONTH, NOW(), #{remainTime})
+        </if>
+
+        ORDER BY d.max_interest_rate DESC, d.interest_rate DESC
+        LIMIT #{offset}, #{limit}
+    </select>
+
+    <select id="selectProductDetailById"
+            resultMap="DepositSavingResultMap">
+        SELECT d.deposit_saving_id,
+               d.financial_company_id,
+               d.name,
+               d.spcl_condtition,
+               d.save_month,
+               d.interest_rate,
+               d.max_interest_rate,
+               d.created_at,
+               d.updated_at,
+               c.financial_company_id,
+               c.code,
+               c.name,
+               c.callNumber,
+               c.homp_Url
+        FROM deposit_saving d
+                 JOIN financial_company c ON d.financial_compnay_id = c.financial_company_id
+        WHERE d.deposit_saving_id = #{id}
+    </select>
+
+    <!--    카운트 쿼리-->
+    <select id="countDepositsWithFilters" resultType="Integer">
+        SELECT COUNT(*)
+        FROM deposit_saving d
+        WHERE 1=1
+
+        <if test="productPeriod != null">
+            <choose>
+                <when test="productPeriod.name() == 'SIX_MONTH'">
+                    AND d.save_month &lt;= 6
+                </when>
+                <when test="productPeriod.name() == 'ONE_YEAR'">
+                    AND d.save_month &lt;= 12
+                </when>
+                <when test="productPeriod.name() == 'TWO_YEAR'">
+                    AND d.save_month &lt;= 24
+                </when>
+                <when test="productPeriod.name() == 'STAY_EXPIRATION'">
+                    AND d.save_month = 0
+                </when>
+            </choose>
+        </if>
+        <if test="spclConditions != null and spclConditions.size() > 0">
+            AND (
+            <foreach collection="spclConditions" item="condition" separator=" OR ">
+                FIND_IN_SET(#{condition}, d.spcl_condition)
+            </foreach>
+            )
+        </if>
+        <if test="remainTime != null">
+            AND d.save_month &lt;= TIMESTAMPDIFF(MONTH, NOW(), #{remainTime})
+        </if>
+    </select>
+</mapper>
