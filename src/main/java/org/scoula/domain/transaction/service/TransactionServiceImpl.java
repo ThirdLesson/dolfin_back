@@ -2,11 +2,14 @@ package org.scoula.domain.transaction.service;
 
 import static org.scoula.domain.transaction.entity.TransactionStatus.*;
 import static org.scoula.domain.transaction.entity.TransactionType.*;
+import static org.scoula.global.constants.Period.*;
+import static org.scoula.global.constants.SortDirection.*;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -127,7 +130,15 @@ public class TransactionServiceImpl implements TransactionService {
 
 	@Override
 	public Page<TransactionHistoryResponse> getTransactionHistory(Period period, TransactionType type,
-		BigDecimal minAmount, BigDecimal maxAmount, SortDirection sortDirection, int page, int size, Member member) {
+		BigDecimal minAmount, BigDecimal maxAmount, SortDirection sortDirection, int page, Integer size,
+		Member member) {
+
+		if (sortDirection == null)
+			sortDirection = LATEST;
+		if (period == null)
+			period = ONE_MONTH;
+		if (size == null)
+			size = 20;
 
 		LocalDateTime endDate = LocalDateTime.now();
 		LocalDateTime startDate = period.getStartDate(endDate);
@@ -163,7 +174,7 @@ public class TransactionServiceImpl implements TransactionService {
 
 		DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
 		List<TransactionHistoryResponse> historyResponseList = groupedByDate.entrySet().stream()
-			.sorted(Map.Entry.<LocalDate, List<TransactionResponse>>comparingByKey().reversed())
+			.sorted(getComparatorForDateGrouping(sortDirection))
 			.map(entry -> TransactionHistoryResponse.builder()
 				.date(entry.getKey().format(formatter))
 				.transactions(entry.getValue())
@@ -171,6 +182,15 @@ public class TransactionServiceImpl implements TransactionService {
 			.toList();
 
 		return new PageImpl<>(historyResponseList, pageable, totalElements);
+	}
+
+	private Comparator<Map.Entry<LocalDate, List<TransactionResponse>>> getComparatorForDateGrouping(
+		SortDirection sortDirection) {
+		if (sortDirection == OLDEST) {
+			return Map.Entry.comparingByKey();
+		} else {
+			return Map.Entry.<LocalDate, List<TransactionResponse>>comparingByKey().reversed();
+		}
 	}
 
 	private TransactionResponse convertToTransactionResponse(Transaction transaction) {

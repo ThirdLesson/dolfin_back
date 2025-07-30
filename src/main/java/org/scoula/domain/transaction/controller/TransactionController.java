@@ -34,11 +34,11 @@ public class TransactionController {
 	)
 	@GetMapping
 	public SuccessResponse<Page<TransactionHistoryResponse>> getTransactions(
-		@RequestParam(defaultValue = "ONE_MONTH") Period period,
-		@RequestParam TransactionType type,
+		@RequestParam(defaultValue = "ONE_MONTH", required = false) Period period,
+		@RequestParam(required = false) TransactionType type,
 		@RequestParam(required = false) BigDecimal minAmount, @RequestParam(required = false) BigDecimal maxAmount,
-		@RequestParam(defaultValue = "LATEST") SortDirection sortDirection,
-		@RequestParam int page, @RequestParam int size,
+		@RequestParam(defaultValue = "LATEST", required = false) SortDirection sortDirection,
+		@RequestParam int page, @RequestParam(required = false) Integer size,
 		@AuthenticationPrincipal CustomUserDetails customUserDetails) {
 		Page<TransactionHistoryResponse> response = transactionService.getTransactionHistory(period, type, minAmount,
 			maxAmount,

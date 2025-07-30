@@ -28,5 +28,5 @@ public interface TransactionService {
 	List<Member> getRecentWalletReceivers(Long memberId);
 
 	Page<TransactionHistoryResponse> getTransactionHistory(Period period, TransactionType type,
-		BigDecimal minAmount, BigDecimal maxAmount, SortDirection sortDirection, int page, int size, Member member);
+		BigDecimal minAmount, BigDecimal maxAmount, SortDirection sortDirection, int page, Integer size, Member member);
 }
