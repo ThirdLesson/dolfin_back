@@ -42,11 +42,6 @@ public class ExchangeRateController {
 		value = "환율 계산 및 비교",
 		notes = "KRW 기준으로 목표 통화에 대한 5개 은행의 환율을 비교하고 최적 환율을 제공합니다."
 	)
-	@ApiResponses({
-		@ApiResponse(code = 200, message = "성공적으로 요청이 처리되었습니다.", response = ExchangeBankResponse.class),
-		@ApiResponse(code = 400, message = "잘못된 요청입니다."),
-		@ApiResponse(code = 500, message = "서버에서 오류가 발생했습니다.")
-	})
 	@PostMapping("/check")
 	public SuccessResponse<ExchangeBankResponse> calculateExchangeRateBank(
 		@RequestBody ExchangeBankRequest requestBody,
@@ -60,11 +55,6 @@ public class ExchangeRateController {
 		value = "환율 빠른 계산",
 		notes = "KRW 기준으로 목표 통화에 대한 환율 1개를 빠르게 계산합니다. "
 	)
-	@ApiResponses({
-		@ApiResponse(code = 200, message = "성공적으로 요청이 처리되었습니다.", response = ExchangeBankResponse.class),
-		@ApiResponse(code = 400, message = "잘못된 요청입니다."),
-		@ApiResponse(code = 500, message = "서버에서 오류가 발생했습니다.")
-	})
 	@PostMapping("/calculate")
 	public SuccessResponse<ExchangeQuickResponse> calculateExchangeQuickNormal(
 		@RequestBody ExchangeQuickRequest requestBody,
@@ -78,11 +68,6 @@ public class ExchangeRateController {
 		value = "환율 월 그래프",
 		notes = "특정 통화에 대한 최근 1개월간의 환율 데이터를 조회합니다."
 	)
-	@ApiResponses({
-		@ApiResponse(code = 200, message = "성공적으로 요청이 처리되었습니다.", response = ExchangeBankResponse.class),
-		@ApiResponse(code = 400, message = "잘못된 요청입니다."),
-		@ApiResponse(code = 500, message = "서버에서 오류가 발생했습니다.")
-	})
 	@GetMapping("/graph")
 	public SuccessResponse<List<ExchangeMonthlyResponse>> calculateExchangeMonthlyGraph(
 		HttpServletRequest httpServletRequest,
