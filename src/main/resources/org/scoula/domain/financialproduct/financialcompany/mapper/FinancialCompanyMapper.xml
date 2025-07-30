@@ -1,25 +1,47 @@
-<?xml version="1.0" encoding="UTF-8" ?>
-<!DOCTYPE mapper
-        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 
 <mapper namespace="org.scoula.domain.financialproduct.financialcompany.mapper.FinancialCompanyMapper">
 
-    <!-- resultMap 정의 -->
-    <resultMap id="FinancialCompanyResultMap"
+    <!-- 금융회사 ResultMap 정의 -->
+    <resultMap id="financialCompanyResultMap"
                type="org.scoula.domain.financialproduct.financialcompany.entity.FinancialCompany">
         <id property="financialCompanyId" column="financial_company_id"/>
-        <result property="name" column="name"/>
         <result property="code" column="code"/>
+        <result property="name" column="name"/>
         <result property="callNumber" column="callnumber"/>
-        <result property="hompageUrl" column="homp_url"/>
+        <result property="homepageUrl" column="homp_url"/>
         <result property="createdAt" column="created_at"/>
         <result property="updatedAt" column="updated_at"/>
     </resultMap>
-    <!-- 전체 조회 -->
-    <select id="selectAllFinancialCompany"
-            resultMap="FinancialCompanyResultMap">
-        SELECT financial_company_id,
+
+
+    <!-- 금융회사 여러 데이터를 한번에 저장 -->
+    <insert id="insertBatch" parameterType="java.util.List">
+        INSERT INTO financial_company (
+        code,
+        name,
+        callnumber,
+        homp_url,
+        created_at,
+        updated_at
+        ) VALUES
+        <foreach collection="list" item="company" separator=",">
+            (
+            #{company.code},
+            #{company.name},
+            #{company.callNumber},
+            #{company.homepageUrl},
+            NOW(),
+            NOW()
+            )
+        </foreach>
+    </insert>
+
+    <!-- 금융회사 코드로 조회 - 데이터 중복 체크 시 사용 -->
+    <select id="selectByCode" parameterType="String" resultMap="financialCompanyResultMap">
+        SELECT financial_compnay_id,
                code,
                name,
                callnumber,
@@ -27,67 +49,45 @@
                created_at,
                updated_at
         FROM financial_company
-        ORDER BY financial_company_id ASC
+        WHERE code = #{code}
     </select>
 
-    <!-- 단건조회 -->
-    <select id="selectFinancialCompanyById" parameterType="long"
-            resultMap="FinancialCompanyResultMap">
-        SELECT financial_company_id,
+    <!-- 금융회사 이름으로 조회, 사용자가 은행명으로 검색할 때 사용 -->
+    <select id="selectByName" parameterType="String" resultMap="financialCompanyResultMap">
+        SELECT financial_compnay_id,
                code,
                name,
-               created_at,
-               updated_at,
                callnumber,
-               homp_url
+               homp_url,
+               created_at,
+               updated_at
+        FROM financial_company
+        WHERE name = #{name}
+    </select>
+    <!-- 전체 금융회사 조회 -->
+    <select id="selectAllFinancialCompany"
+            resultType="org.scoula.domain.financialproduct.financialcompany.entity.FinancialCompany">
+        SELECT financial_company_id,
+               name,
+               code,
+               call_number,
+               homepage_url,
+               created_at,
+               updated_at
+        FROM financial_company
+        ORDER BY name ASC
+    </select>
+    <!--    금융회사 ID로 조회 -->
+    <select id="selectById" parameterType="Long"
+            resultType="org.scoula.domain.financialproduct.financialcompany.entity.FinancialCompany">
+        SELECT financial_company_id,
+               name,
+               code,
+               call_number,
+               homepage_url,
+               created_at,
+               updated_at
         FROM financial_company
         WHERE financial_company_id = #{financialCompanyId}
     </select>
-
-    <select id="findCodeById" parameterType="long" resultType="string">
-        SELECT code
-        FROM financial_company
-        WHERE financial_company_id = #{financialCompanyId}
-    </select>
-
-    <select id="findIdByCode" parameterType="string" resultType="long">
-        SELECT financial_company_id
-        FROM financial_company
-        WHERE code = #{companyCode}
-    </select>
-
-    <!-- 추가  -->
-    <insert id="insertFinancialCompany"
-            parameterType="org.scoula.domain.financialproduct.financialcompany.entity.FinancialCompany">
-        INSERT INTO financial_company (code,
-                                       name,
-                                       callnumber,
-                                       homp_url)
-        VALUES (#{code},
-                #{name},
-                #{callNumber},
-                #{hompageUrl})
-    </insert>
-    <!-- 배치 등록 (중복시 무시) -->
-    <insert id="insertFinancialCompanyBatch">
-        INSERT INTO financial_company(
-        name,code,created_at,updated_at,callnumber,homp_url
-        ) values
-        <foreach collection="list" item="company" separator=",">
-            (#{company.name},#{company.code},NOW(),NOW(),#{company.callNumber},#{company.hompageUrl})
-        </foreach>
-    </insert>
-
-
-    <!-- 수정 -->
-    <update id="updateFinancialCompany"
-            parameterType="org.scoula.domain.financialproduct.financialcompany.entity.FinancialCompany">
-        UPDATE financial_company
-        SET name       = #{name},
-            code       = #{code},
-            callnumber = #{callNumber},
-            homp_url   = #{hompageUrl},
-            updated_at = CURRENT_TIMESTAMP
-        WHERE financial_company_id = #{financialCompanyId}
-    </update>
 </mapper>
