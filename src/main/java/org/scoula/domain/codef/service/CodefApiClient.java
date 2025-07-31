@@ -114,6 +114,7 @@ public class CodefApiClient {
 
 		if (cachedAccessToken == null) {
 			codefAuthService.issueCodefToken(request);
+			cachedAccessToken = redisUtil.get(REDIS_ACCESS_TOKEN_KEY);
 		}
 		return cachedAccessToken;
 	}
