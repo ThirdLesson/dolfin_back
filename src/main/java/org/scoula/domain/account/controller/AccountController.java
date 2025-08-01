@@ -6,7 +6,7 @@ import javax.servlet.http.HttpServletRequest;
 
 import org.scoula.domain.account.dto.response.AccountListResponse;
 import org.scoula.domain.account.service.AccountService;
-import org.scoula.domain.exchange.dto.response.ExchangeBankResponse;
+import org.scoula.domain.exchange.dto.response.exchangeResponse.ExchangeBankResponse;
 import org.scoula.global.response.SuccessResponse;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;

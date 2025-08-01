@@ -1,5 +1,7 @@
 package org.scoula.domain.exchange.mapper;
 
+import java.util.List;
+
 import org.scoula.domain.exchange.entity.ExchangeRate;
 import org.apache.ibatis.annotations.Param;
 
@@ -18,5 +20,29 @@ public interface ExchangeRateMapper {
     );
 
 
+    /**
+     * 특정 은행의 특정 통화 환율 조회
+     */
+    ExchangeRate findByBankAndTargetCurrencyAndType(
+        @Param("bankName") String bankName,
+        @Param("targetCurrency") String targetCurrency,
+        @Param("type") String type
+    );
+
+    /**
+     * 최신 환율 조회 (가장 최근 날짜)
+     */
+    List<ExchangeRate> findLatestRates(
+        @Param("targetCurrency") String targetCurrency,
+        @Param("type") String type
+    );
+
+    /**
+     * usd 환율 조회
+     *
+     */
+    ExchangeRate findUsdExchangeRate(
+        @Param("bankName") String bankName
+    );
 
 }
