@@ -47,7 +47,6 @@ public class CodefAuthService {
 
 		CodefTokenResponse response = responseEntity.getBody();
 		String codefToken = response.accessToken();
-		Integer expiresIn = response.expiresIn();
 
 		Common common = Common.builder()
 			.srcIp(request.getRemoteAddr())
@@ -56,12 +55,12 @@ public class CodefAuthService {
 			.deviceInfo(request.getHeader("user-agent"))
 			.build();
 
-		if (codefToken == null || expiresIn == null) {
+		if (codefToken == null) {
 			throw new CustomException(CODEF_TOKEN_NOT_FOUND, LogLevel.INFO, null, common);
 		}
 
 		if (responseEntity.getStatusCode().is2xxSuccessful()) {
-			redisUtil.set(REDIS_ACCESS_TOKEN_KEY, codefToken, expiresIn / 60);
+			redisUtil.set(REDIS_ACCESS_TOKEN_KEY, codefToken, 60 * 24 * 7 - 5);
 		} else {
 			throw new CustomException(CODEF_TOKEN_API_FAILED, LogLevel.ERROR, null, common);
 		}
