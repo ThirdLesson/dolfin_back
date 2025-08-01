@@ -61,7 +61,7 @@ public class JoinServiceImpl implements JoinService {
 			.name(joinRequest.name())
 			.birth(LocalDate.parse(joinRequest.birth(), DATE_FORMATTER))
 			.nationality(joinRequest.nationality())
-			.phoneNumber(joinRequest.phoneNumber())
+			.phoneNumber(joinRequest.phoneNumber().replaceAll("-", ""))
 			.currency(USD) // default USD
 			.remainTime(stayExpiration)
 			.build();

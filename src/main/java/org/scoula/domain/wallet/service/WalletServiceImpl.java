@@ -90,7 +90,8 @@ public class WalletServiceImpl implements WalletService {
 			.deviceInfo(servletRequest.getHeader("host-Agent"))
 			.build();
 
-		Member receiver = memberService.getMemberByPhoneNumber(request.phoneNumber(), servletRequest);
+		Member receiver = memberService.getMemberByPhoneNumber(request.phoneNumber().replaceAll("-", ""),
+			servletRequest);
 
 		if (memberId.equals(receiver.getMemberId())) {
 			throw new CustomException(SELF_TRANSFER_NOT_ALLOWED, LogLevel.WARNING, null, common,
@@ -136,6 +137,7 @@ public class WalletServiceImpl implements WalletService {
 
 	@Override
 	public DepositorResponse getMemberByPhoneNumber(String phoneNumber, HttpServletRequest request) {
+		phoneNumber = phoneNumber.replaceAll("-", "");
 		return new DepositorResponse(memberService.getMemberByPhoneNumber(phoneNumber, request).getName());
 	}
 
@@ -188,7 +190,7 @@ public class WalletServiceImpl implements WalletService {
 	public List<RecentWalletReceiversResponse> getRecentWalletReceivers(Member member) {
 		List<Member> receivers = transactionService.getRecentWalletReceivers(member.getMemberId());
 		return receivers.stream().map(receiver ->
-			new RecentWalletReceiversResponse(receiver.getName(), receiver.getPhoneNumber())).toList();
+			new RecentWalletReceiversResponse(receiver.getName(), formatKrPhone(receiver.getPhoneNumber()))).toList();
 	}
 
 	@Override
@@ -247,4 +249,35 @@ public class WalletServiceImpl implements WalletService {
 					request.getMethod()).deviceInfo(request.getHeader("user-agent")).build())
 		);
 	}
+
+	// 유틸: 한국 전화번호 하이픈 포맷
+	public static String formatKrPhone(String raw) {
+		if (raw == null || raw.isBlank())
+			return raw;
+
+		// 1) 숫자만 남기기
+		String s = raw.replaceAll("\\D", ""); // "+82-10 1234 5678" -> "821012345678"
+
+		// 3) 서울(02) 유선 처리: 길이에 따라 02-xxx-xxxx 또는 02-xxxx-xxxx
+		if (s.startsWith("02")) {
+			if (s.length() == 9) {         // 02-xxx-xxxx
+				return "02-" + s.substring(2, 5) + "-" + s.substring(5);
+			} else if (s.length() == 10) { // 02-xxxx-xxxx
+				return "02-" + s.substring(2, 6) + "-" + s.substring(6);
+			} else {
+				return raw; // 길이 비정상: 원문 반환
+			}
+		}
+
+		// 4) 휴대폰/그 외(지역번호 3자리) 처리
+		if (s.length() == 10) {      // 예: 0111234567, 0311234567
+			return s.replaceFirst("(\\d{3})(\\d{3})(\\d{4})", "$1-$2-$3");
+		} else if (s.length() == 11) { // 예: 01012345678
+			return s.replaceFirst("(\\d{3})(\\d{4})(\\d{4})", "$1-$2-$3");
+		}
+
+		// 5) 그 외 길이는 정책에 따라 그대로/에러 처리
+		return raw;
+	}
+
 }
