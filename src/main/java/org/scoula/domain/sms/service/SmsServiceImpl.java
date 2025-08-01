@@ -47,8 +47,7 @@ public class SmsServiceImpl implements SmsService {
 	public void certificateSMS(PhoneNumRequest phoneNumRequest, HttpServletRequest request) {
 		DefaultMessageService messageService = NurigoApp.INSTANCE.initialize(apiKey, apiSecret, SMS_DOMAIN);
 
-		String phoneNumber = phoneNumRequest.phoneNumber();
-
+		String phoneNumber = phoneNumRequest.phoneNumber().replaceAll("-", "");
 		// 랜덤한 인증 번호 생성
 		String randomNum = createRandomNumber();
 
@@ -75,7 +74,7 @@ public class SmsServiceImpl implements SmsService {
 
 	@Override
 	public void verifySMS(PhoneVerificationRequest phoneVerificationRequest, HttpServletRequest request) {
-		String phoneNumber = phoneVerificationRequest.phoneNumber();
+		String phoneNumber = phoneVerificationRequest.phoneNumber().replaceAll("-", "");
 		String inputCode = phoneVerificationRequest.code();
 
 		// Redis에서 저장된 인증번호 조회
