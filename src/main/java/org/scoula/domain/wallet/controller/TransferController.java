@@ -40,17 +40,19 @@ public class TransferController {
 
 	@ApiOperation(value = "전화번호로 예금주명 확인 API", notes = "전화번호를 통해 예금주명을 확인합니다.")
 	@GetMapping("/phone-num")
-	public SuccessResponse<DepositorResponse> getReceiverNameByPhone(@RequestParam String phoneNumber) {
-		return SuccessResponse.ok(walletService.getMemberByPhoneNumber(phoneNumber));
+	public SuccessResponse<DepositorResponse> getReceiverNameByPhone(@RequestParam String phoneNumber,
+		HttpServletRequest request) {
+		return SuccessResponse.ok(walletService.getMemberByPhoneNumber(phoneNumber, request));
 	}
 
 	@ApiOperation(value = "지갑 송금", notes = "사용자의 지갑으로 금액을 송금합니다.")
 	@PostMapping("/phone-num")
 	public SuccessResponse<Void> transferPhone(
 		@Valid @RequestBody TransferToWalletRequest request,
-		@AuthenticationPrincipal CustomUserDetails customUserDetails
+		@AuthenticationPrincipal CustomUserDetails customUserDetails,
+		HttpServletRequest servletRequest
 	) {
-		walletService.transferToWallet(request, customUserDetails.getMember().getMemberId());
+		walletService.transferToWallet(request, customUserDetails.getMember().getMemberId(), servletRequest);
 		return SuccessResponse.noContent();
 	}
 
@@ -68,9 +70,10 @@ public class TransferController {
 	@PostMapping("/account")
 	public SuccessResponse<Void> transferAccount(
 		@Valid @RequestBody TransferToAccountRequest request,
-		@AuthenticationPrincipal CustomUserDetails customUserDetails
+		@AuthenticationPrincipal CustomUserDetails customUserDetails,
+		HttpServletRequest servletRequest
 	) {
-		walletService.transferToAccount(request, customUserDetails.getMember().getMemberId());
+		walletService.transferToAccount(request, customUserDetails.getMember().getMemberId(), servletRequest);
 		return SuccessResponse.noContent();
 	}
 

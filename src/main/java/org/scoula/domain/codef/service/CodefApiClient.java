@@ -87,6 +87,14 @@ public class CodefApiClient {
 
 	public DepositorResponse verifyAccountHolder(BankType bankType, String accountNumber,
 		HttpServletRequest request) throws JsonProcessingException {
+
+		Common common = Common.builder()
+			.srcIp(request.getRemoteAddr())
+			.apiMethod(request.getMethod())
+			.callApiPath(request.getRequestURI())
+			.deviceInfo(request.getHeader("user-agent"))
+			.build();
+
 		String cachedAccessToken = getCachedAccessToken(request);
 		AccountDepositorRequest accountDepositorRequest = new AccountDepositorRequest(bankType.getCode(),
 			accountNumber);
@@ -102,10 +110,10 @@ public class CodefApiClient {
 		if (resultCode.equals("CF-00000")) {
 			return response.data();
 		} else if (resultCode.equals("CF-00001")) {
-			throw new CustomException(CODEF_REQUIRED_PARAMETER_MISSING, LogLevel.WARNING, null, null,
+			throw new CustomException(CODEF_REQUIRED_PARAMETER_MISSING, LogLevel.WARNING, null, common,
 				response.result().extraMessage() + "가 누락되었습니다.");
 		} else {
-			throw new CustomException(CODEF_ACCOUNT_HOLDER_API_FAILED, LogLevel.ERROR, null, null);
+			throw new CustomException(CODEF_ACCOUNT_HOLDER_API_FAILED, LogLevel.ERROR, null, common);
 		}
 	}
 

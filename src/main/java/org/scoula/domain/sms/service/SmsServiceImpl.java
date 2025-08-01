@@ -4,9 +4,12 @@ import static org.scoula.domain.sms.exception.SmsErrorCode.*;
 
 import java.util.Random;
 
+import javax.servlet.http.HttpServletRequest;
+
 import org.scoula.domain.member.dto.request.PhoneNumRequest;
 import org.scoula.domain.member.dto.request.PhoneVerificationRequest;
 import org.scoula.global.exception.CustomException;
+import org.scoula.global.kafka.dto.Common;
 import org.scoula.global.kafka.dto.LogLevel;
 import org.scoula.global.redis.util.RedisUtil;
 import org.springframework.beans.factory.annotation.Value;
@@ -41,7 +44,7 @@ public class SmsServiceImpl implements SmsService {
 	// 인증번호 전송하기
 	@Transactional
 	@Override
-	public void certificateSMS(PhoneNumRequest phoneNumRequest) {
+	public void certificateSMS(PhoneNumRequest phoneNumRequest, HttpServletRequest request) {
 		DefaultMessageService messageService = NurigoApp.INSTANCE.initialize(apiKey, apiSecret, SMS_DOMAIN);
 
 		String phoneNumber = phoneNumRequest.phoneNumber();
@@ -61,12 +64,17 @@ public class SmsServiceImpl implements SmsService {
 		try {
 			messageService.send(message);
 		} catch (NurigoMessageNotReceivedException | NurigoEmptyResponseException | NurigoUnknownException e) {
-			throw new CustomException(SMS_SEND_FAIL, LogLevel.ERROR, null, null);
+			throw new CustomException(SMS_SEND_FAIL, LogLevel.ERROR, null, Common.builder()
+				.srcIp(request.getRemoteAddr())
+				.callApiPath(request.getRequestURI())
+				.apiMethod(request.getMethod())
+				.deviceInfo(request.getHeader("user-Agent"))
+				.build());
 		}
 	}
 
 	@Override
-	public void verifySMS(PhoneVerificationRequest phoneVerificationRequest) {
+	public void verifySMS(PhoneVerificationRequest phoneVerificationRequest, HttpServletRequest request) {
 		String phoneNumber = phoneVerificationRequest.phoneNumber();
 		String inputCode = phoneVerificationRequest.code();
 
@@ -75,11 +83,21 @@ public class SmsServiceImpl implements SmsService {
 
 		// 인증번호가 없거나 일치하지 않으면 예외 발생
 		if (savedCode == null) {
-			throw new CustomException(SMS_CODE_EXPIRED, LogLevel.WARNING, null, null);
+			throw new CustomException(SMS_CODE_EXPIRED, LogLevel.WARNING, null, Common.builder()
+				.srcIp(request.getRemoteAddr())
+				.callApiPath(request.getRequestURI())
+				.apiMethod(request.getMethod())
+				.deviceInfo(request.getHeader("user-Agent"))
+				.build());
 		}
 
 		if (!savedCode.equals(inputCode)) {
-			throw new CustomException(SMS_CODE_MISMATCH, LogLevel.WARNING, null, null);
+			throw new CustomException(SMS_CODE_MISMATCH, LogLevel.WARNING, null, Common.builder()
+				.srcIp(request.getRemoteAddr())
+				.callApiPath(request.getRequestURI())
+				.apiMethod(request.getMethod())
+				.deviceInfo(request.getHeader("user-Agent"))
+				.build());
 		}
 
 		// 인증 성공 시 Redis에서 삭제 (재사용 방지)

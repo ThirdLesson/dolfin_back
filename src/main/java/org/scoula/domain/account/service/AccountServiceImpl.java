@@ -59,11 +59,16 @@ public class AccountServiceImpl implements AccountService {
 	}
 
 	@Transactional
-	public void depositToAccount(TransferToAccountRequest request) {
+	public void depositToAccount(TransferToAccountRequest request, HttpServletRequest servletRequest) {
 		boolean externalTransferSuccess = true;
 
 		if (!externalTransferSuccess) {
-			throw new CustomException(ACCOUNT_TRANSFER_FAILED, LogLevel.ERROR, null, null,
+			throw new CustomException(ACCOUNT_TRANSFER_FAILED, LogLevel.ERROR, null, Common.builder()
+				.deviceInfo(servletRequest.getHeader("user-agent"))
+				.callApiPath(servletRequest.getRequestURI())
+				.srcIp(servletRequest.getRemoteAddr())
+				.apiMethod(servletRequest.getMethod())
+				.build(),
 				"은행 계좌 이체 실패: " + request.accountNumber());
 		}
 	}

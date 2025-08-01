@@ -32,8 +32,8 @@ public class WalletController {
 	@ApiOperation(value = "전자지갑 조회 api", notes = "유저의 전자지갑을 조회합니다.")
 	@GetMapping
 	public SuccessResponse<WalletResponse> findWallet(
-		@AuthenticationPrincipal CustomUserDetails customUserDetails) {
-		return SuccessResponse.ok(walletService.getWalletByMember(customUserDetails.getMember()));
+		@AuthenticationPrincipal CustomUserDetails customUserDetails, HttpServletRequest request) {
+		return SuccessResponse.ok(walletService.getWalletByMember(customUserDetails.getMember(), request));
 	}
 
 	@ApiOperation(value = "전자지갑에 포인트 충전 api", notes = "전자지갑에 포인트를 충전합니다.")

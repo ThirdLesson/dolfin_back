@@ -3,6 +3,8 @@ package org.scoula.global.exception;
 import java.util.HashMap;
 import java.util.Map;
 
+import javax.servlet.http.HttpServletRequest;
+
 import org.scoula.global.exception.errorCode.CommonErrorCode;
 import org.scoula.global.exception.errorCode.ErrorCode;
 import org.scoula.global.kafka.dto.Common;
@@ -115,14 +117,16 @@ public class GlobalExceptionHandler {
 	 * 예상하지 못한 모든 예외 처리
 	 */
 	@ExceptionHandler(Exception.class)
-	public ResponseEntity<ErrorResponse<Void>> handleAllExceptions(Exception e) {
+	public ResponseEntity<ErrorResponse<Void>> handleAllExceptions(Exception e, HttpServletRequest request) {
 		ErrorCode errorCode = CommonErrorCode.INTERNAL_SERVER_ERROR;
 
 		kafkaProducer.sendToLogTopic(LogMessageMapper.buildLogMessage(
 			LogLevel.ERROR,
 			null,
 			errorCode.getMessage(),
-			Common.builder().build(),
+			Common.builder().srcIp(request.getRemoteAddr()).apiMethod(request.getMethod())
+				.callApiPath(request.getRequestURI()).deviceInfo(request.getHeader("user-agent"))
+				.retryCount(0).build(),
 			e.getMessage()
 		));
 

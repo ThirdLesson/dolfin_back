@@ -5,6 +5,8 @@ import static org.scoula.domain.member.exception.MemberErrorCode.*;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import javax.servlet.http.HttpServletRequest;
+
 import org.scoula.domain.member.dto.MemberDTO;
 import org.scoula.domain.member.entity.Member;
 import org.scoula.domain.member.mapper.MemberMapper;
@@ -96,9 +98,14 @@ public class MemberServiceImpl implements MemberService {
 	}
 
 	@Override
-	public Member getMemberByPhoneNumber(String phoneNumber) {
+	public Member getMemberByPhoneNumber(String phoneNumber, HttpServletRequest request) {
 		return memberMapper.selectMemberByPhoneNumber(phoneNumber)
-			.orElseThrow(() -> new CustomException(MEMBER_NOT_FOUND, LogLevel.WARNING, null, null));
+			.orElseThrow(() -> new CustomException(MEMBER_NOT_FOUND, LogLevel.WARNING, null, Common.builder()
+				.apiMethod(request.getMethod())
+				.srcIp(request.getRemoteAddr())
+				.callApiPath(request.getRequestURI())
+				.deviceInfo(request.getHeader("user-agent"))
+				.build()));
 	}
 
 }

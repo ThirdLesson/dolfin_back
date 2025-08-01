@@ -51,16 +51,16 @@ public class JoinController {
 	@ApiOperation(value = "휴대폰 인증번호 전송", notes = "회원가입 시 입력한 전화번호로 인증번호를 전송합니다.")
 	@PostMapping("/send-code")
 	public SuccessResponse<Void> sendSms(
-		@RequestBody @Valid PhoneNumRequest phoneNumRequest) {
-		smsService.certificateSMS(phoneNumRequest);
+		@RequestBody @Valid PhoneNumRequest phoneNumRequest, HttpServletRequest request) {
+		smsService.certificateSMS(phoneNumRequest, request);
 		return SuccessResponse.noContent();
 	}
 
 	@ApiOperation(value = "휴대폰 인증번호 확인", notes = "입력한 인증번호가 유효한지 확인합니다.")
 	@PostMapping("/verify-code")
 	public SuccessResponse<Void> verifySms(
-		@RequestBody @Valid PhoneVerificationRequest request) {
-		smsService.verifySMS(request);
+		@RequestBody @Valid PhoneVerificationRequest request, HttpServletRequest servletRequest) {
+		smsService.verifySMS(request, servletRequest);
 		return SuccessResponse.noContent();
 	}
 }

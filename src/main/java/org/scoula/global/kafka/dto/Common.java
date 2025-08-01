@@ -13,5 +13,5 @@ public class Common {
 	private String memberId;
 	private String ledgerCode;
 	private String transactionGroupId;
-	private Integer retryCount;
+	private Integer retryCount = 0;
 }
