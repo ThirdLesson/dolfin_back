@@ -1,4 +1,4 @@
-package org.scoula.domain.exchange.dto.response;
+package org.scoula.domain.exchange.dto.response.exchangeResponse;
 
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
@@ -22,6 +22,7 @@ public class ExchangeBankResponse {
     private String exchangeType;
 
     @ApiModelProperty(value = "모든 은행의 환율 정보 (환율이 유리한 순서로 정렬)")
-    private List<BankRateInfo> allBanks;
+    private List<BankRateInfo> banks;
+
 
 }
