@@ -3,8 +3,8 @@ package org.scoula.domain.wallet.service;
 import static org.scoula.domain.wallet.exception.WalletErrorCode.*;
 
 import java.math.BigDecimal;
-import java.util.Optional;
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
 import javax.servlet.http.HttpServletRequest;
@@ -64,10 +64,15 @@ public class WalletServiceImpl implements WalletService {
 	}
 
 	@Override
-	public WalletResponse getWalletByMember(Member member) {
+	public WalletResponse getWalletByMember(Member member, HttpServletRequest request) {
 		Wallet byMemberId = walletMapper.findByMemberId(member.getMemberId());
 		if (byMemberId == null) {
-			throw new CustomException(WALLET_NOT_FOUND, LogLevel.WARNING, null, null,
+			throw new CustomException(WALLET_NOT_FOUND, LogLevel.WARNING, null, Common.builder()
+				.srcIp(request.getRemoteAddr())
+				.callApiPath(request.getRequestURI())
+				.apiMethod(request.getMethod())
+				.deviceInfo(request.getHeader("user-Agent"))
+				.build(),
 				"조회 실패 ID: " + member.getMemberId());
 		}
 
@@ -76,12 +81,19 @@ public class WalletServiceImpl implements WalletService {
 
 	@Transactional
 	@Override
-	public void transferToWallet(TransferToWalletRequest request, Long memberId) {
+	public void transferToWallet(TransferToWalletRequest request, Long memberId, HttpServletRequest servletRequest) {
 
-		Member receiver = memberService.getMemberByPhoneNumber(request.phoneNumber());
+		Common common = Common.builder()
+			.apiMethod(servletRequest.getMethod())
+			.srcIp(servletRequest.getRemoteAddr())
+			.callApiPath(servletRequest.getRequestURI())
+			.deviceInfo(servletRequest.getHeader("host-Agent"))
+			.build();
+
+		Member receiver = memberService.getMemberByPhoneNumber(request.phoneNumber(), servletRequest);
 
 		if (memberId.equals(receiver.getMemberId())) {
-			throw new CustomException(SELF_TRANSFER_NOT_ALLOWED, LogLevel.WARNING, null, null,
+			throw new CustomException(SELF_TRANSFER_NOT_ALLOWED, LogLevel.WARNING, null, common,
 				"송신자 ID: " + memberId + ", 수신자 ID: " + receiver.getMemberId());
 		}
 
@@ -89,10 +101,10 @@ public class WalletServiceImpl implements WalletService {
 		Long secondLockMemberId = (memberId.compareTo(receiver.getMemberId()) < 0) ? receiver.getMemberId() : memberId;
 
 		Wallet firstLockedWallet = walletMapper.findByMemberIdWithLock(firstLockMemberId)
-			.orElseThrow(() -> new CustomException(WALLET_NOT_FOUND, LogLevel.WARNING, null, null,
+			.orElseThrow(() -> new CustomException(WALLET_NOT_FOUND, LogLevel.WARNING, null, common,
 				"조회 실패 ID: " + firstLockMemberId));
 		Wallet secondLockedWallet = walletMapper.findByMemberIdWithLock(secondLockMemberId)
-			.orElseThrow(() -> new CustomException(WALLET_NOT_FOUND, LogLevel.WARNING, null, null,
+			.orElseThrow(() -> new CustomException(WALLET_NOT_FOUND, LogLevel.WARNING, null, common,
 				"조회 실패 ID: " + secondLockMemberId));
 
 		Wallet senderWallet =
@@ -101,11 +113,11 @@ public class WalletServiceImpl implements WalletService {
 			(firstLockedWallet.getMemberId().equals(memberId)) ? secondLockedWallet : firstLockedWallet;
 
 		if (senderWallet.getBalance().compareTo(request.amount()) < 0) {
-			throw new CustomException(INSUFFICIENT_FUNDS, LogLevel.WARNING, null, null);
+			throw new CustomException(INSUFFICIENT_FUNDS, LogLevel.WARNING, null, common);
 		}
 
 		if (!request.password().equals(senderWallet.getPassword())) {
-			throw new CustomException(INVALID_WALLET_PASSWORD, LogLevel.WARNING, null, null, "사용자 ID: " + memberId);
+			throw new CustomException(INVALID_WALLET_PASSWORD, LogLevel.WARNING, null, common, "사용자 ID: " + memberId);
 		}
 
 		BigDecimal senderNewBalance = senderWallet.getBalance().subtract(request.amount());
@@ -119,40 +131,49 @@ public class WalletServiceImpl implements WalletService {
 			receiverNewBalance,
 			memberId, receiver.getMemberId(), transactionGroupId, request.amount());
 
-		ledgerService.accountForWalletTransfer(request, transactionGroupId);
+		ledgerService.accountForWalletTransfer(request, transactionGroupId, servletRequest);
 	}
 
 	@Override
-	public DepositorResponse getMemberByPhoneNumber(String phoneNumber) {
-		return new DepositorResponse(memberService.getMemberByPhoneNumber(phoneNumber).getName());
+	public DepositorResponse getMemberByPhoneNumber(String phoneNumber, HttpServletRequest request) {
+		return new DepositorResponse(memberService.getMemberByPhoneNumber(phoneNumber, request).getName());
 	}
 
 	@Transactional
 	@Override
-	public void transferToAccount(TransferToAccountRequest request, Long memberId) {
+	public void transferToAccount(TransferToAccountRequest request, Long memberId, HttpServletRequest servletRequest) {
+
+		Common common = Common.builder()
+			.apiMethod(servletRequest.getMethod())
+			.srcIp(servletRequest.getRemoteAddr())
+			.callApiPath(servletRequest.getRequestURI())
+			.deviceInfo(servletRequest.getHeader("host-Agent"))
+			.build();
+
 		Wallet senderWallet = walletMapper.findByMemberIdWithLock(memberId)
 			.orElseThrow(
-				() -> new CustomException(WALLET_NOT_FOUND, LogLevel.WARNING, null, null, "송신자 조회 실패 ID: " + memberId));
+				() -> new CustomException(WALLET_NOT_FOUND, LogLevel.WARNING, null, common,
+					"송신자 조회 실패 ID: " + memberId));
 
 		if (senderWallet.getBalance().compareTo(request.amount()) < 0) {
-			throw new CustomException(INSUFFICIENT_FUNDS, LogLevel.WARNING, null, null,
+			throw new CustomException(INSUFFICIENT_FUNDS, LogLevel.WARNING, null, common,
 				"요청 금액: " + request.amount() + ", 현재 잔액: " + senderWallet.getBalance());
 		}
 
 		if (!request.password().equals(senderWallet.getPassword())) {
-			throw new CustomException(INVALID_WALLET_PASSWORD, LogLevel.WARNING, null, null, "사용자 ID: " + memberId);
+			throw new CustomException(INVALID_WALLET_PASSWORD, LogLevel.WARNING, null, common, "사용자 ID: " + memberId);
 		}
 
 		BigDecimal senderNewBalance = senderWallet.getBalance().subtract(request.amount());
 		walletMapper.updateBalance(senderWallet.getWalletId(), senderNewBalance);
 
-		accountService.depositToAccount(request);
+		accountService.depositToAccount(request, servletRequest);
 
 		String transactionGroupId = UUID.randomUUID().toString();
 		transactionService.saveAccountTransferTransaction(senderWallet, senderNewBalance, memberId, transactionGroupId,
 			request);
 
-		ledgerService.accountForAccountTransfer(request, transactionGroupId);
+		ledgerService.accountForAccountTransfer(request, transactionGroupId, servletRequest);
 	}
 
 	@Override
@@ -216,7 +237,7 @@ public class WalletServiceImpl implements WalletService {
 			wallet.getMemberId(), null,
 			transactionGroupId, chargeWalletRequest.amount());
 
-		ledgerService.chargeTransfer(chargeWalletRequest, transactionGroupId);
+		ledgerService.chargeTransfer(chargeWalletRequest, transactionGroupId, request);
 	}
 
 	private Wallet validateWallet(Long walletId, HttpServletRequest request) {

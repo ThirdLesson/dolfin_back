@@ -2,6 +2,8 @@ package org.scoula.domain.member.service;
 
 import java.util.List;
 
+import javax.servlet.http.HttpServletRequest;
+
 import org.scoula.domain.member.dto.MemberDTO;
 import org.scoula.domain.member.entity.Member;
 
@@ -24,6 +26,6 @@ public interface MemberService {
 	// 커넥티드 아이디 업데이트
 	void updateConnectedId(Long memberId, String connectedId);
 
-	Member getMemberByPhoneNumber(String phoneNumber);
+	Member getMemberByPhoneNumber(String phoneNumber, HttpServletRequest request);
 
 }

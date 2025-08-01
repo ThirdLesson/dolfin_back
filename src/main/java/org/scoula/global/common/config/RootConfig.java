@@ -37,7 +37,6 @@ import com.zaxxer.hikari.HikariDataSource;
 	"org.scoula.domain.**.service",  // 도메인 객체를 포함하기 위해 추가
 	"org.scoula.global.swagger.config",  // Swagger 설정을 포함하기 위해 추가
 	"org.scoula.global.kafka", // kafka 설정 포함
-	"org.scoula.global.exception", // exception handler 등록
 	"org.scoula.global.redis", // 공통 설정 포함
 	"org.scoula.global.security", // security 설정 포함
 })

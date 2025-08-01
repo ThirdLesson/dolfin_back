@@ -23,13 +23,13 @@ public interface WalletService {
 
 	void chargeWallet(ChargeWalletRequest chargeWalletRequest, Long walletId, HttpServletRequest request);
 
-	WalletResponse getWalletByMember(Member member);
+	WalletResponse getWalletByMember(Member member, HttpServletRequest request);
 
-	void transferToWallet(TransferToWalletRequest request, Long memberId);
+	void transferToWallet(TransferToWalletRequest request, Long memberId, HttpServletRequest servletRequest);
 
-	DepositorResponse getMemberByPhoneNumber(String phoneNumber);
+	DepositorResponse getMemberByPhoneNumber(String phoneNumber, HttpServletRequest request);
 
-	void transferToAccount(TransferToAccountRequest request, Long memberId);
+	void transferToAccount(TransferToAccountRequest request, Long memberId, HttpServletRequest servletRequest);
 
 	List<RecentAccountReceiversResponse> getRecentAccountReceivers(Member member);
 
