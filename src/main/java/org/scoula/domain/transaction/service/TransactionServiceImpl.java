@@ -195,12 +195,18 @@ public class TransactionServiceImpl implements TransactionService {
 
 	private TransactionResponse convertToTransactionResponse(Transaction transaction) {
 		DateTimeFormatter formatter = DateTimeFormatter.ofPattern("HH:mm:ss");
+		TransactionType transactionType = transaction.getTransactionType();
+		if (transaction.getTransactionType().equals(WALLET_TRANSFER) || transaction.getTransactionType()
+			.equals(ACCOUNT_TRANSFER)) {
+			transactionType = WITHDRAW;
+		}
 		return TransactionResponse.builder()
 			.transactionId(transaction.getTransactionId())
 			.type(transaction.getTransactionType())
 			.amount(transaction.getAmount())
 			.createdAt(transaction.getCreatedAt().format(formatter))
 			.status(transaction.getStatus())
+			.counterPartyName(transaction.getCounterPartyName())
 			.build();
 	}
 }

@@ -25,6 +25,9 @@ public record TransactionResponse(
 	String createdAt,
 
 	@ApiModelProperty(value = "거래 상태", example = "SUCCESS", allowableValues = "PENDING,SUCCESS,FAILED")
-	TransactionStatus status
+	TransactionStatus status,
+
+	@ApiModelProperty(value = "거래 상대방 이름", example = "홍길동")
+	String counterPartyName
 ) {
 }
