@@ -202,7 +202,7 @@ public class TransactionServiceImpl implements TransactionService {
 		}
 		return TransactionResponse.builder()
 			.transactionId(transaction.getTransactionId())
-			.type(transaction.getTransactionType())
+			.type(transactionType)
 			.amount(transaction.getAmount())
 			.createdAt(transaction.getCreatedAt().format(formatter))
 			.status(transaction.getStatus())
