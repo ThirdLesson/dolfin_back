@@ -6,11 +6,12 @@ import javax.servlet.http.HttpServletRequest;
 
 import org.scoula.domain.exchange.dto.request.ExchangeBankRequest;
 import org.scoula.domain.exchange.dto.request.ExchangeQuickRequest;
-import org.scoula.domain.exchange.dto.response.ExchangeBankResponse;
+import org.scoula.domain.exchange.dto.response.exchangeResponse.ExchangeBankResponse;
 import org.scoula.domain.exchange.dto.response.ExchangeMonthlyResponse;
 import org.scoula.domain.exchange.dto.response.ExchangeQuickResponse;
 import org.scoula.domain.exchange.service.ExchangeRateMonthlyService;
-import org.scoula.domain.exchange.service.ExchangeRateService;
+import org.scoula.domain.exchange.service.ExchangeRateQuickService;
+import org.scoula.domain.exchange.service.finalService.ExchangeFinalService;
 import org.scoula.global.response.SuccessResponse;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -22,8 +23,6 @@ import org.springframework.web.bind.annotation.RestController;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
-import io.swagger.annotations.ApiResponse;
-import io.swagger.annotations.ApiResponses;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 
@@ -34,20 +33,20 @@ import lombok.extern.log4j.Log4j2;
 @Api(tags = "환율 API")
 public class ExchangeRateController {
 
-	private final ExchangeRateService exchangeRateService;
-
+	private final ExchangeRateQuickService exchangeRateQuickService;
 	private final ExchangeRateMonthlyService exchangeRateMonthlyService;
+	private final ExchangeFinalService exchangeFinalService;
 
 	@ApiOperation(
-		value = "환율 계산 및 비교",
-		notes = "KRW 기준으로 목표 통화에 대한 5개 은행의 환율을 비교하고 최적 환율을 제공합니다."
+		value = "환율 계산 및 우대정책 비교",
+		notes = "원화 기준으로 5개 주요 은행(국민, 하나, 신한, 우리, 기업)의 환율을 비교합니다."
 	)
 	@PostMapping("/check")
 	public SuccessResponse<ExchangeBankResponse> calculateExchangeRateBank(
 		@RequestBody ExchangeBankRequest requestBody,
 		HttpServletRequest httpServletRequest) {
-		ExchangeBankResponse response = exchangeRateService.calculateExchangeBank(requestBody, httpServletRequest);
-
+		ExchangeBankResponse response = exchangeFinalService.calculateFinalExchangeRate(
+			requestBody, httpServletRequest);
 		return SuccessResponse.ok(response);
 	}
 
@@ -59,7 +58,7 @@ public class ExchangeRateController {
 	public SuccessResponse<ExchangeQuickResponse> calculateExchangeQuickNormal(
 		@RequestBody ExchangeQuickRequest requestBody,
 		HttpServletRequest httpServletRequest) {
-		ExchangeQuickResponse response = exchangeRateService.calculateExchangeQuick(requestBody, httpServletRequest);
+		ExchangeQuickResponse response = exchangeRateQuickService.calculateExchangeQuick(requestBody, httpServletRequest);
 
 		return SuccessResponse.ok(response);
 	}
@@ -79,6 +78,7 @@ public class ExchangeRateController {
 			latestExchangeMonthly
 		);
 	}
+
 
 
 }
