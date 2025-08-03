@@ -39,6 +39,7 @@ import com.zaxxer.hikari.HikariDataSource;
 	"org.scoula.global.kafka", // kafka 설정 포함
 	"org.scoula.global.redis", // 공통 설정 포함
 	"org.scoula.global.security", // security 설정 포함
+	"org.scoula.global.firebase", // firebase 설정 포함
 })
 public class RootConfig {
 	@Value("${jdbc.driver}")
