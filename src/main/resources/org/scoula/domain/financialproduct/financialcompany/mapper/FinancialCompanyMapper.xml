@@ -18,7 +18,7 @@
 
 
     <!-- 금융회사 여러 데이터를 한번에 저장 -->
-    <insert id="insertBatch" parameterType="java.util.List">
+    <insert id="insertBatch" parameterType="java.util.List" useGeneratedKeys="true" keyProperty="financialCompanyId">
         INSERT INTO financial_company (
         code,
         name,
@@ -41,7 +41,7 @@
 
     <!-- 금융회사 코드로 조회 - 데이터 중복 체크 시 사용 -->
     <select id="selectByCode" parameterType="String" resultMap="financialCompanyResultMap">
-        SELECT financial_compnay_id,
+        SELECT financial_company_id,
                code,
                name,
                callnumber,
@@ -54,7 +54,7 @@
 
     <!-- 금융회사 이름으로 조회, 사용자가 은행명으로 검색할 때 사용 -->
     <select id="selectByName" parameterType="String" resultMap="financialCompanyResultMap">
-        SELECT financial_compnay_id,
+        SELECT financial_company_id,
                code,
                name,
                callnumber,
@@ -66,25 +66,25 @@
     </select>
     <!-- 전체 금융회사 조회 -->
     <select id="selectAllFinancialCompany"
-            resultType="org.scoula.domain.financialproduct.financialcompany.entity.FinancialCompany">
+            resultMap="financialCompanyResultMap">
         SELECT financial_company_id,
                name,
                code,
-               call_number,
-               homepage_url,
+               callnumber,
+               homp_url,
                created_at,
                updated_at
         FROM financial_company
-        ORDER BY name ASC
+        ORDER BY financial_company_id ASC
     </select>
     <!--    금융회사 ID로 조회 -->
     <select id="selectById" parameterType="Long"
-            resultType="org.scoula.domain.financialproduct.financialcompany.entity.FinancialCompany">
+            resultMap="financialCompanyResultMap">
         SELECT financial_company_id,
                name,
                code,
-               call_number,
-               homepage_url,
+               callnumber,
+               homp_url,
                created_at,
                updated_at
         FROM financial_company

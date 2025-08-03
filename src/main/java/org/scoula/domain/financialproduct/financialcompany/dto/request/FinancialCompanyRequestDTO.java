@@ -23,8 +23,8 @@ public class FinancialCompanyRequestDTO extends BaseEntity {
 		return FinancialCompany.builder()
 			.code(this.finCoNo)
 			.name(this.name)
-			.homepageUrl(null)
-			.callNumber(null)
+			.homepageUrl(this.homepageUrl)
+			.callNumber(this.callNumber)
 			.build();
 	}
 }
