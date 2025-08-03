@@ -1,4 +1,4 @@
-package org.scoula.domain.MemberRemittanceGroup.entity;
+package org.scoula.domain.remmitanceinformation.entity;
 
 import lombok.Getter;
 
