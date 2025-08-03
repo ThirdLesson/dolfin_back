@@ -133,13 +133,7 @@ public class CodefAccountService {
 				JsonNode root = new ObjectMapper().readTree(decoded);
 				String connectedId = root.path("data").path("connectedId").asText();
 				if (connectedId.isEmpty() || connectedId.isBlank()) {
-					throw new CustomException(BANK_LOGIN_FAIL, LogLevel.WARNING, null, Common.builder()
-						.srcIp(request.getRemoteAddr())
-						.callApiPath(request.getRequestURI())
-						.apiMethod(request.getMethod())
-						.deviceInfo(request.getHeader("host-agent"))
-						.memberId(String.valueOf(member.getMemberId()))
-						.build(), "은행 로그인 실패 에러");
+					throw new RuntimeException();
 				}
 				memberService.updateConnectedId(member.getMemberId(), connectedId);
 			} else {
@@ -147,6 +141,14 @@ public class CodefAccountService {
 				log.info("커넥티드 코드 요청 에러 = " + error);
 				throw new Error(error);
 			}
+		} catch (RuntimeException e) {
+			throw new CustomException(BANK_LOGIN_FAIL, LogLevel.WARNING, null, Common.builder()
+				.srcIp(request.getRemoteAddr())
+				.callApiPath(request.getRequestURI())
+				.apiMethod(request.getMethod())
+				.deviceInfo(request.getHeader("host-agent"))
+				.memberId(String.valueOf(member.getMemberId()))
+				.build(), "은행 로그인 실패 에러");
 		} catch (Exception e) {
 			throw new Error(e.toString());
 		}
