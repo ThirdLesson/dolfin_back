@@ -1,35 +1,35 @@
 package org.scoula.domain.financialproduct.depositsaving.dto.response;
 
-import org.scoula.domain.financialproduct.depositsaving.dto.DepositSavingDTO;
+import java.util.List;
+
+import org.scoula.domain.financialproduct.constants.DepositSpclConditionType;
+import org.scoula.domain.financialproduct.depositsaving.dto.DepositDTO;
+import org.scoula.domain.financialproduct.depositsaving.dto.common.DepositProduct;
 import org.scoula.domain.financialproduct.depositsaving.entity.Deposit;
+import org.scoula.domain.financialproduct.depositsaving.entity.DepositSpclCondition;
 import org.scoula.domain.financialproduct.financialcompany.dto.response.FinancialCompanyResponseDTO;
 import org.scoula.domain.financialproduct.financialcompany.entity.FinancialCompany;
+import org.scoula.domain.wallet.dto.response.DepositorResponse;
 
 import lombok.Builder;
 
 @Builder
 public record DepositsResponse(
-	DepositSavingDTO product, // 상품정보
+	DepositDTO product, // 상품정보
 	FinancialCompanyResponseDTO company// 회사정보
 ) {
+	public static DepositsResponse of(Deposit deposit,
+		FinancialCompany company,
+		List<DepositSpclCondition> spclConditions) {
 
-	public static DepositsResponse fromEntity(Deposit deposit, FinancialCompany company) {
+		// Entity -> ENUM 변환
+		List<DepositSpclConditionType> conditionTypes = spclConditions.stream()
+			.map(DepositSpclCondition::getSpclCondition)
+			.toList();
 
-		// 상품 정보 DTO 생성
-		DepositSavingDTO productDTO = DepositSavingDTO.builder()
-			.depositSavingId(deposit.getDepositSavingId())
-			.name(deposit.getName())
-			.interestRate(deposit.getInterestRate())
-			.maxInterestRate(deposit.getMaxInterestRate())
-			.saveMonth(deposit.getSaveMonth())
-			.spclCondition(deposit.getSpclCondition().toString())
-			.financialCompanyId(deposit.getFinancialCompanyId())
-			.build();
-
-		// 회사 정보 DTO 생성
+		DepositDTO productDTO = DepositDTO.fromEntity(deposit, conditionTypes);
 		FinancialCompanyResponseDTO companyDTO = FinancialCompanyResponseDTO.fromEntity(company);
 
-		// DepositsResponse
 		return DepositsResponse.builder()
 			.product(productDTO)
 			.company(companyDTO)

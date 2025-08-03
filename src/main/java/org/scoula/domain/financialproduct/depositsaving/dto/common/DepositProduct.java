@@ -1,7 +1,10 @@
-package org.scoula.domain.financialproduct.depositsaving.dto.response;
+package org.scoula.domain.financialproduct.depositsaving.dto.common;
 
 import java.util.List;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+
+@JsonIgnoreProperties(ignoreUnknown = true)
 public record DepositProduct(
 	String typeCode,
 	String code,
@@ -13,6 +16,7 @@ public record DepositProduct(
 	String interestRate,
 	String primeInterestRate,
 	String cmaInterestRate,
+	List<String> features,
 	List<String> productCategories
 ) {
 }
