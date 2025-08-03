@@ -8,6 +8,8 @@
     <!-- ResultMap 정의 -->
     <resultMap id="memberResultMap" type="org.scoula.domain.member.entity.Member">
         <id property="memberId" column="member_id"/>
+        <result property="remittanceInformationId" column="remittance_information_id"/>
+        <result property="remittanceGroupId" column="remittance_group_id"/>
         <result property="loginId" column="login_id"/>
         <result property="password" column="password"/>
         <result property="passportNumber" column="passport_number"/>
@@ -18,27 +20,14 @@
         <result property="remainTime" column="remain_time"/>
         <result property="currency" column="currency"/>
         <result property="connectedId" column="connected_id"/>
+        <result property="fcmToken" column="fcm_token"/>
     </resultMap>
 
     <!-- 회원 전체 조회 -->
     <select id="selectAllMembers" resultMap="memberResultMap">
         SELECT member_id,
-               login_id,
-               password,
-               passport_number,
-               nationality,
-               birth,
-               name,
-               phone_number,
-               remain_time,
-               currency
-        FROM member
-        ORDER BY member_id DESC
-    </select>
-
-    <!-- 회원 상세 조회 -->
-    <select id="selectMemberById" parameterType="long" resultMap="memberResultMap">
-        SELECT member_id,
+               remittance_information_id,
+               remittance_group_id,
                login_id,
                password,
                passport_number,
@@ -48,14 +37,16 @@
                phone_number,
                remain_time,
                currency,
-               connected_id
+               fcm_token
         FROM member
-        WHERE member_id = #{memberId}
+        ORDER BY member_id DESC
     </select>
 
-    <!-- 로그인 ID로 회원 조회 -->
-    <select id="selectMemberByLoginId" parameterType="string" resultMap="memberResultMap">
+    <!-- 회원 상세 조회 -->
+    <select id="selectMemberById" parameterType="long" resultMap="memberResultMap">
         SELECT member_id,
+               remittance_information_id,
+               remittance_group_id,
                login_id,
                password,
                passport_number,
@@ -64,7 +55,28 @@
                name,
                phone_number,
                remain_time,
-               currency
+               currency,
+               connected_id,
+               fcm_token
+        FROM member
+        WHERE member_id = #{memberId}
+    </select>
+
+    <!-- 로그인 ID로 회원 조회 -->
+    <select id="selectMemberByLoginId" parameterType="string" resultMap="memberResultMap">
+        SELECT member_id,
+               remittance_information_id,
+               remittance_group_id,
+               login_id,
+               password,
+               passport_number,
+               nationality,
+               birth,
+               name,
+               phone_number,
+               remain_time,
+               currency,
+               fcm_token
         FROM member
         WHERE login_id = #{loginId}
     </select>

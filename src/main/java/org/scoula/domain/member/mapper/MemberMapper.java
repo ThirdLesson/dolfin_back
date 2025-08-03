@@ -5,6 +5,7 @@ import java.util.Optional;
 
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
+import org.apache.ibatis.annotations.Select;
 import org.apache.ibatis.annotations.Update;
 import org.scoula.domain.member.entity.Member;
 
@@ -38,4 +39,16 @@ public interface MemberMapper {
 	Optional<Member> selectMemberByPhoneNumber(String phoneNumber);
 
 	List<Member> selectMembersInIds(@Param("memberIds") List<Long> memberIds);
+
+	@Update("UPDATE member SET " +
+		"remittance_information_id = #{remittanceInformationId}, " +
+		"remittance_group_id = #{remittanceGroupId} " +
+		"WHERE member_id = #{memberId}")
+	int updateRemittanceRefsStrict(@Param("memberId") Long memberId,
+		@Param("remittanceInformationId") Long remittanceInformationId,
+		@Param("remittanceGroupId") Long remittanceGroupId);
+
+	@Select("SELECT fcm_token FROM member WHERE remittance_group_id = #{groupId}")
+	List<String> findFcmTokensByRemittanceGroupId(@Param("groupId") Long remittanceGroupId);
+
 }
