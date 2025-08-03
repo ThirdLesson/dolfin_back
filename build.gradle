@@ -142,6 +142,9 @@ dependencies {
     // SMS 인증
     implementation 'net.nurigo:sdk:4.3.0'
 
+    // firebase admin SDK
+    implementation 'com.google.firebase:firebase-admin:9.1.1'
+
 }
 
 
