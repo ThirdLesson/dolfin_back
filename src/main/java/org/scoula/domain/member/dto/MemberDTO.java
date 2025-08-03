@@ -21,6 +21,10 @@ import lombok.NoArgsConstructor;
 @ApiModel(description = "회원 정보")
 public class MemberDTO {
 
+	private Long remittanceInformationId; // 정기송금 정보 아이디
+
+	private Long remittanceGroupId; // 정기송금 그룹 아이디
+
 	@ApiModelProperty(value = "회원 ID", example = "1")
 	private Long memberId;
 
@@ -51,11 +55,15 @@ public class MemberDTO {
 	@ApiModelProperty(value = "설정 통화", example = "USD")
 	private Currency currency;
 
-	private String ConnectedId; // 코데프 유저 아이디
+	private String connectedId; // 코데프 유저 아이디
+
+	private String fcmToken; // firebase fcm 알림 토큰
 
 	// Entity -> DTO 변환
 	public static MemberDTO from(Member member) {
 		return MemberDTO.builder()
+			.remittanceInformationId(member.getRemittanceInformationId())
+			.remittanceGroupId(member.getRemittanceGroupId())
 			.memberId(member.getMemberId())
 			.loginId(member.getLoginId())
 			.password(member.getPassword())
@@ -66,13 +74,16 @@ public class MemberDTO {
 			.phoneNumber(member.getPhoneNumber())
 			.remainTime(member.getRemainTime())
 			.currency(member.getCurrency())
-			.ConnectedId(member.getConnectedId())
+			.connectedId(member.getConnectedId())
+			.fcmToken(member.getFcmToken())
 			.build();
 	}
 
 	// DTO -> Entity 변환
 	public Member toEntity() {
 		return Member.builder()
+			.remittanceGroupId(this.remittanceGroupId)
+			.remittanceInformationId(this.remittanceInformationId)
 			.memberId(this.memberId)
 			.loginId(this.loginId)
 			.password(this.password)
@@ -83,6 +94,8 @@ public class MemberDTO {
 			.phoneNumber(this.phoneNumber)
 			.remainTime(this.remainTime)
 			.currency(this.currency)
+			.connectedId(this.connectedId)
+			.fcmToken(this.fcmToken)
 			.build();
 	}
 

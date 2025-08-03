@@ -1,23 +1,27 @@
-package org.scoula.domain.MemberRemittanceGroup.entity;
+package org.scoula.domain.remmitanceinformation.entity;
 
 import java.math.BigDecimal;
 
 import org.scoula.global.entity.BaseEntity;
 
 import lombok.AccessLevel;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 /**
  * 사용자_단체 송금 정보
  */
 @Getter
+@Setter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-public class MemberRemittanceGroup extends BaseEntity {
+@Builder
+@AllArgsConstructor(access = AccessLevel.PROTECTED)
+public class RemittanceInformation extends BaseEntity {
 
-	private Long memberRemittanceGroup;   // PK
-	private Long remittanceGroupId;       // 단체송금 아이디 (FK)
-	private Long memberId;                // 회원 아이디 (FK)
+	private Long remittanceInformationId;   // PK
 	private String receiverBank;          // 수취인 은행 이름
 	private String swiftCode;             // SWIFT 코드
 	private String routerCode;            // 라우터 코드(미국)
@@ -27,6 +31,10 @@ public class MemberRemittanceGroup extends BaseEntity {
 	private String receiverAddress;       // 수취인 주소
 	private String purpose;               // 거래목적
 	private BigDecimal amount;            // 환전을 원하는 금액(원화)
-	private BigDecimal exchangeAmount;    // 환전이 완료된 금액
-	private Status status;     			  // 진행 / PENDING(진행중), SUCCESS(성공), FAILED(실패)
+	private Integer transmitFailCount;    // 송금 실패 카운트 (2회 이상 시 그룹 탈퇴)
+	private IntermediaryBankCommission intermediaryBankCommission; // 중계 수수료 부담 방식
+
+	public void updateRouterCode(String routerCode) {
+		this.routerCode = routerCode;
+	}
 }
