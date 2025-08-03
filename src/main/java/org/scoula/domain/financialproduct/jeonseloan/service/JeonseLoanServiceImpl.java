@@ -153,102 +153,102 @@ public class JeonseLoanServiceImpl implements JeonseLoanService {
 	@Override
 	@Transactional
 	public void fetchAndSaveJeonseLoansFromApi() {
-		try {
-			log.info("=== API 호출 시작 ===");
-
-			// 1. URL 확인
-			String url = buildApiUrl(null, 1);
-			log.info("API URL: {}", url);
-
-			// 2. API 응답 확인
-			JsonNode response = callApiAndParseJson(url);
-			log.info("API 응답 받음: {}", response != null ? "성공" : "실패");
-
-			if (response != null) {
-				log.info("응답 구조 확인:");
-				log.info("- has result: {}", response.has("result"));
-
-				if (response.has("result")) {
-					JsonNode result = response.get("result");
-					log.info("- result baseList exists: {}", result.has("baseList"));
-					log.info("- result optionList exists: {}", result.has("optionList"));
-
-					if (result.has("baseList")) {
-						JsonNode baseList = result.get("baseList");
-						log.info("- baseList size: {}", baseList.size());
-					}
-				}
-			}
-
-			// 3. DTO 변환 확인
-			List<JeonseLoanDTO> dtos = convertJsonToDtos(response);
-			log.info("변환된 DTO 개수: {}", dtos.size());
-
-			if (!dtos.isEmpty()) {
-				log.info("첫 번째 DTO: {}", dtos.get(0).getName());
-			}
-
-			// 4. 저장 시도
-			createJeonseLoans(dtos);
-			log.info("API에서 {}개의 전세대출 데이터를 성공적으로 저장했습니다.", dtos.size());
-
-		} catch (Exception e) {
-			log.error("API에서 전세대출 데이터 가져오기 실패", e);
-			throw new CustomException(FinancialErrorCode.JEONSE_LOAN_API_CALL_FAILED, LogLevel.ERROR, null, null);
-		}
+		// try {
+		// 	log.info("=== API 호출 시작 ===");
+		//
+		// 	// 1. URL 확인
+		// 	String url = buildApiUrl(null, 1);
+		// 	log.info("API URL: {}", url);
+		//
+		// 	// 2. API 응답 확인
+		// 	JsonNode response = callApiAndParseJson(url);
+		// 	log.info("API 응답 받음: {}", response != null ? "성공" : "실패");
+		//
+		// 	if (response != null) {
+		// 		log.info("응답 구조 확인:");
+		// 		log.info("- has result: {}", response.has("result"));
+		//
+		// 		if (response.has("result")) {
+		// 			JsonNode result = response.get("result");
+		// 			log.info("- result baseList exists: {}", result.has("baseList"));
+		// 			log.info("- result optionList exists: {}", result.has("optionList"));
+		//
+		// 			if (result.has("baseList")) {
+		// 				JsonNode baseList = result.get("baseList");
+		// 				log.info("- baseList size: {}", baseList.size());
+		// 			}
+		// 		}
+		// 	}
+		//
+		// 	// 3. DTO 변환 확인
+		// 	List<JeonseLoanDTO> dtos = convertJsonToDtos(response);
+		// 	log.info("변환된 DTO 개수: {}", dtos.size());
+		//
+		// 	if (!dtos.isEmpty()) {
+		// 		log.info("첫 번째 DTO: {}", dtos.get(0).getName());
+		// 	}
+		//
+		// 	// 4. 저장 시도
+		// 	createJeonseLoans(dtos);
+		// 	log.info("API에서 {}개의 전세대출 데이터를 성공적으로 저장했습니다.", dtos.size());
+		//
+		// } catch (Exception e) {
+		// 	log.error("API에서 전세대출 데이터 가져오기 실패", e);
+		// 	throw new CustomException(FinancialErrorCode.JEONSE_LOAN_API_CALL_FAILED, LogLevel.ERROR, null, null);
+		// }
 	}
 
 	@Override
 	@Transactional
 	public void fetchAndSaveJeonseLoansFromApi(Long financialCompanyId) {
-		try {
-			// 금융회사 코드 조회
-			String companyCode = financialCompanyMapper.findCodeById(financialCompanyId);
-			if (companyCode == null) {
-				throw new CustomException(FinancialErrorCode.FINANCIAL_COMPANY_NOT_FOUND, LogLevel.ERROR, null, null);
-			}
-
-			String url = buildApiUrl(companyCode, 1);
-			JsonNode response = callApiAndParseJson(url);
-
-			List<JeonseLoanDTO> dtos = convertJsonToDtos(response);
-			createJeonseLoans(dtos);
-
-			log.info("금융회사 ID {} - API에서 {}개의 전세대출 데이터를 저장했습니다.",
-				financialCompanyId, dtos.size());
-		} catch (Exception e) {
-			log.error("특정 금융회사 전세대출 데이터 가져오기 실패: {}", financialCompanyId, e);
-			throw new CustomException(FinancialErrorCode.JEONSE_LOAN_API_CALL_FAILED, LogLevel.ERROR, null, null);
-		}
+		// try {
+		// 	// 금융회사 코드 조회
+		// 	String companyCode = financialCompanyMapper.findCodeById(financialCompanyId);
+		// 	if (companyCode == null) {
+		// 		throw new CustomException(FinancialErrorCode.FINANCIAL_COMPANY_NOT_FOUND, LogLevel.ERROR, null, null);
+		// 	}
+		//
+		// 	String url = buildApiUrl(companyCode, 1);
+		// 	JsonNode response = callApiAndParseJson(url);
+		//
+		// 	List<JeonseLoanDTO> dtos = convertJsonToDtos(response);
+		// 	createJeonseLoans(dtos);
+		//
+		// 	log.info("금융회사 ID {} - API에서 {}개의 전세대출 데이터를 저장했습니다.",
+		// 		financialCompanyId, dtos.size());
+		// } catch (Exception e) {
+		// 	log.error("특정 금융회사 전세대출 데이터 가져오기 실패: {}", financialCompanyId, e);
+		// 	throw new CustomException(FinancialErrorCode.JEONSE_LOAN_API_CALL_FAILED, LogLevel.ERROR, null, null);
+		// }
 	}
 
 	@Override
 	@Transactional
 	public void synchronizeJeonseLoansFromApi() {
-		try {
-			String url = buildApiUrl(null, 1);
-			JsonNode response = callApiAndParseJson(url);
-
-			List<JeonseLoanDTO> apiDtos = convertJsonToDtos(response);
-
-			for (JeonseLoanDTO dto : apiDtos) {
-				boolean exists = jeonseLoanMapper.existsByFinancialCompanyIdAndName(
-					dto.getFinancialCompanyId(), dto.getName());
-
-				if (exists) {
-					log.debug("기존 상품 업데이트: {}", dto.getName());
-					// 업데이트 로직은 필요에 따라 구현
-				} else {
-					createJeonseLoan(dto);
-					log.debug("새 상품 추가: {}", dto.getName());
-				}
-			}
-
-			log.info("전세대출 데이터 동기화 완료: {}개 처리", apiDtos.size());
-		} catch (Exception e) {
-			log.error("전세대출 데이터 동기화 실패", e);
-			throw new CustomException(FinancialErrorCode.JEONSE_LOAN_API_CALL_FAILED, LogLevel.INFO, null, null);
-		}
+		// try {
+		// 	String url = buildApiUrl(null, 1);
+		// 	JsonNode response = callApiAndParseJson(url);
+		//
+		// 	// List<JeonseLoanDTO> apiDtos = convertJsonToDtos(response);
+		//
+		// 	for (JeonseLoanDTO dto : apiDtos) {
+		// 		boolean exists = jeonseLoanMapper.existsByFinancialCompanyIdAndName(
+		// 			dto.getFinancialCompanyId(), dto.getName());
+		//
+		// 		if (exists) {
+		// 			log.debug("기존 상품 업데이트: {}", dto.getName());
+		// 			// 업데이트 로직은 필요에 따라 구현
+		// 		} else {
+		// 			createJeonseLoan(dto);
+		// 			log.debug("새 상품 추가: {}", dto.getName());
+		// 		}
+		// 	}
+		//
+		// 	log.info("전세대출 데이터 동기화 완료: {}개 처리", apiDtos.size());
+		// } catch (Exception e) {
+		// 	log.error("전세대출 데이터 동기화 실패", e);
+		// 	throw new CustomException(FinancialErrorCode.JEONSE_LOAN_API_CALL_FAILED, LogLevel.INFO, null, null);
+		// }
 	}
 
 	// === 내부 헬퍼 메서드 ===
@@ -297,64 +297,64 @@ public class JeonseLoanServiceImpl implements JeonseLoanService {
 		}
 	}
 
-	private List<JeonseLoanDTO> convertJsonToDtos(JsonNode response) {
-		log.info("=== DTO 변환 시작 ===");
+	// private List<JeonseLoanDTO> convertJsonToDtos(JsonNode response) {
+	// 	log.info("=== DTO 변환 시작 ===");
+	//
+	// 	if (response == null || !response.has("result")) {
+	// 		log.warn("응답이 null이거나 result가 없음");
+	// 		return new ArrayList<>();
+	// 	}
+	//
+	// 	JsonNode result = response.get("result");
+	// 	JsonNode baseList = result.get("baseList");
+	// 	JsonNode optionList = result.get("optionList");
+	//
+	// 	if (baseList == null || !baseList.isArray() || baseList.size() == 0) {
+	// 		log.warn("baseList가 null이거나 비어있음");
+	// 		return new ArrayList<>();
+	// 	}
+	//
+	// 	log.info("baseList 아이템 수: {}", baseList.size());
+	//
+	// 	// OptionItem을 Map으로 변환
+	// 	Map<String, List<JsonNode>> optionMap = new HashMap<>();
+	// 	if (optionList != null && optionList.isArray()) {
+	// 		log.info("optionList 아이템 수: {}", optionList.size());
+	// 		for (JsonNode option : optionList) {
+	// 			String finPrdtCd = option.path("fin_prdt_cd").asText();
+	// 			optionMap.computeIfAbsent(finPrdtCd, k -> new ArrayList<>()).add(option);
+	// 		}
+	// 	}
+	//
+	// 	List<JeonseLoanDTO> result_list = new ArrayList<>();
+	//
+	// 	for (JsonNode baseItem : baseList) {
+	// 		String finPrdtCd = baseItem.path("fin_prdt_cd").asText();
+	// 		String finCoNo = baseItem.path("fin_co_no").asText();
+	//
+	// 		log.debug("처리 중인 상품: {} (회사코드: {})", finPrdtCd, finCoNo);
+	//
+	// 		// 금융회사 코드 → ID 매핑
+	// 		Long financialCompanyId = financialCompanyMapper.findIdByCode(finCoNo);
+	// 		if (financialCompanyId == null) {
+	// 			log.warn("해당 코드의 금융회사 ID 없음: {}", finCoNo);
+	// 			continue;
+	// 		}
+	//
+	// 		List<JsonNode> options = optionMap.getOrDefault(finPrdtCd, new ArrayList<>());
+	//
+	// 		if (options.isEmpty()) {
+	// 			result_list.add(createDtoFromJson(baseItem, null, financialCompanyId));
+	// 		} else {
+	// 			for (JsonNode option : options) {
+	// 				result_list.add(createDtoFromJson(baseItem, option, financialCompanyId));
+	// 			}
+	// 		}
+	// 	}
 
-		if (response == null || !response.has("result")) {
-			log.warn("응답이 null이거나 result가 없음");
-			return new ArrayList<>();
-		}
-
-		JsonNode result = response.get("result");
-		JsonNode baseList = result.get("baseList");
-		JsonNode optionList = result.get("optionList");
-
-		if (baseList == null || !baseList.isArray() || baseList.size() == 0) {
-			log.warn("baseList가 null이거나 비어있음");
-			return new ArrayList<>();
-		}
-
-		log.info("baseList 아이템 수: {}", baseList.size());
-
-		// OptionItem을 Map으로 변환
-		Map<String, List<JsonNode>> optionMap = new HashMap<>();
-		if (optionList != null && optionList.isArray()) {
-			log.info("optionList 아이템 수: {}", optionList.size());
-			for (JsonNode option : optionList) {
-				String finPrdtCd = option.path("fin_prdt_cd").asText();
-				optionMap.computeIfAbsent(finPrdtCd, k -> new ArrayList<>()).add(option);
-			}
-		}
-
-		List<JeonseLoanDTO> result_list = new ArrayList<>();
-
-		for (JsonNode baseItem : baseList) {
-			String finPrdtCd = baseItem.path("fin_prdt_cd").asText();
-			String finCoNo = baseItem.path("fin_co_no").asText();
-
-			log.debug("처리 중인 상품: {} (회사코드: {})", finPrdtCd, finCoNo);
-
-			// 금융회사 코드 → ID 매핑
-			Long financialCompanyId = financialCompanyMapper.findIdByCode(finCoNo);
-			if (financialCompanyId == null) {
-				log.warn("해당 코드의 금융회사 ID 없음: {}", finCoNo);
-				continue;
-			}
-
-			List<JsonNode> options = optionMap.getOrDefault(finPrdtCd, new ArrayList<>());
-
-			if (options.isEmpty()) {
-				result_list.add(createDtoFromJson(baseItem, null, financialCompanyId));
-			} else {
-				for (JsonNode option : options) {
-					result_list.add(createDtoFromJson(baseItem, option, financialCompanyId));
-				}
-			}
-		}
-
-		log.info("최종 변환된 DTO 수: {}", result_list.size());
-		return result_list;
-	}
+	// 	log.info("최종 변환된 DTO 수: {}", result_list.size());
+	// 	return result_list;
+	// }
 
 	private JeonseLoanDTO createDtoFromJson(JsonNode base, JsonNode option, Long financialCompanyId) {
 		return JeonseLoanDTO.builder()

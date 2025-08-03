@@ -35,30 +35,29 @@ public class SavingServiceImpl implements SavingService{
 	public List<SavingsResponse> fetchAndSaveSavingProducts () {
 		return null;
 	}
-
-
 	// 적금 상품 리스트 조회(필터링)
 	@Override
 	public Page<SavingsResponse> getSavings(ProductPeriod productPeriod, List<SavingSpclCondition> spclConditions,
 		Pageable pageable, Member member) {
-		// 멤버 체류기간 가져오기
-		LocalDate remainTime = member.getRemainTime();
-		int remainMonths = (int)ChronoUnit.MONTHS.between(LocalDate.now(), remainTime);
-
-		int totalCount = savingMapper.countSavingWithFilters(
-			productPeriod, spclConditions, remainTime, remainMonths, pageable.getPageSize());
-
-		// 기간별,조건별 필터링, pageable
-		List<Saving> savings = savingMapper.selectSavingWithFilters(
-			productPeriod, spclConditions, remainTime, remainMonths,
-			(int)pageable.getOffset(), pageable.getPageSize()
-		);
-
-		List<SavingsResponse> savingsResponses = savings.stream()
-			.map(saving -> SavingsResponse.fromEntity(saving,
-				financialCompanyService.getById(saving.getFinancialCompanyId())))
-			.toList();
-		return new PageImpl<>(savingsResponses, pageable, totalCount);
+		// // 멤버 체류기간 가져오기
+		// LocalDate remainTime = member.getRemainTime();
+		// int remainMonths = (int)ChronoUnit.MONTHS.between(LocalDate.now(), remainTime);
+		//
+		// int totalCount = savingMapper.countSavingWithFilters(
+		// 	productPeriod, spclConditions, remainTime, remainMonths, pageable.getPageSize());
+		//
+		// // 기간별,조건별 필터링, pageable
+		// List<Saving> savings = savingMapper.selectSavingWithFilters(
+		// 	productPeriod, spclConditions, remainTime, remainMonths,
+		// 	(int)pageable.getOffset(), pageable.getPageSize()
+		// );
+		//
+		// List<SavingsResponse> savingsResponses = savings.stream()
+		// 	.map(saving -> SavingsResponse.fromEntity(saving,
+		// 		financialCompanyService.getById(saving.getFinancialCompanyId())))
+		// 	.toList();
+		// return new PageImpl<>(savingsResponses, pageable, totalCount);
+		return null;
 	}
 
 }

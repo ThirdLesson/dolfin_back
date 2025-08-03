@@ -3,7 +3,6 @@ package org.scoula.domain.financialproduct.depositsaving.entity;
 import java.math.BigDecimal;
 import java.util.List;
 
-import org.scoula.domain.financialproduct.constants.DepositSpclCondition;
 import org.scoula.domain.financialproduct.constants.SavingSpclCondition;
 import org.scoula.global.entity.BaseEntity;
 
