@@ -34,12 +34,55 @@
           AND base_exchange = 'KRW'
           AND target_exchange = #{targetCurrency}
           AND exchange_value > 0
-        ORDER BY exchange_date DESC, created_at DESC
+        ORDER BY created_at DESC
             LIMIT 1
     </select>
 
 
+    <!-- 특정 은행의 특정 통화 환율 조회 -->
+    <select id="findByBankAndTargetCurrencyAndType" resultMap="exchangeRateMap">
+        SELECT exchange_id, base_exchange, target_exchange, exchange_value,
+               bank_name, type, exchange_date, created_at, updated_at
+        FROM exchange_rate
+        WHERE bank_name = #{bankName}
+          AND target_exchange = #{targetCurrency}
+          AND type = #{type}
+          AND exchange_date = (
+            SELECT MAX(exchange_date)
+            FROM exchange_rate
+            WHERE bank_name = #{bankName}
+              AND target_exchange = #{targetCurrency}
+              AND type = #{type}
+        )
+            LIMIT 1
+    </select>
 
 
+    <!-- 최신 환율 조회 -->
+    <select id="findLatestRates" resultMap="exchangeRateMap">
+        SELECT exchange_id, base_exchange, target_exchange, exchange_value,
+               bank_name, type, exchange_date, created_at, updated_at
+        FROM exchange_rate
+        WHERE target_exchange = #{targetCurrency}
+          AND type = #{type}
+          AND exchange_date = (
+            SELECT MAX(exchange_date)
+            FROM exchange_rate
+            WHERE target_exchange = #{targetCurrency} AND type = #{type}
+        )
+        ORDER BY exchange_value ASC
+    </select>
+
+    <!-- 특정 은행의 USD 환율 조회 -->
+    <select id="findUsdExchangeRate" resultMap="exchangeRateMap">
+        SELECT exchange_id, base_exchange, target_exchange, exchange_value,
+               bank_name, type, exchange_date, created_at, updated_at
+        FROM exchange_rate
+        WHERE target_exchange = 'USD'
+          AND type = 'BASE'
+          AND bank_name = #{bankName}
+        ORDER BY exchange_date DESC, created_at DESC
+            LIMIT 1
+    </select>
 
 </mapper>

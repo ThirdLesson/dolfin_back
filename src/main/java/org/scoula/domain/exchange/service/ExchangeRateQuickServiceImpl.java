@@ -11,12 +11,13 @@ import java.util.stream.Collectors;
 import javax.servlet.http.HttpServletRequest;
 
 import org.scoula.domain.exchange.dto.request.ExchangeQuickRequest;
-import org.scoula.domain.exchange.dto.response.BankRateInfo;
+import org.scoula.domain.exchange.dto.response.exchangeResponse.BankRateInfo;
 import org.scoula.domain.exchange.dto.response.ExchangeQuickResponse;
+import org.scoula.domain.exchange.entity.Type;
 import org.scoula.domain.exchange.exception.ExchangeErrorCode;
 import org.scoula.domain.exchange.mapper.ExchangeRateMapper;
 import org.scoula.domain.exchange.dto.request.ExchangeBankRequest;
-import org.scoula.domain.exchange.dto.response.ExchangeBankResponse;
+import org.scoula.domain.exchange.dto.response.exchangeResponse.ExchangeBankResponse;
 import org.scoula.domain.exchange.entity.ExchangeRate;
 import org.scoula.global.exception.CustomException;
 import org.scoula.global.kafka.dto.Common;
@@ -31,7 +32,7 @@ import lombok.extern.log4j.Log4j2;
 @Service
 @Transactional(readOnly = true)
 @RequiredArgsConstructor
-public class ExchangeRateServiceImpl implements ExchangeRateService {
+public class ExchangeRateQuickServiceImpl implements ExchangeRateQuickService {
 
 	private final ExchangeRateMapper exchangeRateMapper;
 	private final DecimalFormat currencyFormatter = new DecimalFormat("#,###.##");
@@ -41,7 +42,8 @@ public class ExchangeRateServiceImpl implements ExchangeRateService {
 	public ExchangeBankResponse calculateExchangeBank(ExchangeBankRequest request,
 		HttpServletRequest httpServletRequest) {
 
-		List<String> banks = List.of("KB국민은행", "하나은행", "신한은행", "우리은행", "기업은행");
+
+		List<String> banks = List.of("국민은행", "하나은행", "신한은행", "우리은행", "기업은행");
 		List<BankRateInfo> rates = new ArrayList<>();
 
 		// 각 은행별 환율 정보 조회
@@ -61,6 +63,7 @@ public class ExchangeRateServiceImpl implements ExchangeRateService {
 			}
 
 			BankRateInfo bankRateInfo = calculateBankRate(latestExchangeRate, request.getAmount());
+
 			rates.add(bankRateInfo);
 
 		}
@@ -78,16 +81,10 @@ public class ExchangeRateServiceImpl implements ExchangeRateService {
 			.requestedAmount(request.getAmount())
 			.targetCurrency(request.getTargetCurrency())
 			.exchangeType(request.getType())
-			.allBanks(sortedRates)
+			.banks(sortedRates)
 			.build();
 	}
 
-	@Override
-	public ExchangeQuickResponse calculateExchangeQuick(ExchangeQuickRequest request,
-		HttpServletRequest httpServletRequest) {
-		return calculateExchangeQuickNormal(request);
-
-	}
 
 	private List<BankRateInfo> sortByExchangeType(List<BankRateInfo> rates, String type) {
 		Comparator<BankRateInfo> comparator;
@@ -96,16 +93,16 @@ public class ExchangeRateServiceImpl implements ExchangeRateService {
 			case "SELLCASH":  // 현찰 팔 때 - 낮은 환율이 유리
 			case "SEND":      // 송금 보낼 때 - 낮은 환율이 유리
 			case "BASE":      // 기준율 - 낮은 순으로 정렬
-				comparator = Comparator.comparing(BankRateInfo::getOperator);
+				comparator = Comparator.comparing(BankRateInfo::getTargetoperation);
 				break;
 
 			case "GETCASH":   // 현찰 살 때 - 높은 환율이 유리
 			case "RECEIVE":   // 송금 받을 때 - 높은 환율이 유리
-				comparator = Comparator.comparing(BankRateInfo::getOperator).reversed();
+				comparator = Comparator.comparing(BankRateInfo::getTargetoperation).reversed();
 				break;
 
 			default:
-				comparator = Comparator.comparing(BankRateInfo::getOperator);
+				comparator = Comparator.comparing(BankRateInfo::getTargetoperation);
 		}
 
 		return rates.stream()
@@ -127,20 +124,105 @@ public class ExchangeRateServiceImpl implements ExchangeRateService {
 			rateFormatter.format(rate.getExchangeValue()));
 
 
-		// kb 글자 빼기
-		if( rate.getBankName().startsWith("KB")) {
-			rate.setBankName(rate.getBankName().substring(2));
-		}
 		return BankRateInfo.builder()
 			.bankName(rate.getBankName())
-			.operator(rate.getExchangeValue())
 			.exchangeRate(rateDisplay)
+			.targetoperation(targetAmount)
 			.totalAmount(String.format("%s %s",
 				currencyFormatter.format(targetAmount.setScale(2, RoundingMode.HALF_UP)),
 				rate.getTargetExchange()))
 			.build();
 	}
 
+
+	@Override
+	public ExchangeBankResponse calculateExchangeBankV2(ExchangeBankRequest request,
+		HttpServletRequest httpServletRequest) {
+
+		List<String> banks = List.of("국민은행", "하나은행", "신한은행", "우리은행", "기업은행");
+		List<BankRateInfo> rates = new ArrayList<>();
+
+		// 각 은행별 환율 정보 조회
+		for (String bank : banks) {
+			ExchangeRate baseExchange = exchangeRateMapper
+				.findLatestExchangeRate(bank, request.getType(), String.valueOf(Type.BASE));
+
+			ExchangeRate targetExchangeRate = exchangeRateMapper
+				.findLatestExchangeRate(bank, request.getType(), request.getTargetCurrency());
+
+			if (targetExchangeRate == null|| baseExchange == null) {
+				throw new CustomException(
+					ExchangeErrorCode.EXCHANGE_REQUIRED_PARAMETER_MISSING, LogLevel.ERROR,
+					httpServletRequest.getHeader("txId"),
+					Common.builder()
+						.srcIp(httpServletRequest.getRemoteAddr())
+						.callApiPath(httpServletRequest.getRequestURI())
+						.deviceInfo(httpServletRequest.getHeader("user-agent"))
+						.retryCount(0)
+						.build());
+			}
+
+			BankRateInfo bankRateInfo = calculatePolicyOption(targetExchangeRate,baseExchange , request.getAmount());
+
+			rates.add(bankRateInfo);
+		}
+		return ExchangeBankResponse.builder()
+			.requestedAmount(request.getAmount())
+			.targetCurrency(request.getTargetCurrency())
+			.exchangeType(request.getType())
+			.banks(rates)
+			.build();
+	}
+
+	/**
+	 * 기본 정책 옵션 계산 (0% 우대율)
+	 */
+	private BankRateInfo calculatePolicyOption(ExchangeRate targetExchange, ExchangeRate baseExchange,
+		BigDecimal amountInKRW) {
+		BigDecimal transferFee = BigDecimal.valueOf(8000); // 전신료
+		BigDecimal zeroPreferentialRate = BigDecimal.ZERO; // 0% 우대율 (일반 요율)
+
+		// 1. 전신료 차감
+		BigDecimal amountAfterTransferFee = amountInKRW.subtract(transferFee);
+
+		// 2. 일반 요율 (0% 우대) 계산 - 실제로는 targetExchange(SEND) 환율 그대로 사용
+		BigDecimal baseActualRate = targetExchange.getExchangeValue(); // SEND 타입 환율 (0% 우대)
+		BigDecimal baseFinalAmount = amountAfterTransferFee.divide(baseActualRate, 2, RoundingMode.HALF_UP);
+
+		// 3. 환율 표시
+		String rateDisplay = String.format("1 %s 당 %s KRW",
+			targetExchange.getTargetExchange(),
+			rateFormatter.format(baseActualRate));
+
+		// 4. 일반 요율 결과
+		String totalAmountDisplay = String.format("%s %s",
+			currencyFormatter.format(baseFinalAmount.setScale(2, RoundingMode.HALF_UP)),
+			targetExchange.getTargetExchange());
+
+		return BankRateInfo.builder()
+			.bankName(targetExchange.getBankName())
+			.targetoperation(baseActualRate)  // 0% 우대 적용된 환율 (실제로는 SEND 그대로)
+			.exchangeRate(rateDisplay)
+			.totalAmount(totalAmountDisplay)
+			.policyList(new ArrayList<>()) // 나중에 addPolicyOption으로 추가
+			.build();
+	}
+
+
+	@Override
+	public ExchangeQuickResponse calculateExchangeQuick(ExchangeQuickRequest request,
+		HttpServletRequest httpServletRequest) {
+		return calculateExchangeQuickNormal(request);
+
+	}
+
+	/**
+	 * 빠른 환율 계산
+	 * 기준 통화(KRW)에서 목표 통화로의 환율을 조회하여, 요청한 금액에 대한 환전 후 금액을 계산합니다.
+	 * 환율 타입은 BASE로 고정되어 있습니다.
+	 * @param request 환율 계산 요청 정보
+	 * @return ExchangeQuickResponse
+	 */
 	private ExchangeQuickResponse calculateExchangeQuickNormal(ExchangeQuickRequest request) {
 
 		// 기준 통화(KRW)에서 목표 통화로의 환율 조회
