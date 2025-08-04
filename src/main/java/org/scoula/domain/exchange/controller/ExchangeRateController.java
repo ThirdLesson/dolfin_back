@@ -6,6 +6,7 @@ import javax.servlet.http.HttpServletRequest;
 
 import org.scoula.domain.exchange.dto.request.ExchangeBankRequest;
 import org.scoula.domain.exchange.dto.request.ExchangeQuickRequest;
+import org.scoula.domain.exchange.dto.response.ExchangeLiveResponse;
 import org.scoula.domain.exchange.dto.response.exchangeResponse.ExchangeBankResponse;
 import org.scoula.domain.exchange.dto.response.ExchangeMonthlyResponse;
 import org.scoula.domain.exchange.dto.response.ExchangeQuickResponse;
@@ -14,6 +15,7 @@ import org.scoula.domain.exchange.service.ExchangeRateQuickService;
 import org.scoula.domain.exchange.service.finalService.ExchangeFinalService;
 import org.scoula.global.response.SuccessResponse;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -79,6 +81,26 @@ public class ExchangeRateController {
 		);
 	}
 
+	/**
+	 * 단일 통화 환율 조회
+	 *
+	 * @param currency 통화 코드 (USD, JPY 등)
+	 * @return 환율 정보
+	 */
+	@ApiOperation(
+		value = "실시간 환율 조회",
+		notes = "특정 통화에 대한 실시간 환율 정보를 조회합니다. "
+				+ "예시: /exchange/USD, /exchange/EUR 등"
+	)
+	@GetMapping("/live/{currency}")
+	public SuccessResponse<ExchangeLiveResponse> getExchangeRate(HttpServletRequest request,@PathVariable String currency) {
+
+		ExchangeLiveResponse latestExchangeRate = exchangeRateQuickService.getLatestExchangeRate(request,
+			currency.toUpperCase());
+
+		return SuccessResponse.ok(latestExchangeRate);
+
+	}
 
 
 }
