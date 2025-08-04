@@ -1,31 +1,30 @@
 package org.scoula.domain.financialproduct.financialcompany.dto.request;
 
-import io.swagger.annotations.ApiModel;
-import io.swagger.annotations.ApiModelProperty;
+import org.scoula.domain.financialproduct.financialcompany.entity.FinancialCompany;
+import org.scoula.global.entity.BaseEntity;
+
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
-import lombok.NoArgsConstructor;
-import org.scoula.domain.financialproduct.financialcompany.entity.FinancialCompany;
 
+// 금융회사 등록 요청 DTO
+// 외부 데이터 소스에서 받은 금융회사 정보를 DB에 저장하기 위한 DTO
 @Getter
-@NoArgsConstructor
 @AllArgsConstructor
 @Builder
-@ApiModel(value = "금융회사 요청 DTO", description = "금융회사 등록/수정 요청 데이터")
-public class FinancialCompanyRequestDTO {
+public class FinancialCompanyRequestDTO extends BaseEntity {
+	private final String finCoNo; // 금융회사 코드
+	private final String name; // 금융회사 이름
+	private final String homepageUrl; // 금융회사 홈페이지 주소
+	private final String callNumber; // 금웅회사 전화번호
 
-    @ApiModelProperty(value = "금융회사 이름", example = "신한은행", required = true)
-    private String name;
-
-    @ApiModelProperty(value = "금융회사 코드", example = "SH123", required = true)
-    private String code;
-
-    // DTO -> Entity 변환
-    public FinancialCompany toEntity() {
-        return FinancialCompany.builder()
-                .name(this.name)
-                .code(this.code)
-                .build();
-    }
+	// DTO -> ENTITY
+	public FinancialCompany toEntity() {
+		return FinancialCompany.builder()
+			.code(this.finCoNo)
+			.name(this.name)
+			.homepageUrl(this.homepageUrl)
+			.callNumber(this.callNumber)
+			.build();
+	}
 }

@@ -25,16 +25,12 @@
 
     <!-- INSERT -->
     <insert id="insertJeonseLoan" parameterType="org.scoula.domain.financialproduct.jeonseloan.entity.JeonseLoan">
-        INSERT INTO jeonse_loan (
-            financial_company_id, name, join_way, loan_expensive, erly_fee,
-            dly_rate, loan_lmt, jeonse_id, repay_type_name, lend_rate_type_name,
-            lend_rate_min, lend_rate_max, lend_rate_avg
-        )
-        VALUES (
-                   #{financialCompanyId}, #{name}, #{joinWay}, #{loanExpensive}, #{erlyFee},
-                   #{dlyRate}, #{loanLmt}, #{jeonseId}, #{repayTypeName}, #{lendRateTypeName},
-                   #{lendRateMin}, #{lendRateMax}, #{lendRateAvg}
-               )
+        INSERT INTO jeonse_loan (financial_company_id, name, join_way, loan_expensive, erly_fee,
+                                 dly_rate, loan_lmt, jeonse_id, repay_type_name, lend_rate_type_name,
+                                 lend_rate_min, lend_rate_max, lend_rate_avg)
+        VALUES (#{financialCompanyId}, #{name}, #{joinWay}, #{loanExpensive}, #{erlyFee},
+                #{dlyRate}, #{loanLmt}, #{jeonseId}, #{repayTypeName}, #{lendRateTypeName},
+                #{lendRateMin}, #{lendRateMax}, #{lendRateAvg})
     </insert>
 
     <!-- 단건 조회 -->
@@ -49,30 +45,38 @@
         SELECT *
         FROM jeonse_loan
     </select>
+    <select id="selectJeonseLoansByFinancialCompanyId"
+            resultType="org.scoula.domain.financialproduct.jeonseloan.entity.JeonseLoan"></select>
+    <select id="selectJeonseLoansByInterestRateRange"
+            resultType="org.scoula.domain.financialproduct.jeonseloan.entity.JeonseLoan"></select>
+    <select id="selectJeonseLoansByRepayType"
+            resultType="org.scoula.domain.financialproduct.jeonseloan.entity.JeonseLoan"></select>
+    <select id="existsByFinancialCompanyIdAndName" resultType="java.lang.Boolean"></select>
 
     <!-- 수정 -->
     <update id="updateJeonseLoan">
         UPDATE jeonse_loan
-        SET
-            financial_company_id = #{jeonseLoan.financialCompanyId},
-            name = #{jeonseLoan.name},
-            join_way = #{jeonseLoan.joinWay},
-            loan_expensive = #{jeonseLoan.loanExpensive},
-            erly_fee = #{jeonseLoan.erlyFee},
-            dly_rate = #{jeonseLoan.dlyRate},
-            loan_lmt = #{jeonseLoan.loanLmt},
-            jeonse_id = #{jeonseLoan.jeonseId},
-            repay_type_name = #{jeonseLoan.repayTypeName},
-            lend_rate_type_name = #{jeonseLoan.lendRateTypeName},
-            lend_rate_min = #{jeonseLoan.lendRateMin},
-            lend_rate_max = #{jeonseLoan.lendRateMax},
-            lend_rate_avg = #{jeonseLoan.lendRateAvg}
+        SET financial_company_id = #{jeonseLoan.financialCompanyId},
+            name                 = #{jeonseLoan.name},
+            join_way             = #{jeonseLoan.joinWay},
+            loan_expensive       = #{jeonseLoan.loanExpensive},
+            erly_fee             = #{jeonseLoan.erlyFee},
+            dly_rate             = #{jeonseLoan.dlyRate},
+            loan_lmt             = #{jeonseLoan.loanLmt},
+            jeonse_id            = #{jeonseLoan.jeonseId},
+            repay_type_name      = #{jeonseLoan.repayTypeName},
+            lend_rate_type_name  = #{jeonseLoan.lendRateTypeName},
+            lend_rate_min        = #{jeonseLoan.lendRateMin},
+            lend_rate_max        = #{jeonseLoan.lendRateMax},
+            lend_rate_avg        = #{jeonseLoan.lendRateAvg}
         WHERE jeonse_loan_id = #{jeonseLoanId}
     </update>
 
     <!-- 삭제 -->
     <delete id="deleteJeonseLoan" parameterType="long">
-        DELETE FROM jeonse_loan WHERE jeonse_loan_id = #{jeonseLoanId}
+        DELETE
+        FROM jeonse_loan
+        WHERE jeonse_loan_id = #{jeonseLoanId}
     </delete>
 
 </mapper>
