@@ -139,16 +139,17 @@ public class DepositApiHelper {
 					savingTerms.add(term.asInt());
 				}
 			}
-		}else{
-				savingTerms.add(12); // 기본값
-			}
-			return new ProductDetailInfo(specialConditions, savingTerms);
+		} else {
+			savingTerms.add(12); // 기본값
 		}
-
-		// 상품 상세 정보 record
-		public record ProductDetailInfo(
-			List<String> specialConditions,
-			List<Integer> savingTerms
-		) {}
+		return new ProductDetailInfo(specialConditions, savingTerms);
 	}
+
+	// 상품 상세 정보 record
+	public record ProductDetailInfo(
+		List<String> specialConditions,
+		List<Integer> savingTerms
+	) {
+	}
+}
 
