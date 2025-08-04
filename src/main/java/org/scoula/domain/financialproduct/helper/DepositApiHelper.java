@@ -7,6 +7,7 @@ import java.util.List;
 import org.scoula.domain.financialproduct.depositsaving.dto.common.DepositProduct;
 import org.scoula.domain.financialproduct.depositsaving.dto.common.ProductDetailResponse;
 import org.scoula.domain.financialproduct.depositsaving.dto.common.ProductListResponse;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestTemplate;
 
@@ -26,12 +27,10 @@ public class DepositApiHelper {
 	private final RestTemplate restTemplate;
 	private final ObjectMapper objectMapper;
 
-	private static final String DEPOSIT_PRODUCT_LIST_BY_PERIOD_URL =
-		"https://new-m.pay.naver.com/savings/api/v1/productList?productTypeCode=1002&companyGroupCode=BA&regionCode=00&depositPeriod=%d&productCategories[]=anyone&offset=%d&sortType=PRIME_INTEREST_RATE";
-	private static final String DEPOSIT_DETAIL_URL =
-		"https://new-m.pay.naver.com/savings/_next/data/Sxex5f02tUa16uzMlTx45/detail/%s.json?productCode=%s";
-	// private static final String DEPOSIT_PRODUCT_LIST_URL =
-	// 	"https://new-m.pay.naver.com/savings/api/v1/productList?productTypeCode=1002&companyGroupCode=BA&regionCode=00&productCategories[]=anyone&offset=%d&sortType=PRIME_INTEREST_RATE";
+	@Value("${deposit.product.list}")
+	private String DEPOSIT_PRODUCT_LIST_BY_PERIOD_URL;
+	@Value("${deposit.product.detail.url}")
+	private String DEPOSIT_DETAIL_URL;
 
 	// 기간별 상품 API 호출
 	public List<DepositProduct> getProductsByPeriod(int period, int offset) throws JsonProcessingException {
