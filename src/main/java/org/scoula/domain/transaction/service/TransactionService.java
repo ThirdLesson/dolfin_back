@@ -15,7 +15,7 @@ import org.springframework.data.domain.Page;
 
 public interface TransactionService {
 	void saveWalletTransferTransaction(Wallet senderWallet, BigDecimal senderNewBalance, Wallet receiverWallet,
-		BigDecimal receiverNewBalance, Long memberId, Long receiverId, String transactionGroupId, BigDecimal amount);
+		BigDecimal receiverNewBalance, Member member, Member receiver, String transactionGroupId, BigDecimal amount);
 
 	void saveChargeTransaction(Wallet senderWallet, BigDecimal senderNewBalance, Wallet receiverWallet,
 		BigDecimal receiverNewBalance, Long memberId, Long receiverId, String transactionGroupId, BigDecimal amount);

@@ -45,24 +45,25 @@ public class TransactionServiceImpl implements TransactionService {
 
 	@Transactional
 	public void saveWalletTransferTransaction(Wallet senderWallet, BigDecimal senderNewBalance, Wallet receiverWallet,
-		BigDecimal receiverNewBalance, Long memberId, Long receiverId, String transactionGroupId, BigDecimal amount) {
+		BigDecimal receiverNewBalance, Member member, Member receiver, String transactionGroupId, BigDecimal amount) {
 		Transaction senderTransaction = Transaction.builder()
 			.walletId(senderWallet.getWalletId())
-			.memberId(memberId)
+			.memberId(member.getMemberId())
 			.transactionGroupId(transactionGroupId)
 			.amount(amount)
 			.beforeBalance(senderWallet.getBalance())
 			.afterBalance(senderNewBalance)
 			.transactionType(WALLET_TRANSFER)
-			.counterPartyMemberId(receiverId)
+			.counterPartyMemberId(receiver.getMemberId())
 			.counterPartyWalletId(receiverWallet.getWalletId())
+			.counterPartyName(receiver.getName())
 			.status(SUCCESS)
 			.build();
 		transactionMapper.insert(senderTransaction);
 
 		Transaction receiverTransaction = Transaction.builder()
 			.walletId(receiverWallet.getWalletId())
-			.memberId(receiverId)
+			.memberId(receiver.getMemberId())
 			.transactionGroupId(transactionGroupId)
 			.amount(amount)
 			.beforeBalance(receiverWallet.getBalance())
@@ -70,6 +71,7 @@ public class TransactionServiceImpl implements TransactionService {
 			.transactionType(DEPOSIT)
 			.counterPartyMemberId(senderWallet.getMemberId())
 			.counterPartyWalletId(senderWallet.getWalletId())
+			.counterPartyName(member.getName())
 			.status(SUCCESS)
 			.build();
 		transactionMapper.insert(receiverTransaction);
