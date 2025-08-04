@@ -1,15 +1,16 @@
 package org.scoula.domain.exchange.service.policy;
 
 import static org.scoula.domain.exchange.exception.ExchangeErrorCode.*;
-import static org.scoula.domain.member.exception.MemberErrorCode.*;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
+import org.apache.kafka.common.protocol.types.Field;
 import org.scoula.domain.exchange.dto.response.exchangeResponse.BankRateInfo;
 import org.scoula.domain.exchange.dto.response.exchangeResponse.ExchangeBankResponse;
 import org.scoula.domain.exchange.dto.response.exchangeResponse.PolicyResponse;
 import org.scoula.domain.exchange.entity.ExchangePolicy;
+import org.scoula.domain.exchange.entity.Type;
 import org.scoula.domain.exchange.mapper.ExchangePolicyMapper;
 import org.scoula.global.exception.CustomException;
 import org.scoula.global.kafka.dto.Common;
@@ -39,13 +40,13 @@ public class ExchangePolicyService {
 	/**
 	 * 모든 은행에 대해 적용 가능한 우대정책을 계산하여 반환
 	 *
-	 * @param bankResponse 환율 계산 응답 정보
+	 * @param bankResponse          환율 계산 응답 정보
 	 * @param exchangeCommissionFee 원래 내야하는 송금수수료 (SEND일 경우에만 값이 있음)
 	 * @return 정책이 적용된 환율 계산 응답 정보
 	 */
 	public ExchangeBankResponse getAllBanksWithPolicy(ExchangeBankResponse bankResponse,
+		BigDecimal usdAmount,
 		BigDecimal exchangeCommissionFee) {
-
 
 		// 각 은행별로 정책 적용
 		for (BankRateInfo bankRateInfo : bankResponse.getBanks()) {
@@ -57,9 +58,12 @@ public class ExchangePolicyService {
 				exchangeCommissionFee
 			);
 
-			bankRateInfo.addPolicyResponse(policies);
+			bankRateInfo.addPolicyResponses(policies);
 
 		}
+
+
+
 
 		return bankResponse;
 	}
@@ -127,8 +131,8 @@ public class ExchangePolicyService {
 		String targetCurrency) {
 
 		try {
-			// 기본 전신료 (없으면 10,000원으로 가정)
-			BigDecimal defaultTelegraphFee = new BigDecimal("10000");
+			// 인터넷 기본 전신료 (없으면 5000원)
+			BigDecimal defaultTelegraphFee = new BigDecimal("5000");
 			BigDecimal policyTelegraphFee = policy.getBaseTelegraphFee() != null ?
 				policy.getBaseTelegraphFee() : defaultTelegraphFee;
 
@@ -157,8 +161,10 @@ public class ExchangePolicyService {
 						// 환전 수수료 우대 적용
 						BigDecimal discountRate = policy.getExchangeCommissionFee()
 							.divide(new BigDecimal("100"), 4, RoundingMode.HALF_UP);
+						// 원래 수수료에서 우대율 적용
 						BigDecimal discountedCommissionFee = originalCommissionFee
 							.multiply(BigDecimal.ONE.subtract(discountRate));
+						// 실제 금액에서 차감
 						actualAmount = actualAmount.subtract(discountedCommissionFee);
 					}
 
@@ -268,4 +274,7 @@ public class ExchangePolicyService {
 			return BigDecimal.ZERO;
 		}
 	}
+
+
+
 }

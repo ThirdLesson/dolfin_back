@@ -1,7 +1,6 @@
 package org.scoula.domain.exchange.service.finalService;
 
 // ExchangeFinalService.java
-import java.math.BigDecimal;
 
 import javax.servlet.http.HttpServletRequest;
 
@@ -36,14 +35,18 @@ public class ExchangeFinalService {
 		HttpServletRequest httpServletRequest) {
 
 		// 1. 송금 수수료 적용
-		BigDecimal exchangeCommissionFee = exchangeCommissionService.getExchangeCommissionFee("하나은행", request.getType(), request.getAmount());
+		ExchangeInformation exchangeinformation = exchangeCommissionService.getExchangeCommissionFee("하나은행",
+			request.getTargetCurrency(),
+			request.getType(),
+			request.getAmount());
 
 		// 2. 기본 환율 계산 (5개 은행, 0% 우대율, 수수료 포함)
 		ExchangeBankResponse bankResponse = exchangeRateService.calculateExchangeBank(
-			request, exchangeCommissionFee, httpServletRequest);
+			request, exchangeinformation.getUsdAmount(),exchangeinformation.exchangeCommissionFee, httpServletRequest);
 
 		// 3. 정책 적용
-		exchangePolicyService.getAllBanksWithPolicy(bankResponse, exchangeCommissionFee);
+		exchangePolicyService.getAllBanksWithPolicy(bankResponse, exchangeinformation.usdAmount, exchangeinformation.getExchangeCommissionFee());
+
 		return bankResponse;
 	}
 

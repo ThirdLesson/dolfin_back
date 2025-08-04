@@ -59,20 +59,39 @@ public class BankRateInfo {
 	private String totalAmount;
 
 	@ApiModelProperty(
+		value = "창구 환전 후 최종 금액",
+		example = "1,396.11 USD",
+		notes = "창구에서 금액 (통화 단위 포함)",
+		required = true,
+		position = 4
+	)
+	private String changguAmount;
+
+	@ApiModelProperty(
 		value = "적용 가능한 우대정책 리스트",
 		notes = "해당 은행에서 제공하는 환율 우대정책들을 유리한 순서로 정렬하여 제공합니다. " +
 			"각 정책별로 실제 혜택 금액을 계산하여 표시합니다.",
 		required = false,
-		position = 4
+		position = 5
 	)
 	private List<PolicyResponse> policyList; // 모든 정책 옵션들
 
-	public void addPolicyResponse(List<PolicyResponse> policies) {
+
+	public void addPolicyResponses(List<PolicyResponse> policies) {
 		if (this.policyList == null) {
 			this.policyList = new ArrayList<>();
 		}
 		if (policies != null && !policies.isEmpty()) {
 			this.policyList.addAll(policies);
+		}
+	}
+
+	public void addPolicyResponse(PolicyResponse policies) {
+		if (this.policyList == null) {
+			this.policyList = new ArrayList<>();
+		}
+		if (policies != null) {
+			this.policyList.add(policies);
 		}
 	}
 }

@@ -12,6 +12,7 @@ import javax.servlet.http.HttpServletRequest;
 import org.scoula.domain.exchange.dto.request.ExchangeBankRequest;
 import org.scoula.domain.exchange.dto.response.exchangeResponse.BankRateInfo;
 import org.scoula.domain.exchange.dto.response.exchangeResponse.ExchangeBankResponse;
+import org.scoula.domain.exchange.dto.response.exchangeResponse.PolicyResponse;
 import org.scoula.domain.exchange.entity.ExchangeRate;
 import org.scoula.domain.exchange.entity.Type;
 import org.scoula.domain.exchange.mapper.ExchangeRateMapper;
@@ -40,6 +41,7 @@ public class ExchangeRateService {
 	 * @return 5개 은행의 기본 환율 정보
 	 */
 	public ExchangeBankResponse calculateExchangeBank(ExchangeBankRequest request,
+		BigDecimal amountInUsd,
 		BigDecimal exchangeCommissionFee, HttpServletRequest httpServletRequest) {
 
 		List<String> banks = List.of("국민은행", "하나은행", "신한은행", "우리은행", "기업은행");
@@ -64,6 +66,7 @@ public class ExchangeRateService {
 			BankRateInfo bankRateInfo = calculateBasicRate(targetExchangeRate,
 				baseExchange,
 				request.getAmount(),
+				amountInUsd,
 				exchangeCommissionFee);
 			rates.add(bankRateInfo);
 
@@ -90,12 +93,19 @@ public class ExchangeRateService {
 	 * @return 기본 환율 정보
 	 */
 	private BankRateInfo calculateBasicRate(ExchangeRate targetExchange, ExchangeRate baseExchange,
-		BigDecimal amountInKRW, BigDecimal exchangeCommissionFee) {
+		BigDecimal amountInKRW,
+		BigDecimal amountInUsd,
+		BigDecimal exchangeCommissionFee) {
 
-		BigDecimal transferFee = getTransferFee(targetExchange.getType(), amountInKRW); // 타입별 전신료
+		BigDecimal transferFee = getTransferFee(targetExchange.getType(), amountInUsd); // 타입별 전신료
 
 		// 1. 총 수수료 계산 (환율수수료 + 전신료)
 		BigDecimal amountAfterFee;
+		// 창구 수수료
+		BigDecimal amountChangu;
+		BigDecimal changuExchangeCommissionFee = calcChanguTransFee(
+			targetExchange.getBankName(),
+			amountInUsd);
 
 		// 2. 타입에 따라 수수료 처리를 다르게
 		if (targetExchange.getType() == Type.SELLCASH ||
@@ -103,15 +113,27 @@ public class ExchangeRateService {
 			targetExchange.getType() == Type.BASE) {
 			// 현금 거래는 수수료가 환율에 포함되어 있음
 			amountAfterFee = amountInKRW;
+			amountChangu = amountInKRW;
 		} else {
 			// 송금/수취는 수수료 별도 차감
 			BigDecimal totalFee = exchangeCommissionFee.add(transferFee);
 			amountAfterFee = amountInKRW.subtract(totalFee);
+
+			totalFee = changuExchangeCommissionFee.add(transferFee);
+			amountChangu = amountInKRW.subtract(totalFee);
 		}
 
 		// 환율 적용
 		BigDecimal actualRate = targetExchange.getExchangeValue();
 		BigDecimal finalAmount = amountAfterFee.divide(actualRate, 2, RoundingMode.HALF_UP);
+
+		// 환율 적용 후 금액 (창구 수수료 적용)
+		BigDecimal finalAmountChangu = amountChangu.divide(actualRate, 2, RoundingMode.HALF_UP);
+
+		String finalAmountChanguDisplay = String.format("%s %s",
+			currencyFormatter.format(finalAmountChangu.setScale(2, RoundingMode.HALF_UP)),
+			targetExchange.getTargetExchange());
+
 		// 3. 환율 표시 문자열
 		String rateDisplay = String.format("1 %s 당 %s KRW",
 			targetExchange.getTargetExchange(),
@@ -128,6 +150,7 @@ public class ExchangeRateService {
 			.exchangeRate(rateDisplay)
 			.baseoperation(baseExchange.getExchangeValue()) // 기준 환율 (BASE)
 			.targetoperation(targetExchange.getExchangeValue()) // 목표 환율 (SEND, GETCASH 등)
+			.changguAmount(finalAmountChanguDisplay)
 			.totaloperation(finalAmount.setScale(2, RoundingMode.HALF_UP)) // 숫자 값 추가
 			.totalAmount(totalAmountDisplay)
 			.policyList(new ArrayList<>()) // 빈 리스트로 초기화
@@ -140,10 +163,9 @@ public class ExchangeRateService {
 	private void sortBanksByAmount(List<BankRateInfo> banks, String exchangeType) {
 		if ("RECEIVE".equals(exchangeType) || "GETCASH".equals(exchangeType)) {
 			// RECEIVE, GETCASH: 원화를 받기 위해 필요한 외화가 적을수록 좋음 (오름차순)
-			// GETCASH: 외화를 사기 위해 필요한 원화가 적을수록 좋음 (오름차순)
 			banks.sort(Comparator.comparing(BankRateInfo::getTotaloperation));
 		} else {
-			// SEND, SELLCASH: 원화로 더 많은 외화를 받을수록 좋음 (내림차순)
+			// SEND, SELLCASH, BASE: 원화로 더 많은 외화를 받을수록 좋음 (내림차순)
 			banks.sort(Comparator.comparing(BankRateInfo::getTotaloperation).reversed());
 		}
 	}
@@ -157,12 +179,12 @@ public class ExchangeRateService {
 	 * @param type 거래 타입
 	 * @return 전신료
 	 */
-	private BigDecimal getTransferFee(Type type, BigDecimal amountInKRW) {
+	private BigDecimal getTransferFee(Type type, BigDecimal amountInUsd) {
 		switch (type) {
 			case SEND:
 				return BigDecimal.valueOf(8000);   			 // 전신료
 			case RECEIVE:
-				if (amountInKRW.compareTo(BigDecimal.valueOf(13961792.70)) < 0) {
+				if (amountInUsd.compareTo(BigDecimal.valueOf(100)) < 0) {
 					return BigDecimal.ZERO; 				 // 100 uSD 이하 수취 수수료
 				} else {
 					return BigDecimal.valueOf(10000);		 // 100 USD 초과 수취 수수료
@@ -174,5 +196,128 @@ public class ExchangeRateService {
 				return BigDecimal.ZERO;
 		}
 	}
+
+	/**
+	 * 은행별 창구 송금 수수료 계산
+	 */
+	private BigDecimal calcChanguTransFee(
+		String bankName,
+		BigDecimal usdAmount) {
+
+		BigDecimal exchangeCommissionFee = BigDecimal.ZERO;
+
+
+		switch (bankName) {
+			case "하나은행":
+				exchangeCommissionFee = calculateHanaBankFee(usdAmount);
+				break;
+			case "국민은행":
+				exchangeCommissionFee =  calculateKBBankFee(usdAmount);
+				break;
+			case "기업은행":
+				exchangeCommissionFee =  calculateIBKBankFee(usdAmount);
+				break;
+			case "우리은행":
+				exchangeCommissionFee =  calculateWooriBankFee(usdAmount);
+				break;
+			case "신한은행":
+				exchangeCommissionFee =  calculateShinhanBankFee(usdAmount);
+				break;
+			default:
+				exchangeCommissionFee = BigDecimal.ZERO;
+
+		}
+
+		return exchangeCommissionFee;
+
+	}
+
+	/**
+	 * 하나은행 송금 수수료 계산
+	 */
+	// 하나은행 수수료 계산 (창구 기준)
+	private BigDecimal calculateHanaBankFee(BigDecimal usdAmount) {
+		if (usdAmount.compareTo(BigDecimal.valueOf(500)) <= 0) {
+			return BigDecimal.valueOf(5000);    // USD 500 이하
+		} else if (usdAmount.compareTo(BigDecimal.valueOf(2000)) <= 0) {
+			return BigDecimal.valueOf(10000);   // USD 2천불 이하
+		} else if (usdAmount.compareTo(BigDecimal.valueOf(5000)) <= 0) {
+			return BigDecimal.valueOf(15000);   // USD 5천불 이하
+		} else if (usdAmount.compareTo(BigDecimal.valueOf(10000)) <= 0) {
+			return BigDecimal.valueOf(20000);   // USD 1만불 이하
+		} else if (usdAmount.compareTo(BigDecimal.valueOf(20000)) <= 0) {
+			return BigDecimal.valueOf(25000);   // USD 2만불 이하
+		} else {
+			return BigDecimal.valueOf(25000);   // USD 2만불 초과
+		}
+	}
+
+	// KB국민은행 수수료 계산 예시
+	private BigDecimal calculateKBBankFee(BigDecimal usdAmount) {
+		// USD 500달러 상당액 이하	5,000원
+		if (usdAmount.compareTo(BigDecimal.valueOf(500)) <= 0) {
+			// USD 2,000달러 상당액 이하	10,000원
+			return BigDecimal.valueOf(5000);
+		} else if (usdAmount.compareTo(BigDecimal.valueOf(2000)) <= 0) {
+			// USD 2,000달러 상당액 이하	10,000원
+			return BigDecimal.valueOf(10000);
+		} else if (usdAmount.compareTo(BigDecimal.valueOf(5000)) <= 0) {
+			// USD 5,000달러 상당액 이하	15,000원
+			return BigDecimal.valueOf(15000);
+		} else if (usdAmount.compareTo(BigDecimal.valueOf(10000)) <= 0) {
+			// USD 10,000달러 상당액 이하	20,000원
+			return BigDecimal.valueOf(20000);
+		} else {
+			// USD 10,000달러 상당액 초과	25,000원
+			return BigDecimal.valueOf(25000);
+		}
+
+	}
+
+
+	// 신한은행 수수료 계산
+	private BigDecimal calculateShinhanBankFee(BigDecimal usdAmount) {
+		if (usdAmount.compareTo(BigDecimal.valueOf(500)) <= 0) {
+			return BigDecimal.valueOf(5000);    // USD 500 이하
+		} else if (usdAmount.compareTo(BigDecimal.valueOf(2000)) <= 0) {
+			return BigDecimal.valueOf(10000);   // USD 2,000 이하
+		} else if (usdAmount.compareTo(BigDecimal.valueOf(5000)) <= 0) {
+			return BigDecimal.valueOf(15000);   // USD 5,000 이하
+		} else if (usdAmount.compareTo(BigDecimal.valueOf(10000)) <= 0) {
+			return BigDecimal.valueOf(20000);   // USD 10,000 이하
+		} else {
+			return BigDecimal.valueOf(25000);   // USD 10,000 초과
+		}
+	}
+
+
+	// 기업은행(IBK) 수수료 계산
+	private BigDecimal calculateIBKBankFee(BigDecimal usdAmount) {
+		if (usdAmount.compareTo(BigDecimal.valueOf(500)) <= 0) {
+			return BigDecimal.valueOf(5000);    // USD 500 이하
+		} else if (usdAmount.compareTo(BigDecimal.valueOf(2000)) <= 0) {
+			return BigDecimal.valueOf(10000);   // USD 2,000 이하
+		} else if (usdAmount.compareTo(BigDecimal.valueOf(5000)) <= 0) {
+			return BigDecimal.valueOf(15000);   // USD 5,000 이하
+		} else {
+			return BigDecimal.valueOf(200000);   // USD 20,000 초과
+		}
+	}
+
+	// 우리은행 수수료 계산
+	private BigDecimal calculateWooriBankFee(BigDecimal usdAmount) {
+		if (usdAmount.compareTo(BigDecimal.valueOf(500)) <= 0) {
+			return BigDecimal.valueOf(5000);    // USD 500 이하
+		} else if (usdAmount.compareTo(BigDecimal.valueOf(2000)) <= 0) {
+			return BigDecimal.valueOf(10000);   // USD 2,000 이하
+		} else if (usdAmount.compareTo(BigDecimal.valueOf(5000)) <= 0) {
+			return BigDecimal.valueOf(15000);   // USD 5,000 이하
+		} else if (usdAmount.compareTo(BigDecimal.valueOf(20000)) <= 0) {
+			return BigDecimal.valueOf(20000);   // USD 20,000 이하
+		} else {
+			return BigDecimal.valueOf(25000);   // USD 20,000 초과
+		}
+	}
+
 
 }
