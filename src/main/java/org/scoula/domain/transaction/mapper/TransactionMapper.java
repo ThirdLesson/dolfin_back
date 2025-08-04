@@ -14,17 +14,15 @@ import org.scoula.global.constants.SortDirection;
 public interface TransactionMapper {
 	void insert(Transaction transaction);
 
-	// 계좌 거래에 특화된 조회 메서드
 	List<Transaction> findByMemberIdAndAccountTransfer(@Param("memberId") Long memberId);
 
-	// 지갑 거래에 특화된 조회 메서드
 	List<Transaction> findByMemberIdAndWalletTransfer(@Param("memberId") Long memberId);
 
 	Long countTransactionHistory(
 		@Param("memberId") Long memberId,
 		@Param("startDate") LocalDateTime startDate,
 		@Param("endDate") LocalDateTime endDate,
-		@Param("type") TransactionType type,
+		@Param("types") List<TransactionType> types,
 		@Param("minAmount") BigDecimal minAmount,
 		@Param("maxAmount") BigDecimal maxAmount
 	);
@@ -33,12 +31,12 @@ public interface TransactionMapper {
 		@Param("memberId") Long memberId,
 		@Param("startDate") LocalDateTime startDate,
 		@Param("endDate") LocalDateTime endDate,
-		@Param("type") TransactionType type,
+		@Param("types") List<TransactionType> types,
 		@Param("minAmount") BigDecimal minAmount,
 		@Param("maxAmount") BigDecimal maxAmount,
 		@Param("sortDirection") SortDirection sortDirection,
 		@Param("limit") Integer limit,
 		@Param("offset") Integer offset
 	);
-
 }
+

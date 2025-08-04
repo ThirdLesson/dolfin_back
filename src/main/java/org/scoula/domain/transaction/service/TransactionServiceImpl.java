@@ -9,6 +9,7 @@ import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
@@ -135,12 +136,21 @@ public class TransactionServiceImpl implements TransactionService {
 		BigDecimal minAmount, BigDecimal maxAmount, SortDirection sortDirection, int page, Integer size,
 		Member member) {
 
+		List<TransactionType> types = null;
+		if (type != null) {
+			types = new ArrayList<>();
+			types.add(type);
+		}
 		if (sortDirection == null)
 			sortDirection = LATEST;
 		if (period == null)
 			period = ONE_MONTH;
 		if (size == null)
 			size = 20;
+		if (type == WITHDRAW) {
+			types.add(ACCOUNT_TRANSFER);
+			types.add(WALLET_TRANSFER);
+		}
 
 		LocalDateTime endDate = LocalDateTime.now();
 		LocalDateTime startDate = period.getStartDate(endDate);
@@ -149,7 +159,7 @@ public class TransactionServiceImpl implements TransactionService {
 			member.getMemberId(),
 			startDate,
 			endDate,
-			type,
+			types,
 			minAmount,
 			maxAmount
 		);
@@ -160,7 +170,7 @@ public class TransactionServiceImpl implements TransactionService {
 			member.getMemberId(),
 			startDate,
 			endDate,
-			type,
+			types,
 			minAmount,
 			maxAmount,
 			sortDirection,
