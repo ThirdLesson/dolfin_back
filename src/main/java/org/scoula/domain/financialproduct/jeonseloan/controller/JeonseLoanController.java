@@ -1,8 +1,10 @@
 package org.scoula.domain.financialproduct.jeonseloan.controller;
 
+import io.swagger.annotations.ApiOperation;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
+import org.scoula.domain.financialproduct.depositsaving.entity.Deposit;
 import org.scoula.domain.financialproduct.jeonseloan.dto.JeonseLoanDTO;
 import org.scoula.domain.financialproduct.jeonseloan.service.JeonseLoanService;
 import org.scoula.global.response.SuccessResponse;
@@ -20,11 +22,11 @@ public class JeonseLoanController {
 
 	//    전세자금대출 등록
 	@PostMapping
-	public SuccessResponse<Void> createJeonseLoan(@RequestBody JeonseLoanDTO jeonseLoanDTO) {
+	@ApiOperation(value = "전세 상품 저장 ")
+	public SuccessResponse<Void> syncFromExternalApi(@RequestBody JeonseLoanDTO jeonseLoanDTO) {
 		jeonseLoanService.createJeonseLoan(jeonseLoanDTO);
 		return SuccessResponse.created(null);
 	}
-
 	//    전세자금대출 배치 등록
 	@PostMapping("/batch")
 	public SuccessResponse<Void> createJeonseLoans(@RequestBody List<JeonseLoanDTO> jeonseLoanDTOs) {
