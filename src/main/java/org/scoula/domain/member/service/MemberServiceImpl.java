@@ -98,6 +98,12 @@ public class MemberServiceImpl implements MemberService {
 	}
 
 	@Override
+	@Transactional
+	public void updateFcmToken(Long memberId, String fcmToken) {
+		memberMapper.updateFcmToken(memberId, fcmToken);
+	}
+
+	@Override
 	public Member getMemberByPhoneNumber(String phoneNumber, HttpServletRequest request) {
 		return memberMapper.selectMemberByPhoneNumber(phoneNumber)
 			.orElseThrow(() -> new CustomException(MEMBER_NOT_FOUND, LogLevel.WARNING, null, Common.builder()

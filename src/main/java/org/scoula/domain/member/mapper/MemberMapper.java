@@ -36,6 +36,9 @@ public interface MemberMapper {
 	@Update("UPDATE member SET connected_id = #{connectedId} WHERE member_id = #{memberId}")
 	void updateConnectedId(@Param("memberId") Long memberId, @Param("connectedId") String connectedId);
 
+	@Update("UPDATE member SET fcm_token = #{fcmToken} WHERE member_id = #{memberId}")
+	void updateFcmToken(@Param("memberId") Long memberId, @Param("fcmToken") String fcmToken);
+
 	Optional<Member> selectMemberByPhoneNumber(String phoneNumber);
 
 	List<Member> selectMembersInIds(@Param("memberIds") List<Long> memberIds);
