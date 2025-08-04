@@ -8,13 +8,13 @@ import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
-import org.scoula.domain.financialproduct.errorCode.FinancialErrorCode;
 import org.scoula.domain.financialproduct.financialcompany.dto.request.FinancialCompanyRequestDTO;
 import org.scoula.domain.financialproduct.financialcompany.dto.response.FinancialCompanyResponseDTO;
 import org.scoula.domain.financialproduct.financialcompany.entity.FinancialCompany;
 import org.scoula.domain.financialproduct.financialcompany.mapper.FinancialCompanyMapper;
 import org.scoula.global.exception.CustomException;
 
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
@@ -39,12 +39,14 @@ public class FinancialCompanyServiceImpl implements FinancialCompanyService {
 	private final FinancialCompanyMapper financialCompanyMapper;
 	private final RestTemplate restTemplate;
 
-	private static final String API_URL =
-		"https://new-m.pay.naver.com/savings/_next/data/Sxex5f02tUa16uzMlTx45/list/deposit.json?productCategory=deposit";
-
+	@Value("${financial.company.api_url}")
+	private String API_URL;
 	// 금감원 -> 네이버 이용시 홈페이지와 전화번호가 제공되지 않아 이용
-	private static final String FSS_API_URL =
-		"https://finlife.fss.or.kr/finlifeapi/companySearch.json?auth=85f009c463b85117ad9ea087af635230&topFinGrpNo=020000&pageNo=1";
+	@Value("${fss.company.api.url}")
+	private String FSS_API_URL;
+
+	@Value("${fss.company.api.key}")
+	private String FSS_API_KEY;
 	// 부분 매칭
 	private static final Map<String, String> BANK_NAME_MAPPING = Map.of(
 		"NH농협", "농협은행주식회사",
@@ -125,7 +127,9 @@ public class FinancialCompanyServiceImpl implements FinancialCompanyService {
 		Map<String, FssCompanyData> fssDataMap = new HashMap<>();
 
 		log.info("금감원 API 호출 시작");
-		ResponseEntity<String> response = restTemplate.getForEntity(FSS_API_URL, String.class);
+
+		String requestUrl = FSS_API_URL + "?auth=" + FSS_API_KEY + "&topFinGrpNo=020000&pageNo=1";
+		ResponseEntity<String> response =  restTemplate.getForEntity(requestUrl, String.class);
 
 		if (response.getStatusCode() != HttpStatus.OK) {
 			log.warn("금감원 API 호출 실패, 전화번호/홈페이지 정보 없이 진행");
