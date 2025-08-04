@@ -81,7 +81,7 @@ public class WalletServiceImpl implements WalletService {
 
 	@Transactional
 	@Override
-	public void transferToWallet(TransferToWalletRequest request, Long memberId, HttpServletRequest servletRequest) {
+	public void transferToWallet(TransferToWalletRequest request, Member member, HttpServletRequest servletRequest) {
 
 		Common common = Common.builder()
 			.apiMethod(servletRequest.getMethod())
@@ -93,13 +93,16 @@ public class WalletServiceImpl implements WalletService {
 		Member receiver = memberService.getMemberByPhoneNumber(request.phoneNumber().replaceAll("-", ""),
 			servletRequest);
 
-		if (memberId.equals(receiver.getMemberId())) {
+		if (member.getMemberId().equals(receiver.getMemberId())) {
 			throw new CustomException(SELF_TRANSFER_NOT_ALLOWED, LogLevel.WARNING, null, common,
-				"송신자 ID: " + memberId + ", 수신자 ID: " + receiver.getMemberId());
+				"송신자 ID: " + member.getMemberId() + ", 수신자 ID: " + receiver.getMemberId());
 		}
 
-		Long firstLockMemberId = (memberId.compareTo(receiver.getMemberId()) < 0) ? memberId : receiver.getMemberId();
-		Long secondLockMemberId = (memberId.compareTo(receiver.getMemberId()) < 0) ? receiver.getMemberId() : memberId;
+		Long firstLockMemberId = (member.getMemberId().compareTo(receiver.getMemberId()) < 0) ? member.getMemberId() :
+			receiver.getMemberId();
+		Long secondLockMemberId =
+			(member.getMemberId().compareTo(receiver.getMemberId()) < 0) ? receiver.getMemberId() :
+				member.getMemberId();
 
 		Wallet firstLockedWallet = walletMapper.findByMemberIdWithLock(firstLockMemberId)
 			.orElseThrow(() -> new CustomException(WALLET_NOT_FOUND, LogLevel.WARNING, null, common,
@@ -109,16 +112,17 @@ public class WalletServiceImpl implements WalletService {
 				"조회 실패 ID: " + secondLockMemberId));
 
 		Wallet senderWallet =
-			(firstLockedWallet.getMemberId().equals(memberId)) ? firstLockedWallet : secondLockedWallet;
+			(firstLockedWallet.getMemberId().equals(member.getMemberId())) ? firstLockedWallet : secondLockedWallet;
 		Wallet receiverWallet =
-			(firstLockedWallet.getMemberId().equals(memberId)) ? secondLockedWallet : firstLockedWallet;
+			(firstLockedWallet.getMemberId().equals(member.getMemberId())) ? secondLockedWallet : firstLockedWallet;
 
 		if (senderWallet.getBalance().compareTo(request.amount()) < 0) {
 			throw new CustomException(INSUFFICIENT_FUNDS, LogLevel.WARNING, null, common);
 		}
 
 		if (!request.password().equals(senderWallet.getPassword())) {
-			throw new CustomException(INVALID_WALLET_PASSWORD, LogLevel.WARNING, null, common, "사용자 ID: " + memberId);
+			throw new CustomException(INVALID_WALLET_PASSWORD, LogLevel.WARNING, null, common,
+				"사용자 ID: " + member.getMemberId());
 		}
 
 		BigDecimal senderNewBalance = senderWallet.getBalance().subtract(request.amount());
@@ -130,7 +134,7 @@ public class WalletServiceImpl implements WalletService {
 		String transactionGroupId = UUID.randomUUID().toString();
 		transactionService.saveWalletTransferTransaction(senderWallet, senderNewBalance, receiverWallet,
 			receiverNewBalance,
-			memberId, receiver.getMemberId(), transactionGroupId, request.amount());
+			member, receiver, transactionGroupId, request.amount());
 
 		ledgerService.accountForWalletTransfer(request, transactionGroupId, servletRequest);
 	}

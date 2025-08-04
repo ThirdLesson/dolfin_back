@@ -48,7 +48,7 @@ public class RemittanceGroupController {
 		return SuccessResponse.noContent();
 	}
 
-	@GetMapping("/count")
+	@PostMapping("/count")
 	@ApiOperation(value = "단체 송금 상품 날짜별 인원 수 조회", notes = "단체 송금 상품 날짜 별 가입 현황 상태 조회 api.")
 	public SuccessResponse<List<RemittanceGroupMemberCountResponse>> getRemittanceGroupCount(
 		@RequestBody @Valid RemittanceGroupMemberCountRequest remittanceGroupMemberCountRequest,
