@@ -25,7 +25,7 @@ public interface WalletService {
 
 	WalletResponse getWalletByMember(Member member, HttpServletRequest request);
 
-	void transferToWallet(TransferToWalletRequest request, Long memberId, HttpServletRequest servletRequest);
+	void transferToWallet(TransferToWalletRequest request, Member member, HttpServletRequest servletRequest);
 
 	DepositorResponse getMemberByPhoneNumber(String phoneNumber, HttpServletRequest request);
 

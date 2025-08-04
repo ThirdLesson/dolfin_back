@@ -52,7 +52,7 @@ public class TransferController {
 		@AuthenticationPrincipal CustomUserDetails customUserDetails,
 		HttpServletRequest servletRequest
 	) {
-		walletService.transferToWallet(request, customUserDetails.getMember().getMemberId(), servletRequest);
+		walletService.transferToWallet(request, customUserDetails.getMember(), servletRequest);
 		return SuccessResponse.noContent();
 	}
 
