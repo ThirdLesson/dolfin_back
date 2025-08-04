@@ -122,8 +122,12 @@
     <sql id="transactionHistoryWhereConditions">
         WHERE member_id = #{memberId}
         AND created_at BETWEEN #{startDate} AND #{endDate}
-        <if test="type != null">
-            AND transaction_type = #{type}
+
+        <if test="types != null and types.size() > 0">
+            AND transaction_type IN
+            <foreach item="type" collection="types" open="(" separator="," close=")">
+                #{type}
+            </foreach>
         </if>
         <if test="minAmount != null">
             AND amount &gt;= #{minAmount}
