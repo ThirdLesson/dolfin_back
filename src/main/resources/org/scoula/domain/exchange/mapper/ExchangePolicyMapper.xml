@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.scoula.domain.exchange.mapper.ExchangePolicyMapper">
+
+
+    <!-- ResultMap 정의 -->
+    <resultMap id="ExchangePolicyResultMap" type="org.scoula.domain.exchange.entity.ExchangePolicy">
+        <id property="policyId" column="policy_id"/>
+        <result property="bankName" column="bank_name"/>
+        <result property="targetCurrency" column="target_currency"/>
+        <result property="exchangeType" column="exchange_type"/>
+        <result property="policyName" column="policy_name"/>
+        <result property="description" column="description"/>
+        <result property="exchangeDiscountRate" column="exchange_discount_rate"/>
+        <result property="exchangeCommissionFee" column="exchange_commission_fee"/>
+        <result property="baseTelegraphFee" column="base_telegraph_fee"/>
+        <result property="isActive" column="is_active"/>
+        <result property="createdAt" column="created_at"/>
+        <result property="updatedAt" column="updated_at"/>
+    </resultMap>
+
+    <!-- 특정 통화와 타입으로 모든 은행의 정책 조회 -->
+    <select id="findAllPolicyByCond" resultMap="ExchangePolicyResultMap">
+        SELECT policy_id, bank_name, target_currency, exchange_type,
+               policy_name,
+               description,
+               exchange_discount_rate,
+               exchange_commission_fee,
+               base_telegraph_fee,
+               is_active, created_at, updated_at
+        FROM exchange_policy
+        WHERE
+            bank_name = #{bankName}
+          AND target_currency = #{targetCurrency}
+          AND exchange_type = #{exchangeType}
+          AND is_active = 1
+        ORDER BY bank_name, exchange_discount_rate DESC
+    </select>
+
+
+
+</mapper>

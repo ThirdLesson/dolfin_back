@@ -4,13 +4,17 @@ import javax.servlet.http.HttpServletRequest;
 
 import org.scoula.domain.exchange.dto.request.ExchangeBankRequest;
 import org.scoula.domain.exchange.dto.request.ExchangeQuickRequest;
-import org.scoula.domain.exchange.dto.response.ExchangeBankResponse;
+import org.scoula.domain.exchange.dto.response.exchangeResponse.ExchangeBankResponse;
 import org.scoula.domain.exchange.dto.response.ExchangeQuickResponse;
 
-public interface ExchangeRateService {
+public interface ExchangeRateQuickService {
 
 	ExchangeBankResponse calculateExchangeBank(ExchangeBankRequest request, HttpServletRequest httpServletRequest);
 
+	ExchangeBankResponse calculateExchangeBankV2(ExchangeBankRequest request, HttpServletRequest httpServletRequest);
+
 	ExchangeQuickResponse calculateExchangeQuick(ExchangeQuickRequest request, HttpServletRequest httpServletRequest);
+
+
 
 }
