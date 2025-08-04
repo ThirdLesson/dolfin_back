@@ -38,18 +38,15 @@ public interface DepositMapper {
 	// 체류기간 + 조건별 예금 상품 목록 조회
 	// 	예금 상품 조회(체류 기간별 필터링, 금리 높은 순)
 	List<Deposit> selectDepositsWithFilters(
-		@Param("productPeriod") ProductPeriod productPeriod,
 		@Param("spclConditions") List<DepositSpclConditionType> spclConditions,
-		@Param("remainTime") LocalDate remainTime,
+		@Param("remainTime") int remainTime,
 		@Param("offset") int offset,
 		@Param("limit") int limit
 	);
 	// 조건에 맞는 예금 상품 개수
 	int countDepositsWithFilters(
-		@Param("productPeriod") ProductPeriod productPeriod,
 		@Param("spclConditions") List<DepositSpclConditionType> spclConditions,
-		@Param("remainTime") LocalDate remainTime,
-		@Param("remainMonths") int remainMonths
+		@Param("remainTime") int remainTime
 	);
 
 }

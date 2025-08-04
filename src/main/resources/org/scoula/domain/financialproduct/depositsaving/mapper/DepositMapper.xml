@@ -91,9 +91,6 @@
         FROM deposit d
         LEFT JOIN deposit_spcl_condition dsc ON d.deposit_id = dsc.deposit_id
         WHERE 1=1
-        <if test="productPeriod != null">
-            AND d.save_month = #{productPeriod.month}
-        </if>
         <if test="spclConditions != null and spclConditions.size() > 0">
             AND dsc.spcl_condition IN
             <foreach collection="spclConditions" item="condition" open="(" close=")" separator=",">
@@ -102,7 +99,7 @@
         </if>
 
         <if test="remainTime != null">
-            AND DATE_ADD(CURDATE(), INTERVAL d.save_month MONTH) &lt;= #{remainTime}
+            AND d.save_month &lt;= #{remainTime}
         </if>
         ORDER BY d.max_interest_rate DESC, d.interest_rate DESC
         LIMIT #{limit} OFFSET #{offset}
@@ -113,9 +110,6 @@
         FROM deposit d
         LEFT JOIN deposit_spcl_condition dsc ON d.deposit_id = dsc.deposit_id
         WHERE 1=1
-        <if test="productPeriod != null">
-            AND d.save_month = #{productPeriod.month}
-        </if>
 
         <if test="spclConditions != null and spclConditions.size() > 0">
             AND dsc.spcl_condition IN
@@ -125,7 +119,7 @@
         </if>
 
         <if test="remainTime != null">
-            AND DATE_ADD(CURDATE(), INTERVAL d.save_month MONTH) &lt;= #{remainTime}
+            AND d.save_month &lt;= #{remainTime}
         </if>
     </select>
     <!--   예금 상품 상세 정보 단건 조회 -->

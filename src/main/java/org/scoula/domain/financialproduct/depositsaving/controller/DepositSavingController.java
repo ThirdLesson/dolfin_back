@@ -40,6 +40,7 @@ public class DepositSavingController {
 
 	// 예금 상품 조회 (기간별 필터링)
 	@GetMapping("/deposits/recommend")
+	@ApiOperation(value = "예금상품 리스트 필터링 조회", notes = "page 변수에 0,1,2 등등 넣어서 페이징 하세요 한 페이지는 20개 입니다.")
 	public SuccessResponse<List<DepositsResponse>> getDeposits(
 		@RequestParam(required = false) ProductPeriod productPeriod,
 		@RequestParam(required = false) List<DepositSpclConditionType> spclConditions,
@@ -54,14 +55,14 @@ public class DepositSavingController {
 		return SuccessResponse.ok(response);
 	}
 
-	// 예금 전체 조회 (최대금리가 내림차순)
-	@GetMapping("/deposits/all")
-	@ApiOperation(value = "예금상품 리스트 전체조회 - 최대금리 내림차순")
-	public SuccessResponse<List<DepositsResponse>> getAllDeposits(
-		@PageableDefault(size = 20, sort = "maxInterestRate", direction = Sort.Direction.DESC) Pageable pageable) {
-		Page<DepositsResponse> page = depositService.getAllDeposits(pageable);
-		return SuccessResponse.ok(page.getContent());
-	}
+	// // 예금 전체 조회 (최대금리가 내림차순)
+	// @GetMapping("/deposits/all")
+	// @ApiOperation(value = "예금상품 리스트 전체조회 - 최대금리 내림차순")
+	// public SuccessResponse<List<DepositsResponse>> getAllDeposits(
+	// 	@PageableDefault(size = 20, sort = "maxInterestRate", direction = Sort.Direction.DESC) Pageable pageable) {
+	// 	Page<DepositsResponse> page = depositService.getAllDeposits(pageable);
+	// 	return SuccessResponse.ok(page.getContent());
+	// }
 
 	// 상품 상세 정보 조회(상품 + 금융회사 정보)
 	@GetMapping("/deposits/{depositId}")

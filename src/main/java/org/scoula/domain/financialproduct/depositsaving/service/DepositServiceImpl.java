@@ -1,5 +1,7 @@
 package org.scoula.domain.financialproduct.depositsaving.service;
 
+import static org.scoula.domain.financialproduct.constants.ProductPeriod.*;
+
 import java.time.LocalDate;
 import java.time.temporal.ChronoUnit;
 
@@ -81,14 +83,15 @@ public class DepositServiceImpl implements DepositService {
 	public Page<DepositsResponse> getDeposits(ProductPeriod productPeriod,
 		List<DepositSpclConditionType> spclConditions,
 		Pageable pageable, Member member) {
-		// 멤버 체류기간 가져오기
-		LocalDate remainTime = member.getRemainTime();
-		int remainMonths = (int)ChronoUnit.MONTHS.between(LocalDate.now(), remainTime);
+		Integer remainTime = null;
+		if(productPeriod.equals(STAY_EXPIRATION)){
+			remainTime = Math.max(0,(int) ChronoUnit.MONTHS.between(LocalDate.now(), member.getRemainTime()));
+		}else{
+			remainTime = productPeriod.getMonth();
+		}
 		// DB에서 기간별 필터링
-		int totalCount = depositMapper.countDepositsWithFilters(
-			productPeriod, spclConditions, remainTime, remainMonths);
-		List<Deposit> deposits = depositMapper.selectDepositsWithFilters(
-			productPeriod, spclConditions, remainTime,
+		int totalCount = depositMapper.countDepositsWithFilters(spclConditions, remainTime);
+		List<Deposit> deposits = depositMapper.selectDepositsWithFilters(spclConditions, remainTime,
 			(int)pageable.getOffset(), pageable.getPageSize()
 		);
 		// 상품마다 금융회사 정보도 가져오기
