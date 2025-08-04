@@ -26,6 +26,9 @@ public interface MemberService {
 	// 커넥티드 아이디 업데이트
 	void updateConnectedId(Long memberId, String connectedId);
 
+	// fcm token 업데이트
+	void updateFcmToken(Long memberId, String connectedId);
+
 	Member getMemberByPhoneNumber(String phoneNumber, HttpServletRequest request);
 
 }
