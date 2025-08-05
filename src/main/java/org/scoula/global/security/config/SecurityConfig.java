@@ -33,7 +33,7 @@ public class SecurityConfig {
 		CorsConfiguration corsConfiguration = new CorsConfiguration();
 
 		corsConfiguration.setAllowedOriginPatterns(
-			List.of("http://localhost:5173", "https://localhost:5173"));
+			List.of("http://localhost:5173", "https://localhost:5173","http://dolfin-digital.vercel.app","https://dolfin-digital.vercel.app"));
 
 		corsConfiguration.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "HEAD", "OPTIONS", "PATCH"));
 		corsConfiguration.setAllowedHeaders(List.of("Authorization", "Cache-Control", "Content-Type"));
