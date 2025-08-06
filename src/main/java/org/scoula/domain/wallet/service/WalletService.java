@@ -6,6 +6,8 @@ import javax.servlet.http.HttpServletRequest;
 
 import org.scoula.domain.codef.dto.request.WalletRequest;
 import org.scoula.domain.member.entity.Member;
+import org.scoula.domain.remittancegroup.batch.dto.MemberWithInformationDto;
+import org.scoula.domain.remittancegroup.entity.RemittanceGroup;
 import org.scoula.domain.wallet.dto.request.ChargeWalletRequest;
 import org.scoula.domain.wallet.dto.request.TransferToAccountRequest;
 import org.scoula.domain.wallet.dto.request.TransferToWalletRequest;
@@ -34,4 +36,6 @@ public interface WalletService {
 	List<RecentAccountReceiversResponse> getRecentAccountReceivers(Member member);
 
 	List<RecentWalletReceiversResponse> getRecentWalletReceivers(Member member);
+
+	void remittanceGroup(MemberWithInformationDto memberWithInformation, RemittanceGroup remittanceGroup);
 }
