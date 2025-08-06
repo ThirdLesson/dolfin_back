@@ -1,5 +1,6 @@
 package org.scoula.domain.remittancegroup.batch.scheduler;
 
+import org.scoula.domain.remittancegroup.service.RemittanceService;
 import org.springframework.batch.core.Job;
 import org.springframework.batch.core.JobParameters;
 import org.springframework.batch.core.JobParametersBuilder;
@@ -18,13 +19,16 @@ public class RemittanceGroupScheduler {
 
 	private final JobLauncher jobLauncher;
 	private final Job remittanceGroupJob;
+	private final RemittanceService remittanceService;
 
 	public RemittanceGroupScheduler(
 		JobLauncher jobLauncher,
-		@Qualifier("remittanceGroupJob") Job remittanceGroupJob
+		@Qualifier("remittanceGroupJob") Job remittanceGroupJob,
+		RemittanceService remittanceService
 	) {
 		this.jobLauncher = jobLauncher;
 		this.remittanceGroupJob = remittanceGroupJob;
+		this.remittanceService = remittanceService;
 	}
 
 	@Scheduled(cron = "0 0 3  * * *", zone = "Asia/Seoul")
@@ -39,5 +43,11 @@ public class RemittanceGroupScheduler {
 		} catch (Exception e) {
 			throw new RuntimeException(e);
 		}
+	}
+
+	@Scheduled(cron = "0 0 8 * * *", zone = "Asia/Seoul")
+	@SchedulerLock(name = "runRemittanceGroupAlarmLock", lockAtMostFor = "PT10M") // 락 10분간 유지
+	public void remittanceGroupAlarm() {
+		remittanceService.RemittanceGroupAlarm();
 	}
 }
