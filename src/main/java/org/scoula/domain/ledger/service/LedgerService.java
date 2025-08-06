@@ -2,6 +2,7 @@ package org.scoula.domain.ledger.service;
 
 import javax.servlet.http.HttpServletRequest;
 
+import org.scoula.domain.remittancegroup.batch.dto.MemberWithInformationDto;
 import org.scoula.domain.wallet.dto.request.ChargeWalletRequest;
 import org.scoula.domain.wallet.dto.request.TransferToAccountRequest;
 import org.scoula.domain.wallet.dto.request.TransferToWalletRequest;
@@ -12,6 +13,8 @@ public interface LedgerService {
 
 	void accountForAccountTransfer(TransferToAccountRequest request, String transactionGroupId,
 		HttpServletRequest servletRequest);
+
+	void remittanceGroupTransfer(MemberWithInformationDto request, String transactionGroupId);
 
 	void chargeTransfer(ChargeWalletRequest request, String transactionGroupId, HttpServletRequest servletRequest);
 
