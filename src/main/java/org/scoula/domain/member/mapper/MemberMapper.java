@@ -91,4 +91,22 @@ public interface MemberMapper {
 		""")
 	List<MemberWithInformationDto> findMembersWithInformationByGroupId(@Param("groupId") Long groupId);
 
+	@Select({
+		"<script>",
+		"SELECT",
+		"  m.member_id, m.remittance_group_id, m.passport_number, m.nationality, m.country,",
+		"  m.birth, m.name, m.phone_number, m.remain_time, m.currency, m.fcm_token,",
+		"  i.receiver_bank, i.swift_code, i.router_code, i.receiver_account, i.receiver_name,",
+		"  i.receiver_nationality, i.receiver_address, i.purpose, i.amount, i.transmit_fail_count,",
+		"  i.intermediary_bank_commission",
+		"FROM member m",
+		"JOIN remittance_information i ON m.remittance_information_id = i.remittance_information_id",
+		"WHERE m.remittance_group_id IN",
+		"<foreach item='id' collection='groupIds' open='(' separator=',' close=')'>",
+		"#{id}",
+		"</foreach>",
+		"</script>"
+	})
+	List<MemberWithInformationDto> findMembersWithInfoByGroupIds(@Param("groupIds") List<Long> groupIds);
+
 }

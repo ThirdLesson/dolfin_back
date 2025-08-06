@@ -1,5 +1,7 @@
 package org.scoula.global.firebase.listener;
 
+import static org.scoula.global.constants.Currency.*;
+
 import java.math.BigDecimal;
 import java.text.NumberFormat;
 import java.util.Currency;
@@ -10,6 +12,7 @@ import org.scoula.domain.member.exception.MemberErrorCode;
 import org.scoula.domain.member.mapper.MemberMapper;
 import org.scoula.domain.remittancegroup.batch.dto.MemberWithInformationDto;
 import org.scoula.global.firebase.event.RemittanceFailedEvent;
+import org.scoula.global.firebase.event.RemittanceGroupChargeNoticeEvent;
 import org.scoula.global.firebase.event.RemittanceGroupCompletedEvent;
 import org.scoula.global.firebase.event.RemittanceGroupFiredEvent;
 import org.scoula.global.firebase.event.RemittanceSuccessEvent;
@@ -18,6 +21,7 @@ import org.scoula.global.kafka.dto.Common;
 import org.scoula.global.kafka.dto.LogLevel;
 import org.scoula.global.kafka.producer.KafkaProducer;
 import org.scoula.global.kafka.util.LogMessageMapper;
+import org.springframework.context.event.EventListener;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.event.TransactionPhase;
 import org.springframework.transaction.event.TransactionalEventListener;
@@ -56,6 +60,28 @@ public class RemittanceGroupEventListener {
 			);
 		}
 
+	}
+
+	@EventListener
+	public void handleRemittanceGroupChargeNotice(RemittanceGroupChargeNoticeEvent event) {
+		List<MemberWithInformationDto> members = event.getMembers();
+
+		for (MemberWithInformationDto member : members) {
+			if (!validToken(member.getFcmToken(), member.getMemberId()))
+				continue;
+
+			BigDecimal amountWithCommission = member.getAmount().add(BigDecimal.valueOf(5000));
+
+			if (!member.getFcmToken().isEmpty()) {
+				firebaseUtil.sendNotice(
+					member.getFcmToken(),
+					"정기 송금일이 다가왔습니다.",
+					"내일은 해외 정기 송금일입니다.\n" +
+						formatAmount(amountWithCommission, KRW) + "원이 전자지갑에 충전되어 있어야 합니다.\n" +
+						"충전 금액이 부족할 경우 송금이 실패할 수 있습니다."
+				);
+			}
+		}
 	}
 
 	@TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)

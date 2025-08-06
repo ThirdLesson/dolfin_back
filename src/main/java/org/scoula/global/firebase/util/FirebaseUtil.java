@@ -18,7 +18,7 @@ public class FirebaseUtil {
 				.putData("title", title)
 				.putData("body", body)
 				.setWebpushConfig(WebpushConfig.builder().putHeader("ttl", "1000")
-					.setNotification(new WebpushNotification("title", "body"))
+					.setNotification(new WebpushNotification(title, body))
 					.build())
 				.build();
 
@@ -32,7 +32,7 @@ public class FirebaseUtil {
 			.putData("title", title)
 			.putData("body", body)
 			.setWebpushConfig(WebpushConfig.builder().putHeader("ttl", "1000")
-				.setNotification(new WebpushNotification("title", "body"))
+				.setNotification(new WebpushNotification(title, body))
 				.build())
 			.build();
 		FirebaseMessaging.getInstance().sendAsync(message);

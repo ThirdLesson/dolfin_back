@@ -19,4 +19,6 @@ public interface RemittanceService {
 
 	List<RemittanceGroupMemberCountResponse> getRemittanceGroupMemberCount(Currency currency,
 		HttpServletRequest request);
+
+	void RemittanceGroupAlarm();
 }
