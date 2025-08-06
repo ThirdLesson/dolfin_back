@@ -7,4 +7,16 @@
         <setting name="mapUnderscoreToCamelCase" value="true"/>
         <setting name="defaultExecutorType" value="SIMPLE"/>
     </settings>
+
+    <typeHandlers>
+        <typeHandler handler="org.apache.ibatis.type.EnumTypeHandler" javaType="org.scoula.global.constants.Currency"/>
+        <typeHandler handler="org.apache.ibatis.type.EnumTypeHandler"
+                     javaType="org.scoula.global.constants.NationalityCode"/>
+        <typeHandler handler="org.apache.ibatis.type.EnumTypeHandler"
+                     javaType="org.scoula.domain.remmitanceinformation.entity.IntermediaryBankCommission"/>
+        <typeHandler handler="org.apache.ibatis.type.EnumTypeHandler"
+                     javaType="org.scoula.domain.remmitanceinformation.entity.Status"/>
+        <typeHandler handler="org.apache.ibatis.type.EnumTypeHandler"
+                     javaType="org.scoula.domain.account.entity.BankType"/>
+    </typeHandlers>
 </configuration>
