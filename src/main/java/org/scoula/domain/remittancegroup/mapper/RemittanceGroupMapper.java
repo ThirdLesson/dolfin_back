@@ -85,4 +85,31 @@ public interface RemittanceGroupMapper {
 		""")
 	List<RemittanceGroup> findAllByCurrencyAndBenefitStatusOff(@Param("currency") Currency currency);
 
+	@Select("""
+		SELECT
+		    MIN(remittance_group_id)
+		FROM remittance_group
+		WHERE benefit_status IS NULL
+		""")
+	Long findMinIdBenefitStatusOn();
+
+	@Select("""
+		SELECT
+		    MAX(remittance_group_id)
+		FROM remittance_group
+		WHERE benefit_status IS NULL
+		""")
+	Long findMaxIdBenefitStatusOn();
+
+	@Select("""
+			SELECT *
+			FROM remittance_group
+			WHERE benefit_status IS NULL
+		 		AND remittance_date = #{day}
+			  AND remittance_group_id BETWEEN #{startId} AND #{endId}
+			ORDER BY remittance_group_id
+		""")
+	List<RemittanceGroup> findByIdRange(@Param("startId") Long startId, @Param("endId") Long endId,
+		@Param("day") Integer day);
+
 }
