@@ -106,11 +106,11 @@ public class RemittanceServiceImpl implements RemittanceService {
 			Optional<RemittanceGroup> existRemittanceGroup = remittanceGroupMapper.findByCurrencyAndBenefitStatusAndRemittanceDate(
 				joinRemittanceGroupRequest.currency(), BenefitStatus.OFF, joinRemittanceGroupRequest.remittanceDate()
 			);
-			existGroup(existRemittanceGroup, member.getMemberId(), joinRemittanceGroupRequest);
+			existGroup(existRemittanceGroup, member, joinRemittanceGroupRequest);
 		}
 
 		// 기존 그룹이 존재할 경우
-		existGroup(remittanceGroup, member.getMemberId(), joinRemittanceGroupRequest);
+		existGroup(remittanceGroup, member, joinRemittanceGroupRequest);
 
 	}
 
@@ -170,7 +170,7 @@ public class RemittanceServiceImpl implements RemittanceService {
 		}
 	}
 
-	private void existGroup(Optional<RemittanceGroup> remittanceGroup, Long memberId,
+	private void existGroup(Optional<RemittanceGroup> remittanceGroup, Member member,
 		JoinRemittanceGroupRequest joinRemittanceGroupRequest) {
 		// 기존 그룹이 존재할 경우
 		RemittanceGroup existGroup = remittanceGroup.get();
@@ -180,14 +180,15 @@ public class RemittanceServiceImpl implements RemittanceService {
 		RemittanceInformation information = createNewRemittanceInformation(joinRemittanceGroupRequest);
 		remittanceInformationMapper.insert(information);
 
-		memberMapper.updateRemittanceRefsStrict(memberId, information.getRemittanceInformationId(),
+		memberMapper.updateRemittanceRefsStrict(member.getMemberId(), information.getRemittanceInformationId(),
 			existGroup.getRemittanceGroupId());
 
 		// 그룹 멤버 30명이 다 모였을 경우
 		if (newMemberCount == 30) {
 			remittanceGroupMapper.updateBenefitStatusOnById(existGroup.getRemittanceGroupId());
 			// 트랜잭션 종료 후 알림 전송을 위한 이벤트 발행
-			eventPublisher.publishEvent(new RemittanceGroupCompletedEvent(existGroup.getRemittanceGroupId()));
+			eventPublisher.publishEvent(
+				new RemittanceGroupCompletedEvent(existGroup.getRemittanceGroupId(), member.getFcmToken()));
 		}
 	}
 

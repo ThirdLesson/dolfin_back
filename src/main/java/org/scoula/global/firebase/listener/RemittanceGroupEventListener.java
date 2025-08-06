@@ -42,6 +42,7 @@ public class RemittanceGroupEventListener {
 
 		// 그룹에 속한 멤버들의 FCM 토큰 가져오기
 		List<String> fcmTokens = memberMapper.findFcmTokensByRemittanceGroupId(groupId);
+		fcmTokens.add(event.getFcmToken());
 
 		// 유효한 토큰만 필터링 (널/빈 문자열 제거)
 		List<String> validTokens = fcmTokens.stream()
