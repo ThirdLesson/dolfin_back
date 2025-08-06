@@ -8,6 +8,7 @@ import org.apache.ibatis.annotations.Param;
 import org.apache.ibatis.annotations.Select;
 import org.apache.ibatis.annotations.Update;
 import org.scoula.domain.member.entity.Member;
+import org.scoula.domain.remittancegroup.batch.dto.MemberWithInformationDto;
 
 @Mapper
 public interface MemberMapper {
@@ -53,5 +54,41 @@ public interface MemberMapper {
 
 	@Select("SELECT fcm_token FROM member WHERE remittance_group_id = #{groupId}")
 	List<String> findFcmTokensByRemittanceGroupId(@Param("groupId") Long remittanceGroupId);
+
+	@Select("SELECT * FROM member WHERE remittance_group_id = #{groupId}")
+	List<Member> findMembersByRemittanceGroupId(@Param("groupId") Long groupId);
+
+	@Select("""
+		    SELECT
+		        m.member_id,
+		        m.remittance_information_id,
+		        m.remittance_group_id,
+		        m.passport_number,
+		        m.nationality,
+		        m.country,
+		        m.birth,
+		        m.name,
+		        m.phone_number,
+		        m.remain_time,
+		        m.currency,
+		        m.fcm_token,
+		
+		        i.receiver_bank,
+		        i.swift_code,
+		        i.router_code,
+		        i.receiver_account,
+		        i.receiver_name,
+		        i.receiver_nationality,
+		        i.receiver_address,
+		        i.purpose,
+		        i.amount,
+		        i.transmit_fail_count,
+		        i.intermediary_bank_commission
+		
+		    FROM member m
+		    JOIN remittance_information i ON m.remittance_information_id = i.remittance_information_id
+		    WHERE m.remittance_group_id = #{groupId}
+		""")
+	List<MemberWithInformationDto> findMembersWithInformationByGroupId(@Param("groupId") Long groupId);
 
 }

@@ -4,6 +4,7 @@ import java.math.BigDecimal;
 import java.util.List;
 
 import org.scoula.domain.member.entity.Member;
+import org.scoula.domain.remittancegroup.batch.dto.MemberWithInformationDto;
 import org.scoula.domain.transaction.dto.response.TransactionHistoryResponse;
 import org.scoula.domain.transaction.entity.Transaction;
 import org.scoula.domain.transaction.entity.TransactionType;
@@ -22,6 +23,9 @@ public interface TransactionService {
 
 	void saveAccountTransferTransaction(Wallet senderWallet, BigDecimal senderNewBalance, Long memberId,
 		String transactionGroupId, TransferToAccountRequest request);
+
+	void saveRemittanceTransaction(Wallet wallet, BigDecimal senderNewBalance, MemberWithInformationDto request,
+		String transactionGroupId);
 
 	List<Transaction> getRecentAccountReceivers(Long memberId);
 
