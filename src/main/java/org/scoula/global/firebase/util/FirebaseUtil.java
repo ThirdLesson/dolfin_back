@@ -11,7 +11,7 @@ import com.google.firebase.messaging.WebpushNotification;
 
 @Component
 public class FirebaseUtil {
-	public void sendNotice(List<String> tokens, String title, String body) {
+	public void sendNotices(List<String> tokens, String title, String body) {
 		for (String token : tokens) {
 			Message message = Message.builder()
 				.setToken(token)
@@ -24,5 +24,17 @@ public class FirebaseUtil {
 
 			FirebaseMessaging.getInstance().sendAsync(message);
 		}
+	}
+
+	public void sendNotice(String token, String title, String body) {
+		Message message = Message.builder()
+			.setToken(token)
+			.putData("title", title)
+			.putData("body", body)
+			.setWebpushConfig(WebpushConfig.builder().putHeader("ttl", "1000")
+				.setNotification(new WebpushNotification("title", "body"))
+				.build())
+			.build();
+		FirebaseMessaging.getInstance().sendAsync(message);
 	}
 }
