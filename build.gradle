@@ -37,6 +37,18 @@ ext {
     springKafkaVersion = '2.9.10'
 }
 
+configurations.all {
+    resolutionStrategy {
+        force "org.springframework:spring-core:5.3.37"
+        force "org.springframework:spring-beans:5.3.37"
+        force "org.springframework:spring-context:5.3.37"
+        force "org.springframework:spring-aop:5.3.37"
+        force "org.springframework:spring-webmvc:5.3.37"
+        force "org.springframework:spring-jdbc:5.3.37"
+        force "org.springframework:spring-tx:5.3.37"
+    }
+}
+
 java {
     toolchain {
         languageVersion = JavaLanguageVersion.of(17)
@@ -144,6 +156,13 @@ dependencies {
 
     // firebase admin SDK
     implementation 'com.google.firebase:firebase-admin:9.1.1'
+
+    // 스프링 배치
+    implementation 'org.springframework.batch:spring-batch-core:4.3.10'
+
+    // redis shedlock
+    implementation 'net.javacrumbs.shedlock:shedlock-spring:5.16.0'
+    implementation 'net.javacrumbs.shedlock:shedlock-provider-redis-spring:5.16.0'
 
 }
 
