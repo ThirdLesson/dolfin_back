@@ -112,4 +112,12 @@ public interface RemittanceGroupMapper {
 	List<RemittanceGroup> findByIdRange(@Param("startId") Long startId, @Param("endId") Long endId,
 		@Param("day") Integer day);
 
+	@Select("""
+			SELECT *
+			FROM remittance_group
+			WHERE benefit_status IS NULL
+		 		AND remittance_date = #{day}
+		""")
+	List<RemittanceGroup> findByDayBenefitOn(@Param("day") Integer day);
+
 }
