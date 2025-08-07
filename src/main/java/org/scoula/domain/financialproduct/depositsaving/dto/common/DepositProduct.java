@@ -17,6 +17,8 @@ public record DepositProduct(
 	String primeInterestRate,
 	String cmaInterestRate,
 	List<String> features,
-	List<String> productCategories
+	List<String> productCategories,
+	String joinTarget,  // 가입 대상 추가
+	String note         // 비고 추가
 ) {
 }

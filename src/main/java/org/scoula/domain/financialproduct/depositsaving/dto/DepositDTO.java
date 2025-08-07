@@ -4,7 +4,6 @@ import lombok.*;
 
 import org.scoula.domain.financialproduct.constants.DepositSpclConditionType;
 import org.scoula.domain.financialproduct.depositsaving.entity.Deposit;
-import org.scoula.global.entity.BaseEntity;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
@@ -16,7 +15,7 @@ import com.fasterxml.jackson.annotation.JsonFormat;
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
-public class DepositDTO extends BaseEntity{
+public class DepositDTO {
 	private Long depositId;
 	private Long financialCompanyId;
 	private String name;
