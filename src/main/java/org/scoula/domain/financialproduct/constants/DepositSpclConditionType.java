@@ -35,7 +35,6 @@ public enum DepositSpclConditionType {
 				return condition;
 			}
 		}
-		System.out.println("❗ enum 매핑 실패 - API value: " + apiValue);
 		return null;
 	}
 

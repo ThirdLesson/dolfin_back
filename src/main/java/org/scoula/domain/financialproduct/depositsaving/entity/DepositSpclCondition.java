@@ -7,7 +7,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 
-// 우대금리
+// 예금 우대금리
 @Getter
 @AllArgsConstructor
 @Builder

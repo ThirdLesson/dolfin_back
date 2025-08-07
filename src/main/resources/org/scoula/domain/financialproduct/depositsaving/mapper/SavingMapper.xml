@@ -2,7 +2,168 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 
 <mapper namespace="org.scoula.domain.financialproduct.depositsaving.mapper.SavingMapper">
-    <select id="selectSavingWithFilters"
-            resultType="org.scoula.domain.financialproduct.depositsaving.entity.Saving"></select>
-    <select id="countSavingWithFilters" resultType="java.lang.Integer"></select>
+
+    <!-- Saving Entity ResultMap -->
+    <resultMap id="SavingResultMap" type="org.scoula.domain.financialproduct.depositsaving.entity.Saving">
+        <id property="savingId" column="saving_id"/>
+        <result property="financialCompanyId" column="financial_company_id"/>
+        <result property="name" column="name"/>
+        <result property="saveMonth" column="save_month"/>
+        <result property="interestRate" column="interest_rate"/>
+        <result property="maxInterestRate" column="max_interest_rate"/>
+        <result property="createdAt" column="created_at"/>
+        <result property="updatedAt" column="updated_at"/>
+        <result property="productCode" column="product_code"/>
+        <result property="companyCode" column="company_code"/>
+    </resultMap>
+
+    <!-- SavingSpclCondition Entity ResultMap -->
+    <resultMap id="SavingSpclConditionResultMap"
+               type="org.scoula.domain.financialproduct.depositsaving.entity.SavingSpclCondition">
+        <id property="id" column="id"/>
+        <result property="savingId" column="saving_id"/>
+        <result property="spclCondition" column="spcl_condition"
+                javaType="org.scoula.domain.financialproduct.constants.SavingSpclConditionType"
+                typeHandler="org.scoula.domain.financialproduct.handler.SavingSpclConditionTypeHandler"/>
+        <result property="productCode" column="product_code"/>
+        <result property="companyCode" column="company_code"/>
+        <result property="saveMonth" column="save_month"/>
+        <result property="createdAt" column="created_at"/>
+        <result property="updatedAt" column="updated_at"/>
+    </resultMap>
+    <!--    적금 상품 저장-->
+    <insert id="insertBatch">
+        INSERT INTO saving(
+        financial_company_id, name, save_month, interest_rate, max_interest_rate,
+        product_code, company_code, created_at, updated_at
+        ) values
+        <foreach collection="savings" item="item" separator=",">
+            (#{item.financialCompanyId}, #{item.name}, #{item.saveMonth}, #{item.interestRate},
+            #{item.maxInterestRate}, #{item.productCode}, #{item.companyCode},
+            NOW(), NOW())
+        </foreach>
+    </insert>
+    <!--    우대조건 저장-->
+    <insert id="insertSpclCondition">
+        INSERT INTO saving_spcl_condition(
+        saving_id, spcl_condition, product_code, company_code,
+        save_month, created_at, updated_at
+        ) VALUES
+        <foreach collection="spclConditions" item="condition" separator=",">
+            (
+            #{condition.savingId},
+            #{condition.spclCondition, javaType=org.scoula.domain.financialproduct.constants.SavingSpclConditionType, jdbcType=VARCHAR},
+            #{condition.productCode},
+            #{condition.companyCode},
+            #{condition.saveMonth},
+            NOW(), NOW()
+            )
+        </foreach>
+    </insert>
+
+    <!--    전체 적금 리스트 조회(금리 높은 순)-->
+    <select id="selectAllSavings" resultMap="SavingResultMap">
+        SELECT *
+        FROM saving
+        ORDER BY max_interest_rate DESC, interest_rate DESC
+        LIMIT #{limit} OFFSET #{offset}
+    </select>
+    <!-- 전체 예금 리스트 수-->
+    <select id="countAllSavings" resultType="int">
+        SELECT COUNT(*)
+        FROM saving
+    </select>
+    <!--    필터 조건으로 예금 상품 리스트 조회-->
+    <select id="selectSavingWithFilters" resultMap="SavingResultMap">
+        SELECT DISTINCT s.saving_id,
+        s.financial_company_id,
+        s.name,
+        s.save_month,
+        s.interest_rate,
+        s.max_interest_rate,
+        s.product_code,
+        s.company_code,
+        s.created_at,
+        s.updated_at
+        FROM saving s
+        LEFT JOIN saving_spcl_condition ssc ON s.saving_id = ssc.saving_id
+        WHERE 1=1
+        <if test="spclConditions != null and spclConditions.size() > 0">
+            AND ssc.spcl_condition IN
+            <foreach collection="spclConditions" item="condition" open="(" close=")" separator=",">
+                #{condition}
+            </foreach>
+        </if>
+
+        <if test="remainTime != null">
+            AND s.save_month &lt;= #{remainTime}
+        </if>
+        ORDER BY s.max_interest_rate DESC, s.interest_rate DESC
+        LIMIT #{limit} OFFSET #{offset}
+    </select>
+    <!--    필터 조건에 맞는 상품 개수 조회-->
+    <select id="countSavingWithFilters" resultType="int">
+        SELECT COUNT(DISTINCT s.saving_id)
+        FROM saving s
+        LEFT JOIN saving_spcl_condition ssc ON s.saving_id = ssc.saving_id
+        WHERE 1=1
+
+        <if test="spclConditions != null and spclConditions.size() > 0">
+            AND ssc.spcl_condition IN
+            <foreach collection="spclConditions" item="condition" open="(" close=")" separator=",">
+                #{condition}
+            </foreach>
+        </if>
+
+        <if test="remainTime != null">
+            AND s.save_month &lt;= #{remainTime}
+        </if>
+    </select>
+    <!--    상품 중복 조회(코드 + 회사 + 기간)-->
+    <select id="selectByProductAndCompanyCode"
+            resultMap="SavingResultMap">
+        SELECT saving_id,
+               financial_company_id,
+               name,
+               save_month,
+               interest_rate,
+               max_interest_rate,
+               product_code,
+               company_code,
+               created_at,
+               updated_at
+        FROM saving
+        WHERE product_code = #{productCode}
+          AND company_code = #{companyCode}
+          AND save_month = #{saveMonth}
+    </select>
+    <!--    우대 조건 조회(1:N)-->
+    <select id="selectSpclConditionsBySavingId"
+            resultMap="SavingSpclConditionResultMap">
+        SELECT id,
+               saving_id,
+               spcl_condition,
+               product_code,
+               company_code,
+               save_month,
+               created_at,
+               updated_at
+        FROM saving_spcl_condition
+        WHERE saving_id = #{savingId}
+        ORDER BY spcl_condition
+    </select>
+    <select id="selectProductDetailById" resultMap="SavingResultMap">
+        SELECT s.saving_id,
+               s.financial_company_id,
+               s.name,
+               s.save_month,
+               s.interest_rate,
+               s.max_interest_rate,
+               s.product_code,
+               s.company_code,
+               s.created_at,
+               s.updated_at
+        FROM saving s
+        WHERE s.saving_id = #{id}
+    </select>
 </mapper>

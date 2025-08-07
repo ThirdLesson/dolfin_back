@@ -22,45 +22,45 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 @Component
 @RequiredArgsConstructor
-public class DepositApiHelper {
+public class SavingApiHelper {
 
 	private final RestTemplate restTemplate;
 	private final ObjectMapper objectMapper;
 
-	@Value("${deposit.product.list}")
-	private String DEPOSIT_PRODUCT_LIST_BY_PERIOD_URL;
-	@Value("${deposit.product.detail.url.base}")
-	private String DEPOSIT_DETAIL_URL;
+	@Value("${saving.product.list}")
+	private String SAVING_PRODUCT_LIST_BY_PERIOD_URL;
+	@Value("${saving.product.detail.url.base}")
+	private String SAVING_DETAIL_URL;
 
 	// 기간별 상품 API 호출
 	public List<DepositProduct> getProductsByPeriod(int period, int offset) throws JsonProcessingException {
-		String url = String.format(DEPOSIT_PRODUCT_LIST_BY_PERIOD_URL, period, offset);
+		String url = String.format(SAVING_PRODUCT_LIST_BY_PERIOD_URL, period, offset);
 		String rawResponse = restTemplate.getForObject(url, String.class);
-
 		if (rawResponse == null || rawResponse.isEmpty()) {
-			return Collections.emptyList();
+			return List.of();
 		}
-
 		ProductListResponse<DepositProduct> response = parseProductListResponse(rawResponse);
-
 		if (response == null || !response.isSuccess()) {
-			return Collections.emptyList();
+			return List.of();
 		}
 		if (response.result() == null || response.result().products() == null) {
 			return Collections.emptyList();
 		}
+
 		return response.result().products();
 	}
 
 	// 상품 상세 정보 API 호출
 	public ProductDetailInfo getProductDetailInfo(String productCode) throws JsonProcessingException {
-		String url = String.format(DEPOSIT_DETAIL_URL, productCode, productCode);
+		String url = String.format(SAVING_DETAIL_URL, productCode, productCode);
+
 		String rawResponse = restTemplate.getForObject(url, String.class);
 
 		if (rawResponse == null || rawResponse.isEmpty()) {
-			return new ProductDetailInfo(Collections.emptyList(), Collections.emptyList());
+			return new ProductDetailInfo(List.of(), List.of());
 		}
-		return parseProductDetailResponse(rawResponse, productCode);
+		ProductDetailInfo result = parseProductDetailResponse(rawResponse, productCode);
+		return result;
 	}
 
 	// 상품 리스트 응답 파싱
@@ -79,7 +79,7 @@ public class DepositApiHelper {
 		JsonNode result = extractProductDetailResult(response);
 
 		if (result == null) {
-			return new ProductDetailInfo(Collections.emptyList(), Collections.emptyList());
+			return new ProductDetailInfo(List.of(), List.of());
 		}
 		return parseSpecialConditions(result, productCode);
 	}
@@ -91,7 +91,9 @@ public class DepositApiHelper {
 			.queries()
 			.stream()
 			.filter(query -> query.queryKey().stream()
-				.anyMatch(key -> "/productDetails".equals(key.url())))
+				.anyMatch(key -> "/productDetails".equals(key.url()) ||
+					"/productInterest".equals(key.url())
+				))
 			.findFirst()
 			.map(query -> query.state().data().result())
 			.filter(result -> !result.isBoolean())
@@ -101,7 +103,6 @@ public class DepositApiHelper {
 	// 우대조건 파싱
 	private ProductDetailInfo parseSpecialConditions(JsonNode result, String productCode) {
 		List<String> specialConditions = new ArrayList<>();
-
 		if (result.has("specialConditions") && result.get("specialConditions").isArray()) {
 			for (JsonNode cond : result.get("specialConditions")) {
 				String conditionText = cond.asText();
@@ -144,7 +145,6 @@ public class DepositApiHelper {
 		}
 		return new ProductDetailInfo(specialConditions, savingTerms);
 	}
-
 	// 상품 상세 정보 record
 	public record ProductDetailInfo(
 		List<String> specialConditions,
@@ -152,4 +152,3 @@ public class DepositApiHelper {
 	) {
 	}
 }
-

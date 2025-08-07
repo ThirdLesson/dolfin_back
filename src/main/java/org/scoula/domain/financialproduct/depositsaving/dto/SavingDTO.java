@@ -1,22 +1,25 @@
 package org.scoula.domain.financialproduct.depositsaving.dto;
 
-import lombok.*;
-
-import org.scoula.domain.financialproduct.constants.DepositSpclConditionType;
-import org.scoula.domain.financialproduct.depositsaving.entity.Deposit;
-
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.List;
 
+import org.scoula.domain.financialproduct.constants.SavingSpclConditionType;
+import org.scoula.domain.financialproduct.depositsaving.entity.Saving;
+
 import com.fasterxml.jackson.annotation.JsonFormat;
+
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
 
 @Getter
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
-public class DepositDTO {
-	private Long depositId;
+public class SavingDTO {
+	private Long savingId;
 	private Long financialCompanyId;
 	private String name;
 	private Integer saveMonth;
@@ -28,12 +31,29 @@ public class DepositDTO {
 	private LocalDateTime createdAt;
 	@JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
 	private LocalDateTime updatedAt;
-	private List<DepositSpclConditionType> spclConditions;
+	private List<SavingSpclConditionType> spclConditions;
 
-	// DTO → Entity
-	public Deposit toEntity() {
-		return Deposit.builder()
-			.depositId(this.depositId)
+	// Entity → DTO
+	public static SavingDTO fromEntity(Saving entity, List<SavingSpclConditionType> spclConditions) {
+		return SavingDTO.builder()
+			.savingId(entity.getSavingId())
+			.financialCompanyId(entity.getFinancialCompanyId())
+			.name(entity.getName())
+			.saveMonth(entity.getSaveMonth())
+			.interestRate(entity.getInterestRate())
+			.maxInterestRate(entity.getMaxInterestRate())
+			.productCode(entity.getProductCode())
+			.companyCode(entity.getCompanyCode())
+			.createdAt(entity.getCreatedAt())
+			.updatedAt(entity.getUpdatedAt())
+			.spclConditions(spclConditions)
+			.build();
+	}
+
+	// 	DTO -> ENTITY
+	public Saving toEntity() {
+		return Saving.builder()
+			.savingId(this.savingId)
 			.financialCompanyId(this.financialCompanyId)
 			.name(this.name)
 			.saveMonth(this.saveMonth)
@@ -41,23 +61,6 @@ public class DepositDTO {
 			.maxInterestRate(this.maxInterestRate)
 			.productCode(this.productCode)
 			.companyCode(this.companyCode)
-			.build();
-	}
-
-	// Entity → DTO
-	public static DepositDTO fromEntity(Deposit entity, List<DepositSpclConditionType> spclConditions) {
-		return DepositDTO.builder()
-			.depositId(entity.getDepositId())
-			.financialCompanyId(entity.getFinancialCompanyId())
-			.name(entity.getName())
-			.saveMonth(entity.getSaveMonth())
-			.interestRate(entity.getInterestRate())
-			.maxInterestRate(entity.getMaxInterestRate())
-			.spclConditions(spclConditions)
-			.productCode(entity.getProductCode())
-			.companyCode(entity.getCompanyCode())
-			.createdAt(entity.getCreatedAt())
-			.updatedAt(entity.getUpdatedAt())
 			.build();
 	}
 }

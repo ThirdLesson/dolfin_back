@@ -5,6 +5,7 @@ import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
 import org.scoula.domain.financialproduct.financialcompany.dto.response.FinancialCompanyResponseDTO;
 import org.scoula.domain.financialproduct.financialcompany.service.FinancialCompanyService;
@@ -13,6 +14,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
+@Slf4j
 @RestController
 @RequestMapping("/financial-companies")
 @RequiredArgsConstructor
@@ -25,6 +27,7 @@ public class FinancialCompanyController {
 	@PostMapping("/sync")
 	@ApiOperation(value = "전체 금융회사 리스트 저장")
 	public SuccessResponse<List<FinancialCompanyResponseDTO>> fetchAndSaveFinancialCompaniesFromApi() {
+		log.info("hihihihihhi");
 		List<FinancialCompanyResponseDTO> savedCompanies = financialCompanyService.fetchAndSaveFinancialCompanies();
 		return SuccessResponse.created(savedCompanies);
 	}
