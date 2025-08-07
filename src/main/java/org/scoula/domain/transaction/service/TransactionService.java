@@ -33,4 +33,6 @@ public interface TransactionService {
 
 	Page<TransactionHistoryResponse> getTransactionHistory(Period period, TransactionType type,
 		BigDecimal minAmount, BigDecimal maxAmount, SortDirection sortDirection, int page, Integer size, Member member);
+
+	BigDecimal getSumByTransactionType(TransactionType type, List<Transaction> transactions);
 }

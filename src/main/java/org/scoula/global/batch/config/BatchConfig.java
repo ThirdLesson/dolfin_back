@@ -2,6 +2,8 @@ package org.scoula.global.batch.config;
 
 import javax.sql.DataSource;
 
+import org.apache.ibatis.session.SqlSessionFactory;
+import org.mybatis.spring.SqlSessionFactoryBean;
 import org.springframework.batch.core.configuration.annotation.EnableBatchProcessing;
 import org.springframework.batch.core.configuration.annotation.JobBuilderFactory;
 import org.springframework.batch.core.configuration.annotation.StepBuilderFactory;
@@ -11,6 +13,7 @@ import org.springframework.batch.core.repository.JobRepository;
 import org.springframework.batch.core.repository.support.JobRepositoryFactoryBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.core.io.support.PathMatchingResourcePatternResolver;
 import org.springframework.core.task.TaskExecutor;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 import org.springframework.transaction.PlatformTransactionManager;
@@ -24,6 +27,22 @@ public class BatchConfig {
 
 	private final DataSource dataSource;
 	private final PlatformTransactionManager transactionManager;
+
+	@Bean(name = "simpleSqlSessionFactory")
+	public SqlSessionFactory simpleSqlSessionFactory() throws Exception {
+		SqlSessionFactoryBean factoryBean = new SqlSessionFactoryBean();
+		factoryBean.setDataSource(dataSource);
+
+		factoryBean.setMapperLocations(
+			new PathMatchingResourcePatternResolver().getResources("classpath*:org/scoula/domain/**/*.xml")
+		);
+
+		factoryBean.setConfigLocation(
+			new PathMatchingResourcePatternResolver().getResource("classpath:mybatis-config.xml")
+		);
+
+		return factoryBean.getObject();
+	}
 
 	@Bean
 	public TaskExecutor taskExecutor() {

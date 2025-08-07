@@ -6,6 +6,7 @@ import java.util.List;
 
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
+import org.apache.ibatis.annotations.Select;
 import org.scoula.domain.transaction.entity.Transaction;
 import org.scoula.domain.transaction.entity.TransactionType;
 import org.scoula.global.constants.SortDirection;
@@ -38,5 +39,32 @@ public interface TransactionMapper {
 		@Param("limit") Integer limit,
 		@Param("offset") Integer offset
 	);
+
+	@Select("""
+		    SELECT MIN(transaction_id) 
+		    FROM transaction 
+		    WHERE DATE(created_at) = DATE_SUB(CURDATE(), INTERVAL 1 DAY)
+		""")
+	Long findMinIdFromYesterday();
+
+	@Select("""
+		    SELECT MAX(transaction_id) 
+		    FROM transaction 
+		    WHERE DATE(created_at) = DATE_SUB(CURDATE(), INTERVAL 1 DAY)
+		""")
+	Long findMaxIdFromYesterday();
+
+	@Select("""
+		    SELECT *
+		    FROM transaction
+		    WHERE DATE(created_at) = CURDATE() - INTERVAL 1 DAY
+		      AND transaction_id BETWEEN #{startId} AND #{endId}
+		    ORDER BY transaction_id
+		""")
+	List<Transaction> findByTransactionIdRange(
+		@Param("startId") Long startId,
+		@Param("endId") Long endId
+	);
+
 }
 

@@ -15,6 +15,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
+import org.springframework.context.annotation.Primary;
 import org.springframework.context.annotation.PropertySource;
 import org.springframework.jdbc.datasource.DataSourceTransactionManager;
 import org.springframework.scheduling.annotation.EnableScheduling;
@@ -42,6 +43,7 @@ import com.zaxxer.hikari.HikariDataSource;
 	// "org.scoula.service",
 	"org.scoula.domain.**.service",  // 도메인 객체를 포함하기 위해 추가
 	"org.scoula.domain.remittancegroup.batch", // spring batch 설정 추가
+	"org.scoula.domain.ledger.batch",
 	"org.scoula.global.swagger.config",  // Swagger 설정을 포함하기 위해 추가
 	"org.scoula.global.kafka", // kafka 설정 포함
 	"org.scoula.global.exception", // exception handler 등록
@@ -100,6 +102,7 @@ public class RootConfig {
 	}
 
 	@Bean
+	@Primary
 	public SqlSessionFactory sqlSessionFactory() throws Exception {
 		SqlSessionFactoryBean sqlSessionFactory = new SqlSessionFactoryBean();
 		sqlSessionFactory.setConfigLocation(

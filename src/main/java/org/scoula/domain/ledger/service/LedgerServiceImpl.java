@@ -13,8 +13,10 @@ import java.util.UUID;
 
 import javax.servlet.http.HttpServletRequest;
 
+import org.scoula.domain.ledger.batch.dto.LedgerVoucherWithEntryDTO;
 import org.scoula.domain.ledger.entity.LedgerCode;
 import org.scoula.domain.ledger.entity.LedgerEntry;
+import org.scoula.domain.ledger.entity.LedgerType;
 import org.scoula.domain.ledger.entity.LedgerVoucher;
 import org.scoula.domain.ledger.mapper.LedgerCodeMapper;
 import org.scoula.domain.ledger.mapper.LedgerEntryMapper;
@@ -48,9 +50,18 @@ public class LedgerServiceImpl implements LedgerService {
 
 		List<LedgerEntry> ledgerEntries = new ArrayList<>();
 
-		LedgerCode ledgerCode = ledgerCodeMapper.findByName("BANK_PAYABLE")
+		LedgerCode bankPayable = ledgerCodeMapper.findByName("BANK_PAYABLE")
 			.orElseThrow(() -> new CustomException(LEDGER_CODE_NOT_FOUND, LogLevel.ERROR, null, Common.builder()
 				.ledgerCode("BANK_PAYABLE")
+				.srcIp(servletRequest.getRemoteAddr())
+				.callApiPath(servletRequest.getRequestURI())
+				.apiMethod(servletRequest.getMethod())
+				.deviceInfo(servletRequest.getHeader("user-agent"))
+				.build()));
+
+		LedgerCode bankAsset = ledgerCodeMapper.findByName("BANK_ASSET")
+			.orElseThrow(() -> new CustomException(LEDGER_CODE_NOT_FOUND, LogLevel.ERROR, null, Common.builder()
+				.ledgerCode("BANK_ASSET")
 				.srcIp(servletRequest.getRemoteAddr())
 				.callApiPath(servletRequest.getRequestURI())
 				.apiMethod(servletRequest.getMethod())
@@ -60,7 +71,7 @@ public class LedgerServiceImpl implements LedgerService {
 		LedgerEntry debitEntry = LedgerEntry.builder()
 			.ledgerVoucherId(ledgerVoucher.getLedgerVoucherId())
 			.ledgerType(DEBIT)
-			.accountCodeId(ledgerCode.getAccountCodeId())
+			.accountCodeId(bankPayable.getAccountCodeId())
 			.amount(request.amount())
 			.build();
 		ledgerEntries.add(debitEntry);
@@ -68,10 +79,28 @@ public class LedgerServiceImpl implements LedgerService {
 		LedgerEntry creditEntry = LedgerEntry.builder()
 			.ledgerVoucherId(ledgerVoucher.getLedgerVoucherId())
 			.ledgerType(CREDIT)
-			.accountCodeId(ledgerCode.getAccountCodeId())
+			.accountCodeId(bankAsset.getAccountCodeId())
 			.amount(request.amount())
 			.build();
 		ledgerEntries.add(creditEntry);
+
+		LedgerVoucher ledgerVoucher2 = getLedgerVoucher(transactionGroupId, DEPOSIT);
+
+		LedgerEntry debitEntry2 = LedgerEntry.builder()
+			.ledgerVoucherId(ledgerVoucher2.getLedgerVoucherId())
+			.ledgerType(DEBIT)
+			.accountCodeId(bankAsset.getAccountCodeId())
+			.amount(request.amount())
+			.build();
+		ledgerEntries.add(debitEntry2);
+
+		LedgerEntry creditEntry2 = LedgerEntry.builder()
+			.ledgerVoucherId(ledgerVoucher2.getLedgerVoucherId())
+			.ledgerType(CREDIT)
+			.accountCodeId(bankPayable.getAccountCodeId())
+			.amount(request.amount())
+			.build();
+		ledgerEntries.add(creditEntry2);
 
 		ledgerEntryMapper.insertBatch(ledgerEntries);
 	}
@@ -188,6 +217,28 @@ public class LedgerServiceImpl implements LedgerService {
 		ledgerEntries.add(creditEntry);
 
 		ledgerEntryMapper.insertBatch(ledgerEntries);
+	}
+
+	@Override
+	@Transactional(readOnly = true)
+	public List<LedgerVoucherWithEntryDTO> getLedgerVoucherWithEntryInYesterday() {
+		return ledgerVoucherMapper.findAllFromYesterday();
+	}
+
+	@Override
+	@Transactional(readOnly = true)
+	public BigDecimal getSumByTypes(
+		TransactionType transactionType,
+		LedgerType ledgerType,
+		List<LedgerVoucherWithEntryDTO> dtoList
+	) {
+		return dtoList.stream()
+			.filter(dto -> dto != null
+				&& dto.getType() == transactionType
+				&& dto.getLedgerType() == ledgerType
+				&& dto.getAmount() != null)
+			.map(LedgerVoucherWithEntryDTO::getAmount)
+			.reduce(BigDecimal.ZERO, BigDecimal::add);
 	}
 
 	private LedgerVoucher getLedgerVoucher(String transactionGroupId, TransactionType transactionType) {
