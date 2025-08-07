@@ -19,6 +19,7 @@ import org.scoula.domain.ledger.entity.LedgerVoucher;
 import org.scoula.domain.ledger.mapper.LedgerCodeMapper;
 import org.scoula.domain.ledger.mapper.LedgerEntryMapper;
 import org.scoula.domain.ledger.mapper.LedgerVoucherMapper;
+import org.scoula.domain.remittancegroup.batch.dto.MemberWithInformationDto;
 import org.scoula.domain.transaction.entity.TransactionType;
 import org.scoula.domain.wallet.dto.request.ChargeWalletRequest;
 import org.scoula.domain.wallet.dto.request.TransferToAccountRequest;
@@ -32,7 +33,7 @@ import org.springframework.transaction.annotation.Transactional;
 import lombok.RequiredArgsConstructor;
 
 @Service
-@Transactional(readOnly = true)
+@Transactional
 @RequiredArgsConstructor
 public class LedgerServiceImpl implements LedgerService {
 
@@ -41,16 +42,15 @@ public class LedgerServiceImpl implements LedgerService {
 	private final LedgerEntryMapper ledgerEntryMapper;
 
 	@Override
-	@Transactional
 	public void accountForWalletTransfer(TransferToWalletRequest request, String transactionGroupId,
 		HttpServletRequest servletRequest) {
 		LedgerVoucher ledgerVoucher = getLedgerVoucher(transactionGroupId, WALLET_TRANSFER);
 
 		List<LedgerEntry> ledgerEntries = new ArrayList<>();
 
-		LedgerCode ledgerCode = ledgerCodeMapper.findByName("WALLET_ASSET")
+		LedgerCode ledgerCode = ledgerCodeMapper.findByName("BANK_PAYABLE")
 			.orElseThrow(() -> new CustomException(LEDGER_CODE_NOT_FOUND, LogLevel.ERROR, null, Common.builder()
-				.ledgerCode("WALLET_ASSET")
+				.ledgerCode("BANK_PAYABLE")
 				.srcIp(servletRequest.getRemoteAddr())
 				.callApiPath(servletRequest.getRequestURI())
 				.apiMethod(servletRequest.getMethod())
@@ -92,7 +92,7 @@ public class LedgerServiceImpl implements LedgerService {
 
 		List<LedgerEntry> ledgerEntries = new ArrayList<>();
 
-		LedgerCode walletAsset = ledgerCodeMapper.findByName("WALLET_ASSET")
+		LedgerCode bankAsset = ledgerCodeMapper.findByName("BANK_ASSET")
 			.orElseThrow(() -> new CustomException(LEDGER_CODE_NOT_FOUND, LogLevel.ERROR, null, common));
 		LedgerCode bankPayable = ledgerCodeMapper.findByName("BANK_PAYABLE")
 			.orElseThrow(() -> new CustomException(LEDGER_CODE_NOT_FOUND, LogLevel.ERROR, null, common));
@@ -100,7 +100,7 @@ public class LedgerServiceImpl implements LedgerService {
 		LedgerEntry debitEntry = LedgerEntry.builder()
 			.ledgerVoucherId(ledgerVoucher.getLedgerVoucherId())
 			.ledgerType(DEBIT)
-			.accountCodeId(walletAsset.getAccountCodeId())
+			.accountCodeId(bankPayable.getAccountCodeId())
 			.amount(amount)
 			.build();
 		ledgerEntries.add(debitEntry);
@@ -108,7 +108,41 @@ public class LedgerServiceImpl implements LedgerService {
 		LedgerEntry creditEntry = LedgerEntry.builder()
 			.ledgerVoucherId(ledgerVoucher.getLedgerVoucherId())
 			.ledgerType(CREDIT)
+			.accountCodeId(bankAsset.getAccountCodeId())
+			.amount(amount)
+			.build();
+		ledgerEntries.add(creditEntry);
+
+		ledgerEntryMapper.insertBatch(ledgerEntries);
+	}
+
+	@Override
+	public void remittanceGroupTransfer(MemberWithInformationDto request, String transactionGroupId) {
+
+		BigDecimal amount = request.getAmount();
+		LedgerVoucher ledgerVoucher = getLedgerVoucher(transactionGroupId, WITHDRAW);
+
+		List<LedgerEntry> ledgerEntries = new ArrayList<>();
+
+		LedgerCode bankAsset = ledgerCodeMapper.findByName("BANK_ASSET")
+			.orElseThrow(
+				() -> new CustomException(LEDGER_CODE_NOT_FOUND, LogLevel.ERROR, null, Common.builder().build()));
+		LedgerCode bankPayable = ledgerCodeMapper.findByName("BANK_PAYABLE")
+			.orElseThrow(
+				() -> new CustomException(LEDGER_CODE_NOT_FOUND, LogLevel.ERROR, null, Common.builder().build()));
+
+		LedgerEntry debitEntry = LedgerEntry.builder()
+			.ledgerVoucherId(ledgerVoucher.getLedgerVoucherId())
+			.ledgerType(DEBIT)
 			.accountCodeId(bankPayable.getAccountCodeId())
+			.amount(amount)
+			.build();
+		ledgerEntries.add(debitEntry);
+
+		LedgerEntry creditEntry = LedgerEntry.builder()
+			.ledgerVoucherId(ledgerVoucher.getLedgerVoucherId())
+			.ledgerType(CREDIT)
+			.accountCodeId(bankAsset.getAccountCodeId())
 			.amount(amount)
 			.build();
 		ledgerEntries.add(creditEntry);
@@ -132,7 +166,7 @@ public class LedgerServiceImpl implements LedgerService {
 
 		List<LedgerEntry> ledgerEntries = new ArrayList<>();
 
-		LedgerCode walletAsset = ledgerCodeMapper.findByName("WALLET_ASSET")
+		LedgerCode bankAsset = ledgerCodeMapper.findByName("BANK_ASSET")
 			.orElseThrow(() -> new CustomException(LEDGER_CODE_NOT_FOUND, LogLevel.ERROR, null, common));
 		LedgerCode bankPayable = ledgerCodeMapper.findByName("BANK_PAYABLE")
 			.orElseThrow(() -> new CustomException(LEDGER_CODE_NOT_FOUND, LogLevel.ERROR, null, common));
@@ -140,7 +174,7 @@ public class LedgerServiceImpl implements LedgerService {
 		LedgerEntry debitEntry = LedgerEntry.builder()
 			.ledgerVoucherId(ledgerVoucher.getLedgerVoucherId())
 			.ledgerType(DEBIT)
-			.accountCodeId(walletAsset.getAccountCodeId())
+			.accountCodeId(bankAsset.getAccountCodeId())
 			.amount(amount)
 			.build();
 		ledgerEntries.add(debitEntry);

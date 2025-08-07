@@ -17,6 +17,7 @@ import java.util.stream.Collectors;
 
 import org.scoula.domain.member.entity.Member;
 import org.scoula.domain.member.mapper.MemberMapper;
+import org.scoula.domain.remittancegroup.batch.dto.MemberWithInformationDto;
 import org.scoula.domain.transaction.dto.response.TransactionHistoryResponse;
 import org.scoula.domain.transaction.dto.response.TransactionResponse;
 import org.scoula.domain.transaction.entity.Transaction;
@@ -98,6 +99,24 @@ public class TransactionServiceImpl implements TransactionService {
 	}
 
 	@Override
+	public void saveRemittanceTransaction(Wallet wallet, BigDecimal newBalance,
+		MemberWithInformationDto request, String transactionGroupId) {
+		Transaction senderTransaction = Transaction.builder()
+			.walletId(wallet.getWalletId())
+			.memberId(request.getMemberId())
+			.transactionGroupId(transactionGroupId)
+			.amount(request.getAmount())
+			.beforeBalance(wallet.getBalance())
+			.afterBalance(newBalance)
+			.transactionType(WITHDRAW)
+			.counterPartyName(request.getReceiverName())
+			.counterPartyAccountNumber(request.getReceiverAccount())
+			.status(SUCCESS)
+			.build();
+		transactionMapper.insert(senderTransaction);
+	}
+
+	@Override
 	public List<Transaction> getRecentAccountReceivers(Long memberId) {
 		return transactionMapper.findByMemberIdAndAccountTransfer(memberId);
 	}
@@ -130,7 +149,6 @@ public class TransactionServiceImpl implements TransactionService {
 			.build();
 		transactionMapper.insert(chargeTransaction);
 	}
-
 
 	@Override
 	public Page<TransactionHistoryResponse> getTransactionHistory(Period period, TransactionType type,

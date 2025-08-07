@@ -16,11 +16,13 @@ import org.springframework.web.bind.annotation.RestController;
 
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 
 @Api(tags = "헬스 체크 API")
 @RestController
-@RequestMapping("/api/health")
+@RequiredArgsConstructor
+@RequestMapping("/auth")
 @Log4j2
 public class HealthCheckController {
 

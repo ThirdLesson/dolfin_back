@@ -1,8 +1,10 @@
 package org.scoula.domain.wallet.service;
 
 import static org.scoula.domain.wallet.exception.WalletErrorCode.*;
+import static org.scoula.global.constants.Currency.*;
 
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -12,9 +14,17 @@ import javax.servlet.http.HttpServletRequest;
 import org.scoula.domain.account.dto.request.CreateAccountRequest;
 import org.scoula.domain.account.service.AccountService;
 import org.scoula.domain.codef.dto.request.WalletRequest;
+import org.scoula.domain.exchange.entity.ExchangeRate;
+import org.scoula.domain.exchange.entity.Type;
+import org.scoula.domain.exchange.mapper.ExchangeRateMapper;
 import org.scoula.domain.ledger.service.LedgerService;
 import org.scoula.domain.member.entity.Member;
+import org.scoula.domain.member.mapper.MemberMapper;
 import org.scoula.domain.member.service.MemberService;
+import org.scoula.domain.remittancegroup.batch.dto.MemberWithInformationDto;
+import org.scoula.domain.remittancegroup.entity.RemittanceGroup;
+import org.scoula.domain.remittancegroup.mapper.RemittanceGroupMapper;
+import org.scoula.domain.remmitanceinformation.mapper.RemittanceInformationMapper;
 import org.scoula.domain.transaction.entity.Transaction;
 import org.scoula.domain.transaction.service.TransactionService;
 import org.scoula.domain.wallet.dto.request.ChargeWalletRequest;
@@ -27,9 +37,14 @@ import org.scoula.domain.wallet.dto.response.WalletResponse;
 import org.scoula.domain.wallet.entity.Wallet;
 import org.scoula.domain.wallet.mapper.WalletMapper;
 import org.scoula.global.exception.CustomException;
+import org.scoula.global.firebase.event.RemittanceFailedEvent;
+import org.scoula.global.firebase.event.RemittanceGroupFiredEvent;
+import org.scoula.global.firebase.event.RemittanceSuccessEvent;
 import org.scoula.global.kafka.dto.Common;
 import org.scoula.global.kafka.dto.LogLevel;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 import lombok.RequiredArgsConstructor;
@@ -46,6 +61,14 @@ public class WalletServiceImpl implements WalletService {
 	private final MemberService memberService;
 	private final LedgerService ledgerService;
 	private final TransactionService transactionService;
+	private final RemittanceInformationMapper remittanceInformationMapper;
+	private final RemittanceGroupMapper remittanceGroupMapper;
+	private final MemberMapper memberMapper;
+	private final ApplicationEventPublisher eventPublisher;
+	private final ExchangeRateMapper exchangeRateMapper;
+
+	private static final String BANK_NAME = "국민은행";
+	private static final BigDecimal BENEFIT_PERCENTAGE = BigDecimal.valueOf(0.3);
 
 	@Transactional
 	@Override
@@ -137,6 +160,34 @@ public class WalletServiceImpl implements WalletService {
 			member, receiver, transactionGroupId, request.amount());
 
 		ledgerService.accountForWalletTransfer(request, transactionGroupId, servletRequest);
+	}
+
+	@Override
+	@Transactional(propagation = Propagation.REQUIRES_NEW)
+	public void remittanceGroup(MemberWithInformationDto request, RemittanceGroup remittanceGroup) {
+		Optional<Wallet> byMemberIdWithLock = walletMapper.findByMemberIdWithLock(request.getMemberId());
+		if (byMemberIdWithLock.isEmpty()) {
+			failRemittance(request, remittanceGroup);
+			return;
+		}
+		Wallet lockedWallet = byMemberIdWithLock.get();
+
+		if (lockedWallet.getBalance().compareTo(request.getAmount()) < 0) {
+			failRemittance(request, remittanceGroup);
+			return;
+		}
+
+		BigDecimal newBalance = lockedWallet.getBalance().subtract(request.getAmount());
+		walletMapper.updateBalance(lockedWallet.getWalletId(), newBalance);
+
+		String transactionGroupId = UUID.randomUUID().toString();
+		transactionService.saveRemittanceTransaction(lockedWallet, newBalance, request, transactionGroupId);
+
+		ledgerService.remittanceGroupTransfer(request, transactionGroupId);
+
+		BigDecimal foreignAmount = calculateSendAmount(request);
+
+		eventPublisher.publishEvent(new RemittanceSuccessEvent(request, foreignAmount, request.getCurrency()));
 	}
 
 	@Override
@@ -244,6 +295,46 @@ public class WalletServiceImpl implements WalletService {
 			transactionGroupId, chargeWalletRequest.amount());
 
 		ledgerService.chargeTransfer(chargeWalletRequest, transactionGroupId, request);
+	}
+
+	@Transactional
+	public void failRemittance(MemberWithInformationDto request, RemittanceGroup remittanceGroup) {
+		int failCount = request.getTransmitFailCount() + 1;
+		if (failCount >= 2) {
+			// 탈퇴 시킨 후 탈퇴 알림
+			remittanceInformationMapper.deleteById(request.getRemittanceInformationId());
+			remittanceGroup.setMemberCount(remittanceGroup.getMemberCount() - 1);
+			remittanceGroupMapper.updateMemberCountById(remittanceGroup.getRemittanceGroupId(),
+				remittanceGroup.getMemberCount());
+			memberMapper.updateRemittanceRefsStrict(request.getMemberId(), null, null);
+
+			eventPublisher.publishEvent(new RemittanceGroupFiredEvent(request));
+			return;
+		}
+		// 송금 실패 알림
+		remittanceInformationMapper.incrementFailCount(request.getRemittanceInformationId());
+		eventPublisher.publishEvent(new RemittanceFailedEvent(request));
+	}
+
+	private BigDecimal calculateSendAmount(MemberWithInformationDto request) {
+		ExchangeRate sendRate = exchangeRateMapper.findLatestExchangeRate(BANK_NAME, Type.SEND.name(),
+			request.getCurrency().name());
+
+		ExchangeRate baseRate = exchangeRateMapper.findLatestExchangeRate(BANK_NAME, Type.BASE.name(),
+			request.getCurrency().name());
+
+		BigDecimal spread = sendRate.getExchangeValue().subtract(baseRate.getExchangeValue());
+		BigDecimal multiply = spread.multiply(BigDecimal.ONE.subtract(BENEFIT_PERCENTAGE));
+		BigDecimal lastRate = baseRate.getExchangeValue().add(multiply);
+
+		// 100단위 환율이면 1단위 환율로 변경
+		if (request.getCurrency().equals(VND) || request.getCurrency().equals(JPY) || request.getCurrency()
+			.equals(IDR)) {
+			lastRate = lastRate.divide(BigDecimal.valueOf(100), 6, RoundingMode.HALF_UP);
+		}
+
+		// 환산된 외화 금액
+		return request.getAmount().divide(lastRate, 2, RoundingMode.HALF_UP);
 	}
 
 	private Wallet validateWallet(Long walletId, HttpServletRequest request) {

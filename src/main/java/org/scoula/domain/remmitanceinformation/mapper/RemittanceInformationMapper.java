@@ -1,8 +1,10 @@
 package org.scoula.domain.remmitanceinformation.mapper;
 
+import org.apache.ibatis.annotations.Delete;
 import org.apache.ibatis.annotations.Insert;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Options;
+import org.apache.ibatis.annotations.Update;
 import org.scoula.domain.remmitanceinformation.entity.RemittanceInformation;
 
 @Mapper
@@ -47,4 +49,17 @@ public interface RemittanceInformationMapper {
 		keyProperty = "remittanceInformationId",
 		keyColumn = "remittance_information_id")
 	int insert(RemittanceInformation info);
+
+	@Delete("""
+			DELETE FROM remittance_information
+			WHERE remittance_information_id = #{remittanceInformationId}
+		""")
+	int deleteById(Long remittanceInformationId);
+
+	@Update("""
+		    UPDATE remittance_information
+		    SET transmit_fail_count = COALESCE(transmit_fail_count, 0) + 1
+		    WHERE remittance_information_id = #{remittanceInformationId}
+		""")
+	int incrementFailCount(Long remittanceInformationId);
 }

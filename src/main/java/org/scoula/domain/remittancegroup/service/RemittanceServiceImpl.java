@@ -4,11 +4,14 @@ import static org.scoula.domain.remittancegroup.exception.RemittanceGroupErrorCo
 import static org.scoula.global.constants.Currency.*;
 
 import java.math.BigDecimal;
+import java.time.LocalDate;
+import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 import javax.servlet.http.HttpServletRequest;
 
@@ -17,6 +20,7 @@ import org.scoula.domain.exchange.entity.Type;
 import org.scoula.domain.exchange.mapper.ExchangeRateMapper;
 import org.scoula.domain.member.entity.Member;
 import org.scoula.domain.member.mapper.MemberMapper;
+import org.scoula.domain.remittancegroup.batch.dto.MemberWithInformationDto;
 import org.scoula.domain.remittancegroup.dto.request.JoinRemittanceGroupRequest;
 import org.scoula.domain.remittancegroup.dto.response.RemittanceGroupCommissionResponse;
 import org.scoula.domain.remittancegroup.dto.response.RemittanceGroupMemberCountResponse;
@@ -27,6 +31,7 @@ import org.scoula.domain.remmitanceinformation.entity.RemittanceInformation;
 import org.scoula.domain.remmitanceinformation.mapper.RemittanceInformationMapper;
 import org.scoula.global.constants.Currency;
 import org.scoula.global.exception.CustomException;
+import org.scoula.global.firebase.event.RemittanceGroupChargeNoticeEvent;
 import org.scoula.global.firebase.event.RemittanceGroupCompletedEvent;
 import org.scoula.global.kafka.dto.Common;
 import org.scoula.global.kafka.dto.LogLevel;
@@ -101,11 +106,11 @@ public class RemittanceServiceImpl implements RemittanceService {
 			Optional<RemittanceGroup> existRemittanceGroup = remittanceGroupMapper.findByCurrencyAndBenefitStatusAndRemittanceDate(
 				joinRemittanceGroupRequest.currency(), BenefitStatus.OFF, joinRemittanceGroupRequest.remittanceDate()
 			);
-			existGroup(existRemittanceGroup, member.getMemberId(), joinRemittanceGroupRequest);
+			existGroup(existRemittanceGroup, member, joinRemittanceGroupRequest);
 		}
 
 		// 기존 그룹이 존재할 경우
-		existGroup(remittanceGroup, member.getMemberId(), joinRemittanceGroupRequest);
+		existGroup(remittanceGroup, member, joinRemittanceGroupRequest);
 
 	}
 
@@ -133,6 +138,25 @@ public class RemittanceServiceImpl implements RemittanceService {
 		return memberCountResponses;
 	}
 
+	@Transactional(readOnly = true)
+	@Override
+	public void RemittanceGroupAlarm() {
+		int day = LocalDate.now(ZoneId.of("Asia/Seoul")).getDayOfMonth() + 1;
+		List<RemittanceGroup> byDayBenefitOn = remittanceGroupMapper.findByDayBenefitOn(day);
+
+		List<Long> groupIds = byDayBenefitOn.stream()
+			.map(RemittanceGroup::getRemittanceGroupId)
+			.collect(Collectors.toList());
+
+		if (groupIds.isEmpty())
+			return;
+
+		List<MemberWithInformationDto> membersWithInfoByGroupIds = memberMapper.findMembersWithInfoByGroupIds(groupIds);
+
+		eventPublisher.publishEvent(new RemittanceGroupChargeNoticeEvent(membersWithInfoByGroupIds));
+
+	}
+
 	private void validateRemittanceGroup(Member member, HttpServletRequest request) {
 		if (member.getRemittanceGroupId() != null) {
 			throw new CustomException(ALREADY_JOINED_GROUP, LogLevel.WARNING, null,
@@ -146,7 +170,7 @@ public class RemittanceServiceImpl implements RemittanceService {
 		}
 	}
 
-	private void existGroup(Optional<RemittanceGroup> remittanceGroup, Long memberId,
+	private void existGroup(Optional<RemittanceGroup> remittanceGroup, Member member,
 		JoinRemittanceGroupRequest joinRemittanceGroupRequest) {
 		// 기존 그룹이 존재할 경우
 		RemittanceGroup existGroup = remittanceGroup.get();
@@ -156,14 +180,15 @@ public class RemittanceServiceImpl implements RemittanceService {
 		RemittanceInformation information = createNewRemittanceInformation(joinRemittanceGroupRequest);
 		remittanceInformationMapper.insert(information);
 
-		memberMapper.updateRemittanceRefsStrict(memberId, information.getRemittanceInformationId(),
+		memberMapper.updateRemittanceRefsStrict(member.getMemberId(), information.getRemittanceInformationId(),
 			existGroup.getRemittanceGroupId());
 
 		// 그룹 멤버 30명이 다 모였을 경우
 		if (newMemberCount == 30) {
 			remittanceGroupMapper.updateBenefitStatusOnById(existGroup.getRemittanceGroupId());
 			// 트랜잭션 종료 후 알림 전송을 위한 이벤트 발행
-			eventPublisher.publishEvent(new RemittanceGroupCompletedEvent(existGroup.getRemittanceGroupId()));
+			eventPublisher.publishEvent(
+				new RemittanceGroupCompletedEvent(existGroup.getRemittanceGroupId(), member.getFcmToken()));
 		}
 	}
 
