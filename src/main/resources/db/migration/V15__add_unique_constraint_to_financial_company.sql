@@ -3,26 +3,24 @@ DROP TABLE IF EXISTS deposit_saving;
 
 -- 예금 테이블 생성
 
-CREATE TABLE deposit
-(
-    deposit_id           BIGINT AUTO_INCREMENT PRIMARY KEY,
-    financial_company_id BIGINT         NOT NULL,
-    name                 VARCHAR(255)   NOT NULL,
-    save_month           INT            NOT NULL,
-    interest_rate        DECIMAL(10, 2) NOT NULL,
-    max_interest_rate    DECIMAL(10, 2) NOT NULL,
-    created_at           DATETIME       NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    updated_at           DATETIME       NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+CREATE TABLE deposit (
+                         deposit_id            BIGINT AUTO_INCREMENT PRIMARY KEY,
+                         financial_company_id  BIGINT NOT NULL,
+                         name                  VARCHAR(255) NOT NULL,
+                         save_month            INT NOT NULL,
+                         interest_rate         DECIMAL(10, 2) NOT NULL,
+                         max_interest_rate     DECIMAL(10, 2) NOT NULL,
+                         created_at            DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+                         updated_at            DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
 
-    FOREIGN KEY (financial_company_id) REFERENCES financial_company (financial_company_id)
+                         FOREIGN KEY (financial_company_id) REFERENCES financial_company(financial_company_id)
 );
 -- 우대조건 테이블
-CREATE TABLE deposit_spcl_condition
-(
-    id             BIGINT AUTO_INCREMENT PRIMARY KEY,
-    deposit_id     BIGINT       NOT NULL,
-    spcl_condition VARCHAR(100) NOT NULL,
-    FOREIGN KEY (deposit_id) REFERENCES deposit (deposit_id) ON DELETE CASCADE
+CREATE TABLE deposit_spcl_condition (
+                                        id            BIGINT AUTO_INCREMENT PRIMARY KEY,
+                                        deposit_id    BIGINT NOT NULL,
+                                        spcl_condition     VARCHAR(100) NOT NULL,
+                                        FOREIGN KEY (deposit_id) REFERENCES deposit(deposit_id) ON DELETE CASCADE
 );
 -- 예금 상품 중복 저장 방지를 위한 유니크 제약조건 추가
 ALTER TABLE deposit
@@ -44,4 +42,4 @@ ALTER TABLE deposit_spcl_condition
 -- 금융회사 테이블에 콜센터 번호 및 홈페이지 주소 컬럼 추가 (고객 정보 제공용)
 ALTER TABLE financial_company
     ADD COLUMN callnumber VARCHAR(50),
-    ADD COLUMN homp_url   VARCHAR(255);
+    ADD COLUMN homp_url VARCHAR(255);
