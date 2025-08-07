@@ -29,7 +29,7 @@ public class DepositApiHelper {
 
 	@Value("${deposit.product.list}")
 	private String DEPOSIT_PRODUCT_LIST_BY_PERIOD_URL;
-	@Value("${deposit.product.detail.url}")
+	@Value("${deposit.product.detail.url.base}")
 	private String DEPOSIT_DETAIL_URL;
 
 	// 기간별 상품 API 호출
