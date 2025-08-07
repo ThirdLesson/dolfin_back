@@ -39,13 +39,13 @@ import lombok.RequiredArgsConstructor;
 
 @Service
 @RequiredArgsConstructor
-@Transactional(readOnly = true)
+@Transactional
 public class TransactionServiceImpl implements TransactionService {
 
 	private final TransactionMapper transactionMapper;
 	private final MemberMapper memberMapper;
 
-	@Transactional
+	@Override
 	public void saveWalletTransferTransaction(Wallet senderWallet, BigDecimal senderNewBalance, Wallet receiverWallet,
 		BigDecimal receiverNewBalance, Member member, Member receiver, String transactionGroupId, BigDecimal amount) {
 		Transaction senderTransaction = Transaction.builder()
@@ -117,18 +117,19 @@ public class TransactionServiceImpl implements TransactionService {
 	}
 
 	@Override
+	@Transactional(readOnly = true)
 	public List<Transaction> getRecentAccountReceivers(Long memberId) {
 		return transactionMapper.findByMemberIdAndAccountTransfer(memberId);
 	}
 
 	@Override
+	@Transactional(readOnly = true)
 	public List<Member> getRecentWalletReceivers(Long memberId) {
 		List<Transaction> transactions = transactionMapper.findByMemberIdAndWalletTransfer(memberId);
 		List<Long> memberIds = transactions.stream().map(Transaction::getCounterPartyMemberId).toList();
 		return memberMapper.selectMembersInIds(memberIds);
 	}
 
-	@Transactional
 	public void saveChargeTransaction(Wallet senderWallet, BigDecimal senderNewBalance, Wallet receiverWallet,
 		BigDecimal receiverNewBalance, Long memberId, Long receiverId, String transactionGroupId, BigDecimal amount) {
 		Long receiverWalletId = null;
@@ -151,6 +152,7 @@ public class TransactionServiceImpl implements TransactionService {
 	}
 
 	@Override
+	@Transactional(readOnly = true)
 	public Page<TransactionHistoryResponse> getTransactionHistory(Period period, TransactionType type,
 		BigDecimal minAmount, BigDecimal maxAmount, SortDirection sortDirection, int page, Integer size,
 		Member member) {
@@ -213,6 +215,14 @@ public class TransactionServiceImpl implements TransactionService {
 			.toList();
 
 		return new PageImpl<>(historyResponseList, pageable, totalElements);
+	}
+
+	@Transactional(readOnly = true)
+	public BigDecimal getSumByTransactionType(TransactionType type, List<Transaction> transactions) {
+		return transactions.stream()
+			.filter(t -> t.getTransactionType() == type && t.getAmount() != null)
+			.map(Transaction::getAmount)
+			.reduce(BigDecimal.ZERO, BigDecimal::add);
 	}
 
 	private Comparator<Map.Entry<LocalDate, List<TransactionResponse>>> getComparatorForDateGrouping(
