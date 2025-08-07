@@ -4,9 +4,14 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 
+import org.scoula.domain.financialproduct.constants.JeonseLoanInterestFilterType;
 import org.scoula.domain.financialproduct.jeonseloan.entity.JeonseLoan;
 
 import java.math.BigDecimal;
+import java.time.LocalDateTime;
+import java.util.List;
+
+import com.fasterxml.jackson.annotation.JsonFormat;
 
 @Getter
 @AllArgsConstructor
@@ -23,9 +28,11 @@ public class JeonseLoanDTO {
 	private final Long jeonseId;
 	private final String repayTypeName;
 	private final String lendRateTypeName;
-	private final BigDecimal lendRateMin;
-	private final BigDecimal lendRateMax;
-	private final BigDecimal lendRateAvg;
+	@JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
+	private LocalDateTime createdAt;
+	@JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
+	private LocalDateTime updatedAt;
+	private List<JeonseLoanInterestFilterType> jeonseLoanInterestFilterTypes;
 
 	// DTO → Entity
 	public JeonseLoan toEntity() {
@@ -41,14 +48,11 @@ public class JeonseLoanDTO {
 			.jeonseId(this.jeonseId)
 			.repayTypeName(this.repayTypeName)
 			.lendRateTypeName(this.lendRateTypeName)
-			.lendRateMin(this.lendRateMin)
-			.lendRateMax(this.lendRateMax)
-			.lendRateAvg(this.lendRateAvg)
 			.build();
 	}
 
 	// Entity → DTO
-	public static JeonseLoanDTO fromEntity(JeonseLoan entity) {
+	public static JeonseLoanDTO fromEntity(JeonseLoan entity, List<JeonseLoanInterestFilterType> jeonseLoanInterestFilterTypes) {
 		return JeonseLoanDTO.builder()
 			.jeonseLoanId(entity.getJeonseLoanId())
 			.financialCompanyId(entity.getFinancialCompanyId())
@@ -61,9 +65,9 @@ public class JeonseLoanDTO {
 			.jeonseId(entity.getJeonseId())
 			.repayTypeName(entity.getRepayTypeName())
 			.lendRateTypeName(entity.getLendRateTypeName())
-			.lendRateMin(entity.getLendRateMin())
-			.lendRateMax(entity.getLendRateMax())
-			.lendRateAvg(entity.getLendRateAvg())
+			.jeonseLoanInterestFilterTypes(jeonseLoanInterestFilterTypes)
+			.createdAt(entity.getCreatedAt())
+			.updatedAt(entity.getUpdatedAt())
 			.build();
 	}
 }

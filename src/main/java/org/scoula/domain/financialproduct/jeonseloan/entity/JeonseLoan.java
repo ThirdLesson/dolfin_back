@@ -6,12 +6,9 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 import java.math.BigDecimal;
-
 import org.scoula.global.entity.BaseEntity;
 
-/**
- * 전세자금대출
- */
+// 전세 대출 상품
 @Getter
 @NoArgsConstructor
 @AllArgsConstructor
@@ -28,7 +25,7 @@ public class JeonseLoan extends BaseEntity {
 	private Long jeonseId;              // 전세대출 기본정보
 	private String repayTypeName;       // 대출 상환 유형명
 	private String lendRateTypeName;    // 대출 금리 유형명
-	private BigDecimal lendRateMin;     // 대출금리최저
-	private BigDecimal lendRateMax;     // 대출금리최고
-	private BigDecimal lendRateAvg;     // 전체 취급 평균금리
+	private BigDecimal lendRateMin;  // 대출 최소 금리
+	private BigDecimal lendRateMax;  // 대출 최대 금리
+	private BigDecimal lendRateAvg;  // 대출 평균 금리
 }
