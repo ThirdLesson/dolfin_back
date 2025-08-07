@@ -14,7 +14,12 @@ import org.scoula.domain.financialproduct.financialcompany.entity.FinancialCompa
 import org.scoula.domain.financialproduct.financialcompany.mapper.FinancialCompanyMapper;
 import org.scoula.global.exception.CustomException;
 
+import org.scoula.global.kafka.dto.Common;
+import org.scoula.global.kafka.dto.LogLevel;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
@@ -39,14 +44,15 @@ public class FinancialCompanyServiceImpl implements FinancialCompanyService {
 	private final FinancialCompanyMapper financialCompanyMapper;
 	private final RestTemplate restTemplate;
 
-	@Value("${financial.company.api_url}")
+	// 네이버
+	@Value("${financial.company.api.url}")
 	private String API_URL;
 	// 금감원 -> 네이버 이용시 홈페이지와 전화번호가 제공되지 않아 이용
 	@Value("${fss.company.api.url}")
 	private String FSS_API_URL;
-
-	@Value("${fss.company.api.key}")
+	@Value("${fss.api.key}")
 	private String FSS_API_KEY;
+
 	// 부분 매칭
 	private static final Map<String, String> BANK_NAME_MAPPING = Map.of(
 		"NH농협", "농협은행주식회사",
@@ -67,41 +73,34 @@ public class FinancialCompanyServiceImpl implements FinancialCompanyService {
 		log.info("금융회사 목록 조회 완료 - 총 {}개", result.size());
 		return result;
 	}
+
 	// 금융회사 API 호출 및 저장
 	@Override
 	@Transactional
 	public List<FinancialCompanyResponseDTO> fetchAndSaveFinancialCompanies() {
 		log.info("외부 API로부터 금융회사 정보 수집 시작");
-
 		// 1. 네이버 API 호출
 		ResponseEntity<String> naverResponse = callNaverApi();
-
 		// 2. 금감원 API 호출
 		Map<String, FssCompanyData> fssDataMap = fetchFssCompanyData();
-
 		// 3. 네이버 JSON 파싱하여 금융회사 데이터 추출
 		List<FinancialCompanyRequestDTO> companyDTOs = parseNaverPayResponse(naverResponse.getBody(), fssDataMap);
-
 		if (companyDTOs.isEmpty()) {
 			log.warn("외부 API에서 가져온 금융회사 데이터가 없습니다.");
 			return List.of();
 		}
-
 		// 4. 중복 체크 후 저장할 데이터만 필터링
 		List<FinancialCompany> newCompanies = companyDTOs.stream()
 			.filter(dto -> !isExistByCode(dto.getFinCoNo())) // 중복체크
 			.map(FinancialCompanyRequestDTO::toEntity)
 			.toList();
-
 		if (newCompanies.isEmpty()) {
 			log.info("저장할 새로운 금융회사가 없습니다(기존 데이터와 중복)");
 			return List.of();
 		}
-
 		// 5. 배치로 한번에 저장
 		int saveCount = financialCompanyMapper.insertBatch(newCompanies);
 		log.info("새로운 금융회사 {}개 저장완료", saveCount);
-
 		// 6. 저장된 데이터 responseDTO 변환 후 반환
 		return newCompanies.stream()
 			.map(FinancialCompanyResponseDTO::fromEntity)
@@ -115,11 +114,26 @@ public class FinancialCompanyServiceImpl implements FinancialCompanyService {
 
 	// 네이버 API 호출
 	private ResponseEntity<String> callNaverApi() {
-		ResponseEntity<String> response = restTemplate.getForEntity(API_URL, String.class);
-		if (response.getStatusCode() != HttpStatus.OK) {
-			throw new CustomException(API_RESPONSE_PARSING_FAILED, null, null, null);
+		HttpHeaders headers = new HttpHeaders();
+		headers.add("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36");
+		headers.add("Referer", "https://new-m.pay.naver.com/");
+		headers.add("Accept", "application/json");
+		HttpEntity<String> entity = new HttpEntity<>(headers);
+
+		try {
+			ResponseEntity<String> response = restTemplate.exchange(API_URL, HttpMethod.GET, entity, String.class);
+			return response;
+		} catch (Exception e) {
+			System.out.println("네이버 API 호출 실패: " + e.getMessage());
+			throw e;
 		}
-		return response;
+		// ResponseEntity<String> response = restTemplate.getForEntity(API_URL, String.class);
+		// log.info("네이버 API 응답 코드: {}", response.getStatusCode());
+		// log.debug("네이버 API 응답 바디: {}", response.getBody());
+		// if (response.getStatusCode() != HttpStatus.OK) {
+		// 	throw new CustomException(API_RESPONSE_PARSING_FAILED, null, null, null);
+		// }
+		// return response;
 	}
 
 	// 금감원 API 데이터 조회
@@ -130,6 +144,8 @@ public class FinancialCompanyServiceImpl implements FinancialCompanyService {
 
 		String requestUrl = FSS_API_URL + "?auth=" + FSS_API_KEY + "&topFinGrpNo=020000&pageNo=1";
 		ResponseEntity<String> response =  restTemplate.getForEntity(requestUrl, String.class);
+		log.info("금감원 API 응답 코드: {}", response.getStatusCode());
+		log.debug("금감원 API 응답 바디: {}", response.getBody());
 
 		if (response.getStatusCode() != HttpStatus.OK) {
 			log.warn("금감원 API 호출 실패, 전화번호/홈페이지 정보 없이 진행");
@@ -166,7 +182,7 @@ public class FinancialCompanyServiceImpl implements FinancialCompanyService {
 			return objectMapper.readTree(jsonData);
 		} catch (Exception e) {
 			log.error("JSON 파싱 실패", e);
-			throw new CustomException(API_RESPONSE_PARSING_FAILED, null, null, null);
+			throw new CustomException(API_RESPONSE_PARSING_FAILED, LogLevel.WARNING, null, Common.builder().build(), "금융회사 데이터 파싱 중 에러 발생");
 		}
 	}
 
