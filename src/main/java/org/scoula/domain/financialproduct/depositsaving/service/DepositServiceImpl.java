@@ -181,6 +181,10 @@ public class DepositServiceImpl implements DepositService {
 			consecutiveEmptyCount = 0;
 
 			for (DepositProduct product : products) {
+				if (!companyMap.containsKey(product.companyCode())) {
+					log.info("제외된 금융회사 상품 무시 - companyCode: {}, name: {}", product.companyCode(), product.companyName());
+					continue;
+				}
 				String productKey = product.companyCode() + "_" + product.code() + "_" + period;
 				// 중복 체크
 				if (processedProducts.contains(productKey)) {
@@ -203,26 +207,26 @@ public class DepositServiceImpl implements DepositService {
 
 	private List<DepositSpclCondition> collectSpclConditionData(List<Deposit> savedDeposits) {
 		List<DepositSpclCondition> spclConditions = new ArrayList<>();
-		log.info("🔍 총 {}개 상품의 우대조건 수집 시작", savedDeposits.size());
+		log.info("총 {}개 상품의 우대조건 수집 시작", savedDeposits.size());
 
 		for (Deposit deposit : savedDeposits) {
 			try {
-				log.info("🔍 상품 {} 우대조건 수집 시도", deposit.getProductCode());
+				log.info("상품 {} 우대조건 수집 시도", deposit.getProductCode());
 				DepositApiHelper.ProductDetailInfo detailInfo = apiHelper.getProductDetailInfo(
 					deposit.getProductCode());
-				log.info("🔍 상품 {} API 호출 성공 - 우대조건 {}개",
+				log.info("상품 {} API 호출 성공 - 우대조건 {}개",
 					deposit.getProductCode(), detailInfo.specialConditions().size());
 				detailInfo.specialConditions().stream()
 					.map(conditionName -> {
 						// 4. 개별 우대조건 변환 시도
-						log.info("🔍 우대조건 변환 시도: {}", conditionName);
+						log.info("우대조건 변환 시도: {}", conditionName);
 						DepositSpclCondition condition = dataHelper.convertToSpclCondition(conditionName, deposit);
 
 						// 5. 변환 성공/실패 결과
 						if (condition != null) {
-							log.info("✅ 우대조건 변환 성공: {} -> {}", conditionName, condition.getSpclCondition());
+							log.info("우대조건 변환 성공: {} -> {}", conditionName, condition.getSpclCondition());
 						} else {
-							log.warn("❌ 우대조건 변환 실패: {}", conditionName);
+							log.warn("우대조건 변환 실패: {}", conditionName);
 						}
 						return condition;
 					})
@@ -232,14 +236,6 @@ public class DepositServiceImpl implements DepositService {
 				log.warn("상품 {}의 우대조건 수집 실패: {}", deposit.getProductCode(), e.getMessage());
 				continue;
 			}
-			// 	detailInfo.specialConditions().stream()
-			// 		.map(conditionName -> dataHelper.convertToSpclCondition(conditionName, deposit))
-			// 		.filter(Objects::nonNull)
-			// 		.forEach(spclConditions::add);
-			// } catch (Exception e) {
-			// 	log.warn("상품 {}의 우대조건 수집 실패: {}", deposit.getProductCode(), e.getMessage());
-			// 	continue;
-			// }
 		}
 		log.info("우대조건 수집 완료 : {}", spclConditions.size());
 		return spclConditions;
