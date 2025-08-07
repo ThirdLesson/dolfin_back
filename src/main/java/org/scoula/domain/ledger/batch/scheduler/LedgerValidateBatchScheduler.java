@@ -2,6 +2,7 @@ package org.scoula.domain.ledger.batch.scheduler;
 
 import java.time.LocalDateTime;
 
+import org.scoula.global.exception.CustomException;
 import org.springframework.batch.core.Job;
 import org.springframework.batch.core.JobExecution;
 import org.springframework.batch.core.JobParameters;
@@ -41,8 +42,11 @@ public class LedgerValidateBatchScheduler {
 			JobExecution execution = jobLauncher.run(ledgerValidBatchJob, jobParameters);
 			log.info("[LedgerValidateBatchScheduler] 배치 종료. 상태: {}", execution.getStatus());
 
-		} catch (Exception e) {
+		} catch (CustomException e) {
 			log.error("[LedgerValidateBatchScheduler] 배치 실행 중 오류 발생", e);
+			throw e;
+		} catch (Exception e) {
+			throw new RuntimeException("LedgerValidateBatchScheduler 배치 실행 중 시스템 오류 발생", e);
 		}
 	}
 }
