@@ -6,10 +6,14 @@ import lombok.extern.slf4j.Slf4j;
 
 import org.scoula.domain.financialproduct.constants.DepositSpclConditionType;
 import org.scoula.domain.financialproduct.constants.ProductPeriod;
-import org.scoula.domain.financialproduct.depositsaving.dto.DepositDTO;
+import org.scoula.domain.financialproduct.constants.SavingSpclConditionType;
 import org.scoula.domain.financialproduct.depositsaving.dto.response.DepositsResponse;
+import org.scoula.domain.financialproduct.depositsaving.dto.response.SavingsResponse;
 import org.scoula.domain.financialproduct.depositsaving.entity.Deposit;
+import org.scoula.domain.financialproduct.depositsaving.entity.Saving;
 import org.scoula.domain.financialproduct.depositsaving.service.DepositService;
+import org.scoula.domain.financialproduct.depositsaving.service.SavingService;
+import org.scoula.domain.financialproduct.page.PaginatedResponse;
 import org.scoula.global.response.SuccessResponse;
 import org.scoula.global.security.dto.CustomUserDetails;
 import org.springframework.data.domain.Page;
@@ -28,6 +32,7 @@ import java.util.List;
 public class DepositSavingController {
 
 	private final DepositService depositService;
+	private final SavingService savingService;
 
 	// 예금 상품 API 호출 및 저장
 	@PostMapping("/sync/deposits")
@@ -41,7 +46,7 @@ public class DepositSavingController {
 	// 예금 상품 조회 (기간별 필터링)
 	@GetMapping("/deposits/recommend")
 	@ApiOperation(value = "예금상품 리스트 필터링 조회", notes = "page 변수에 0,1,2 등등 넣어서 페이징 하세요 한 페이지는 20개 입니다.")
-	public SuccessResponse<List<DepositsResponse>> getDeposits(
+	public SuccessResponse<PaginatedResponse<DepositsResponse>> getDeposits(
 		@RequestParam(required = false) ProductPeriod productPeriod,
 		@RequestParam(required = false) List<DepositSpclConditionType> spclConditions,
 		@PageableDefault(
@@ -51,18 +56,9 @@ public class DepositSavingController {
 		) Pageable pageable,
 		@AuthenticationPrincipal CustomUserDetails customUserDetails) {
 		Page<DepositsResponse> page = depositService.getDeposits(productPeriod, spclConditions, pageable, customUserDetails.getMember());
-		List<DepositsResponse> response = page.getContent();
+		PaginatedResponse<DepositsResponse> response = PaginatedResponse.from(page);
 		return SuccessResponse.ok(response);
 	}
-
-	// // 예금 전체 조회 (최대금리가 내림차순)
-	// @GetMapping("/deposits/all")
-	// @ApiOperation(value = "예금상품 리스트 전체조회 - 최대금리 내림차순")
-	// public SuccessResponse<List<DepositsResponse>> getAllDeposits(
-	// 	@PageableDefault(size = 20, sort = "maxInterestRate", direction = Sort.Direction.DESC) Pageable pageable) {
-	// 	Page<DepositsResponse> page = depositService.getAllDeposits(pageable);
-	// 	return SuccessResponse.ok(page.getContent());
-	// }
 
 	// 상품 상세 정보 조회(상품 + 금융회사 정보)
 	@GetMapping("/deposits/{depositId}")
@@ -72,16 +68,33 @@ public class DepositSavingController {
 		return SuccessResponse.ok(response);
 	}
 
-	// 적금 상품 조회 (기간별 필터링)
-	// @GetMapping("/savings")
-	// public SuccessResponse<List<SavingsResponse>> getSavings(
-	// 	@RequestParam ProductPeriod productPeriod,
-	// 	@RequestParam List<SavingSpclCondition> spclConditions,
-	// 	Pageable pageable,
-	// 	@AuthenticationPrincipal CustomUserDetails customUserDetails) {
-	// 	List<SavingsResponse> savings = SavingService.getSavings(productPeriod, spclConditions, pageable,
-	// 		customUserDetails.getMember());
-	// 	return SuccessResponse.ok(savings);
-	// }
+	// 적금 상품 API 호출 및 저장
+	@PostMapping("/sync/savings")
+	@ApiOperation(value = "적금상품 리스트 저장")
+	public SuccessResponse<Void> syncFromExternalSavingApi(){
+		List<Saving> savedSavings = savingService.fetchAndSaveSavings();
+		savingService.fetchAndSaveSpclConditions(savedSavings);
+		return SuccessResponse.noContent();
+	}
 
+	// 적금 상품 조회 (기간별 필터링)
+	@GetMapping("/savings/recommend")
+	@ApiOperation(value = "적금상품 리스트 필터링 조회")
+	public SuccessResponse<PaginatedResponse<SavingsResponse>> getSavings(
+		@RequestParam(required = false) ProductPeriod productPeriod,
+		@RequestParam(required = false) List<SavingSpclConditionType> spclConditions,
+		@PageableDefault(size = 20,sort = "maxInterestRate",direction = Sort.Direction.DESC)
+		Pageable pageable,
+		@AuthenticationPrincipal CustomUserDetails customUserDetails) {
+		Page<SavingsResponse> page = savingService.getSavings(productPeriod,spclConditions,pageable,customUserDetails.getMember());
+		PaginatedResponse<SavingsResponse> response = PaginatedResponse.from(page);
+		return SuccessResponse.ok(response);
+	}
+
+	@GetMapping("/savings/{savingId}")
+	@ApiOperation(value = "적금상품 상세조회")
+	public SuccessResponse<SavingsResponse> getSavingProductDetail(@PathVariable Long savingId) {
+		SavingsResponse response = savingService.getSavingDetail(savingId);
+		return SuccessResponse.ok(response);
+	}
 }
