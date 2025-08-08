@@ -42,7 +42,7 @@ public class ExchangeFinalService {
 
 		// 2. 기본 환율 계산 (5개 은행, 0% 우대율, 수수료 포함)
 		ExchangeBankResponse bankResponse = exchangeRateService.calculateExchangeBank(
-			request, exchangeinformation.getUsdAmount(),exchangeinformation.exchangeCommissionFee, httpServletRequest);
+			request, exchangeinformation.getUsdAmount(),exchangeinformation.exchangeCommissionFee);
 
 		// 3. 정책 적용
 		exchangePolicyService.getAllBanksWithPolicy(bankResponse, exchangeinformation.usdAmount, exchangeinformation.getExchangeCommissionFee());

@@ -33,7 +33,6 @@ public class ExchangeCommissionService {
 		String type,
 		BigDecimal krwAmount) {
 		// 송금(SEND) 타입이 아니면 수수료 없음
-		// SEND나 RECEIVE가 아니면 수수료 없음
 		BigDecimal exchangeCommissionFee = BigDecimal.ZERO;
 		if (!"SEND".equals(type)) {
 			exchangeCommissionFee = BigDecimal.ZERO;
@@ -130,7 +129,6 @@ public class ExchangeCommissionService {
 	}
 
 	// 우리은행 수수료 계산
-	//
 	private BigDecimal calculateWooriBankFee(BigDecimal usdAmount, String targetCurrency) {
 		BigDecimal commissionFee = BigDecimal.valueOf(5000);
 		if (usdAmount.compareTo(BigDecimal.valueOf(500)) <= 0) {
