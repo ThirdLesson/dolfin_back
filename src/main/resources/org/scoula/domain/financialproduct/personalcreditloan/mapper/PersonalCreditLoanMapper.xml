@@ -4,245 +4,93 @@
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="org.scoula.domain.financialproduct.personalcreditloan.mapper.PersonalCreditLoanMapper">
 
-    <!-- resultMap 매핑 -->
-    <resultMap id="PersonalCreditLoanResultMap"
-               type="org.scoula.domain.financialproduct.personalcreditloan.entity.PersonalCreditLoan">
-        <id property="personalCreditLoanId" column="personal_credit_loan_id"/>
+
+    <resultMap id="personalCreditLoanResultMap" type="org.scoula.domain.financialproduct.personalcreditloan.entity.PersonalCreditLoan">
+        <!-- 기본 필드 매핑 -->
+        <id property="personalLoanId" column="personal_loan_id"/>
         <result property="financialCompanyId" column="financial_company_id"/>
-        <result property="name" column="name"/>
-        <result property="joinWay" column="join_way"/>
-        <result property="crdtPrdtTypeNm" column="crdt_prdt_type_nm"/>
-        <result property="cbName" column="cb_name"/>
-        <result property="crdtGrad1" column="crdt_grad1"/>
-        <result property="crdtGrad4" column="crdt_grad4"/>
-        <result property="crdtGrad5" column="crdt_grad5"/>
-        <result property="crdtGrad6" column="crdt_grad6"/>
-        <result property="crdtGrad10" column="crdt_grad10"/>
-        <result property="crdtGrad11" column="crdt_grad11"/>
-        <result property="crdtGrad12" column="crdt_grad12"/>
-        <result property="crdtGrad13" column="crdt_grad13"/>
-        <result property="crdtGradAvg" column="crdt_grad_avg"/>
+        <result property="productName" column="product_name"/>
+        <result property="baseRate" column="base_rate"/>
+        <result property="maxRate" column="max_rate"/>
+        <result property="spreadRate" column="spread_rate"/>
+        <result property="maxLoanAmount" column="max_loan_amount"/>
+        <result property="minPeriodMonths" column="min_period_months"/>
+        <result property="maxPeriodMonths" column="max_period_months"/>
+        <result property="rateInfo" column="rate_info"/>
+        <result property="loanConditions" column="loan_conditions"/>
+        <result property="foreignerAvailable" column="foreigner_available"/>
+        <result property="visaMinMonths" column="visa_min_months"/>
+        <result property="isActive" column="is_active"/>
+
+        <!-- JOIN 필드 매핑 -->
+        <result property="companyName" column="company_name"/>
+        <result property="companyCode" column="company_code"/>
+        <result property="companyCallNumber" column="company_call_number"/>
+        <result property="companyHomeUrl" column="company_home_url"/>
     </resultMap>
 
-    <!-- 등록 -->
-    <insert id="insertPersonalCreditLoan"
-            parameterType="org.scoula.domain.financialproduct.personalcreditloan.entity.PersonalCreditLoan"
-            useGeneratedKeys="true" keyProperty="personalCreditLoanId">
-        INSERT INTO personal_credit_loan (financial_company_id,
-                                          name,
-                                          join_way,
-                                          crdt_prdt_type_nm,
-                                          cb_name,
-                                          crdt_grad1,
-                                          crdt_grad4,
-                                          crdt_grad5,
-                                          crdt_grad6,
-                                          crdt_grad10,
-                                          crdt_grad11,
-                                          crdt_grad12,
-                                          crdt_grad13,
-                                          crdt_grad_avg)
-        VALUES (#{financialCompanyId},
-                #{name},
-                #{joinWay},
-                #{crdtPrdtTypeNm},
-                #{cbName},
-                #{crdtGrad1},
-                #{crdtGrad4},
-                #{crdtGrad5},
-                #{crdtGrad6},
-                #{crdtGrad10},
-                #{crdtGrad11},
-                #{crdtGrad12},
-                #{crdtGrad13},
-                #{crdtGradAvg})
-    </insert>
+    <select id="findLoansByConditions" resultMap="personalCreditLoanResultMap">
+        SELECT
+        pcl.*,
+        fc.name AS company_name,
+        fc.code AS company_code,
+        fc.callnumber AS company_call_number,
+        fc.homp_url AS company_home_url
+        FROM personal_credit_loan pcl
+        JOIN financial_company fc ON pcl.financial_company_id = fc.financial_company_id
+        WHERE pcl.is_active = true
 
-    <!--배치 삽입 (API 데이터 일괄 저장용) -->
-    <insert id="insertPersonalCreditLoansBatch" parameterType="list">
-        INSERT INTO personal_credit_loan (
-        financial_company_id,
-        name,
-        join_way,
-        crdt_prdt_type_nm,
-        cb_name,
-        crdt_grad1,
-        crdt_grad4,
-        crdt_grad5,
-        crdt_grad6,
-        crdt_grad10,
-        crdt_grad11,
-        crdt_grad12,
-        crdt_grad13,
-        crdt_grad_avg
-        ) VALUES
-        <foreach collection="list" item="item" separator=",">
-            (
-            #{item.financialCompanyId},
-            #{item.name},
-            #{item.joinWay},
-            #{item.crdtPrdtTypeNm},
-            #{item.cbName},
-            #{item.crdtGrad1},
-            #{item.crdtGrad4},
-            #{item.crdtGrad5},
-            #{item.crdtGrad6},
-            #{item.crdtGrad10},
-            #{item.crdtGrad11},
-            #{item.crdtGrad12},
-            #{item.crdtGrad13},
-            #{item.crdtGradAvg}
-            )
-        </foreach>
-    </insert>
+        <!-- 대출 금액 필터 -->
+        <if test="minAmount != null and maxAmount != null">
+            AND pcl.max_loan_amount BETWEEN #{minAmount} AND #{maxAmount}
+        </if>
 
-    <!-- 한건씩조회 -->
-    <select id="selectPersonalCreditLoanById" parameterType="long" resultMap="PersonalCreditLoanResultMap">
-        SELECT personal_credit_loan_id,
-               financial_company_id,
-               name,
-               join_way,
-               crdt_prdt_type_nm,
-               cb_name,
-               crdt_grad1,
-               crdt_grad4,
-               crdt_grad5,
-               crdt_grad6,
-               crdt_grad10,
-               crdt_grad11,
-               crdt_grad12,
-               crdt_grad13,
-               crdt_grad_avg
-        FROM personal_credit_loan
-        WHERE personal_credit_loan_id = #{personalCreditLoanId}
+        <!-- 금리 기준 정렬 -->
+        <choose>
+            <when test="filterType == 'MIN_RATE'">
+                ORDER BY pcl.base_rate ASC
+            </when>
+            <when test="filterType == 'MAX_RATE'">
+                ORDER BY pcl.max_rate ASC
+            </when>
+            <when test="filterType == 'AVG_RATE'">
+                ORDER BY pcl.spread_rate ASC
+            </when>
+            <otherwise>
+                ORDER BY pcl.base_rate ASC  <!-- 기본값 -->
+            </otherwise>
+        </choose>
+
+        <!-- 페이징 -->
+        LIMIT #{limit} OFFSET #{offset}
     </select>
 
-    <!-- 전체조회 -->
-    <select id="selectAllPersonalCreditLoans" resultMap="PersonalCreditLoanResultMap">
-        SELECT personal_credit_loan_id,
-               financial_company_id,
-               name,
-               join_way,
-               crdt_prdt_type_nm,
-               cb_name,
-               crdt_grad1,
-               crdt_grad4,
-               crdt_grad5,
-               crdt_grad6,
-               crdt_grad10,
-               crdt_grad11,
-               crdt_grad12,
-               crdt_grad13,
-               crdt_grad_avg
-        FROM personal_credit_loan
+    <!-- 전체 개수 조회 (페이징을 위해 필요) -->
+    <select id="countLoansByConditions" resultType="int">
+        SELECT COUNT(*)
+        FROM personal_credit_loan pcl
+        JOIN financial_company fc ON pcl.financial_company_id = fc.financial_company_id
+        WHERE pcl.is_active = true
+
+        <!-- 대출 금액 필터 -->
+        <if test="minAmount != null and maxAmount != null">
+            AND pcl.max_loan_amount BETWEEN #{minAmount} AND #{maxAmount}
+        </if>
     </select>
 
-    <!-- 금융회사별 개인신용대출 상품 조회 -->
-    <select id="selectPersonalCreditLoansByFinancialCompanyId" parameterType="long"
-            resultMap="PersonalCreditLoanResultMap">
-        SELECT personal_credit_loan_id,
-               financial_company_id,
-               name,
-               join_way,
-               crdt_prdt_type_nm,
-               cb_name,
-               crdt_grad1,
-               crdt_grad4,
-               crdt_grad5,
-               crdt_grad6,
-               crdt_grad10,
-               crdt_grad11,
-               crdt_grad12,
-               crdt_grad13,
-               crdt_grad_avg
-        FROM personal_credit_loan
-        WHERE financial_company_id = #{financialCompanyId}
+
+    <select id="findById" resultMap="personalCreditLoanResultMap">
+        SELECT
+            pcl.*,
+            fc.name AS company_name,
+            fc.code AS company_code,
+            fc.callnumber AS company_call_number,
+            fc.homp_url AS company_home_url
+        FROM personal_credit_loan pcl
+                 JOIN financial_company fc ON pcl.financial_company_id = fc.financial_company_id
+        WHERE pcl.personal_loan_id = #{id}
+          AND pcl.is_active = true
     </select>
 
-    <!--  대출상품유형별 조회 -->
-    <select id="selectPersonalCreditLoansByCrdtPrdtTypeNm" parameterType="string"
-            resultMap="PersonalCreditLoanResultMap">
-        SELECT personal_credit_loan_id,
-               financial_company_id,
-               name,
-               join_way,
-               crdt_prdt_type_nm,
-               cb_name,
-               crdt_grad1,
-               crdt_grad4,
-               crdt_grad5,
-               crdt_grad6,
-               crdt_grad10,
-               crdt_grad11,
-               crdt_grad12,
-               crdt_grad13,
-               crdt_grad_avg
-        FROM personal_credit_loan
-        WHERE crdt_prdt_type_nm = #{crdtPrdtTypeNm}
-    </select>
 
-    <!-- 특정 금융회사의 특정 상품명으로 조회 (중복 확인) -->
-    <select id="selectPersonalCreditLoanByFinancialCompanyIdAndName" resultMap="PersonalCreditLoanResultMap">
-        SELECT personal_credit_loan_id,
-               financial_company_id,
-               name,
-               join_way,
-               crdt_prdt_type_nm,
-               cb_name,
-               crdt_grad1,
-               crdt_grad4,
-               crdt_grad5,
-               crdt_grad6,
-               crdt_grad10,
-               crdt_grad11,
-               crdt_grad12,
-               crdt_grad13,
-               crdt_grad_avg
-        FROM personal_credit_loan
-        WHERE financial_company_id = #{financialCompanyId}
-          AND name = #{name}
-    </select>
-
-    <!-- 평균금리 기준 정렬 조회 (낮은 금리순) -->
-    <select id="selectPersonalCreditLoansOrderByAvgRate" resultMap="PersonalCreditLoanResultMap">
-        SELECT personal_credit_loan_id,
-               financial_company_id,
-               name,
-               join_way,
-               crdt_prdt_type_nm,
-               cb_name,
-               crdt_grad1,
-               crdt_grad4,
-               crdt_grad5,
-               crdt_grad6,
-               crdt_grad10,
-               crdt_grad11,
-               crdt_grad12,
-               crdt_grad13,
-               crdt_grad_avg
-        FROM personal_credit_loan
-        WHERE crdt_grad_avg IS NOT NULL
-        ORDER BY crdt_grad_avg ASC
-    </select>
-
-    <!-- 수정 -->
-    <update id="updatePersonalCreditLoan"
-            parameterType="org.scoula.domain.financialproduct.personalcreditloan.entity.PersonalCreditLoan">
-        UPDATE personal_credit_loan
-        SET financial_company_id = #{financialCompanyId},
-            name                 = #{name},
-            join_way             = #{joinWay},
-            crdt_prdt_type_nm    = #{crdtPrdtTypeNm},
-            cb_name              = #{cbName},
-            crdt_grad1           = #{crdtGrad1},
-            crdt_grad4           = #{crdtGrad4},
-            crdt_grad5           = #{crdtGrad5},
-            crdt_grad6           = #{crdtGrad6},
-            crdt_grad10          = #{crdtGrad10},
-            crdt_grad11          = #{crdtGrad11},
-            crdt_grad12          = #{crdtGrad12},
-            crdt_grad13          = #{crdtGrad13},
-            crdt_grad_avg        = #{crdtGradAvg}
-        WHERE personal_credit_loan_id = #{personalCreditLoanId}
-    </update>
 </mapper>
