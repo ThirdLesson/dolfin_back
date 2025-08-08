@@ -106,14 +106,13 @@ public class ExchangePolicyService {
 		}
 
 
-		if ("RECEIVE".equals(exchangeType)|| "GETCASH".equals(exchangeType)) {
-			// RECEIVE, GETCASH: 필요한 외화가 적을수록 좋음 (오름차순)
+		if ("RECEIVE".equals(exchangeType)|| "SELLCASH".equals(exchangeType)) {
+			// RECEIVE, SELLCASH: 원화를 받기 위해 필요한 외화가 적을수록 좋음 (오름차순)
 			policyResponses.sort(Comparator.comparing(PolicyResponse::getNumericAmount));
 		}
 		else  {
-			// SEND, SELLCASH: 필요한 외화가 많을수록 좋음 (내림차순)
-			policyResponses.sort(Comparator.comparing(
-				PolicyResponse::getNumericAmount, Comparator.reverseOrder()));
+			// SEND, GETCASH, BASE: 원화로 더 많은 외화를 받을수록 좋음 (내림차순))
+			policyResponses.sort(Comparator.comparing(PolicyResponse::getNumericAmount, Comparator.reverseOrder()));
 		}
 
 		return policyResponses;
