@@ -37,12 +37,11 @@ public class ExchangeRateService {
 	 *
 	 * @param request               환율 계산 요청
 	 * @param exchangeCommissionFee 환율 수수료
-	 * @param httpServletRequest    HTTP 요청 정보
 	 * @return 5개 은행의 기본 환율 정보
 	 */
 	public ExchangeBankResponse calculateExchangeBank(ExchangeBankRequest request,
 		BigDecimal amountInUsd,
-		BigDecimal exchangeCommissionFee, HttpServletRequest httpServletRequest) {
+		BigDecimal exchangeCommissionFee) {
 
 		List<String> banks = List.of("국민은행", "하나은행", "신한은행", "우리은행", "기업은행");
 		List<BankRateInfo> rates = new ArrayList<>();
@@ -161,11 +160,11 @@ public class ExchangeRateService {
 	 * 은행별 totaloperation 기준 정렬
 	 */
 	private void sortBanksByAmount(List<BankRateInfo> banks, String exchangeType) {
-		if ("RECEIVE".equals(exchangeType) || "GETCASH".equals(exchangeType)) {
-			// RECEIVE, GETCASH: 원화를 받기 위해 필요한 외화가 적을수록 좋음 (오름차순)
+		if ("RECEIVE".equals(exchangeType) || "SELLCASH".equals(exchangeType)) {
+			// RECEIVE, SELLCASH: 원화를 받기 위해 필요한 외화가 적을수록 좋음 (오름차순)
 			banks.sort(Comparator.comparing(BankRateInfo::getTotaloperation));
 		} else {
-			// SEND, SELLCASH, BASE: 원화로 더 많은 외화를 받을수록 좋음 (내림차순)
+			// SEND, GETCASH, BASE: 원화로 더 많은 외화를 받을수록 좋음 (내림차순)
 			banks.sort(Comparator.comparing(BankRateInfo::getTotaloperation).reversed());
 		}
 	}
