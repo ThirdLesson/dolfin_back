@@ -1,37 +1,37 @@
 package org.scoula.domain.financialproduct.personalcreditloan.mapper;
 
+import java.util.List;
+
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 import org.scoula.domain.financialproduct.personalcreditloan.entity.PersonalCreditLoan;
 
-import java.util.List;
-
 @Mapper
 public interface PersonalCreditLoanMapper {
+    
+    // 조건에 맞는 대출상품 조회
+    List<PersonalCreditLoan> findLoansByConditions(
+        @Param("filterType") String filterType,
+        @Param("minAmount") Integer minAmount,
+        @Param("maxAmount") Integer maxAmount,
+        @Param("offset") int offset,
+        @Param("limit") int limit
+    );
 
-	void insertPersonalCreditLoan(PersonalCreditLoan personalCreditLoan);
+    int countLoansByConditions(
+        @Param("minAmount") Integer minAmount,
+        @Param("maxAmount") Integer maxAmount
+    );
 
-	PersonalCreditLoan selectPersonalCreditLoanById(Long personalCreditLoanId);
-
-	List<PersonalCreditLoan> selectAllPersonalCreditLoans();
-
-	void updatePersonalCreditLoan(PersonalCreditLoan personalCreditLoan);
-
-	//    금융회사별 개인신용대출 상품 조회
-	List<PersonalCreditLoan> selectPersonalCreditLoansByFinancialCompanyId(Long financialCompanyId);
-
-	//   특정 금융회사의 특정 상품명으로 조회 (중복 확인)
-	PersonalCreditLoan selectPersonalCreditLoanByFinancialCompanyIdAndName(
-		@Param("financialCompanyId") Long financialCompanyId,
-		@Param("name") String name);
-
-	//    대출상품유형별 조회
-	List<PersonalCreditLoan> selectPersonalCreditLoansByCrdtPrdtTypeNm(String crdtPrdtTypeNm);
-
-	//   평균금리 기준 정렬 조회 (낮은 금리순)
-	List<PersonalCreditLoan> selectPersonalCreditLoansOrderByAvgRate();
-
-	//   배치 삽입 (API 데이터 일괄 저장용)
-	void insertPersonalCreditLoansBatch(List<PersonalCreditLoan> personalCreditLoans);
-
+    // ID로 상세 조회
+    PersonalCreditLoan findById(@Param("id") Long id);
+    
+    // 신규 등록
+    void insert(PersonalCreditLoan loan);
+    
+    // 수정
+    void update(PersonalCreditLoan loan);
+    
+    // 삭제
+    void delete(@Param("id") Long id);
 }
