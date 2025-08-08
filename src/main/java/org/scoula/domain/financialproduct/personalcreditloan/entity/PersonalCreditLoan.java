@@ -1,13 +1,13 @@
 package org.scoula.domain.financialproduct.personalcreditloan.entity;
 
+import java.math.BigDecimal;
+
+import org.scoula.global.entity.BaseEntity;
+
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-
-import java.math.BigDecimal;
-
-import org.scoula.global.entity.BaseEntity;
 
 @Getter
 @AllArgsConstructor
@@ -15,20 +15,25 @@ import org.scoula.global.entity.BaseEntity;
 @Builder
 public class PersonalCreditLoan extends BaseEntity {
 
-	private Long personalCreditLoanId;   // 개인신용대출 아이디 (PK)
-	private Long financialCompanyId;     // 금융회사 아이디 (FK)
-	private String name;                 // 금융상품명
-	private String joinWay;              // 가입 방법
-	private String crdtPrdtTypeNm;       // 대출상품유형
-	private String cbName;               // CB회사명
+	private Long personalLoanId;          // (PK) 아이디
+	private Long financialCompanyId;      // (FK) 은행 id
+	private String productName;           // 상품명
+	private BigDecimal baseRate;          // 최저금리
+	private BigDecimal maxRate;           // 최고금리
+	private BigDecimal spreadRate;        // 가산금리(평균)
+	private BigDecimal maxLoanAmount;           // 최대 대출 한도
+	private Integer minPeriodMonths;      // 최소 대출 기간(개월)
+	private Integer maxPeriodMonths;      // 최대 대출 기간(개월)
+	private String rateInfo;              // 금리 정보
+	private String loanConditions;        // 대출 조건
+	private Boolean foreignerAvailable;   // 외국인 가능 여부
+	private Integer visaMinMonths;        // 비자 소지 최소 기간(개월)
+	private Boolean isActive;             // 활성화 여부
 
-	private BigDecimal crdtGrad1;        // 900점 초과
-	private BigDecimal crdtGrad4;        // 801~900점
-	private BigDecimal crdtGrad5;        // 701~800점
-	private BigDecimal crdtGrad6;        // 601~700점
-	private BigDecimal crdtGrad10;       // 501~600점
-	private BigDecimal crdtGrad11;       // 401~500점
-	private BigDecimal crdtGrad12;       // 301~400점
-	private BigDecimal crdtGrad13;       // 300점 이하
-	private BigDecimal crdtGradAvg;      // 평균금리
+	// JOIN 결과 필드
+	private String companyName;           // financial_company.name
+	private String companyCode;           // financial_company.code
+
+	private String companyCallNumber;  // 추가
+	private String companyHomeUrl;      // 추가
 }
