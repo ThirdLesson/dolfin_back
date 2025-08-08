@@ -15,27 +15,66 @@
         <result property="erlyFee" column="erly_fee"/>
         <result property="dlyRate" column="dly_rate"/>
         <result property="loanLmt" column="loan_lmt"/>
-        <result property="jeonseId" column="jeonse_id"/>
         <result property="repayTypeName" column="repay_type_name"/>
         <result property="lendRateTypeName" column="lend_rate_type_name"/>
         <result property="lendRateMin" column="lend_rate_min"/>
         <result property="lendRateMax" column="lend_rate_max"/>
         <result property="lendRateAvg" column="lend_rate_avg"/>
+        <result property="minRemainingVisaMonths" column="min_remaining_visa_months"/>
+        <result property="maxLoanTermMonths" column="max_loan_term_months"/>
+        <result property="loanMinAmount" column="loan_min_amount"/>
+        <result property="loanMaxAmount" column="loan_max_amount"/>
+        <result property="createdAt" column="created_at"/>
+        <result property="updatedAt" column="updated_at"/>
     </resultMap>
 
-    <!--    전체 목록 조회 -->
-    <select id="getAllJeonseLoans"
-            parameterType="org.scoula.domain.financialproduct.constants.JeonseLoanInterestFilterType"
-            resultMap="JeonseLoanResultMap">
-        SELECT
-            j.jeson_loans_id,
-            j.name,
-            j.lend_rate_min,
-            fc.name
-        FROM jeonse_loan j
-                 LEFT JOIN financial_comapny fc ON j.financial
+<!--    공통 조건-->
+    <sql id="whereCondition">
+        <where>
+            <if test="request.loanMinAmount != null">
+                AND loan_min_amount &lt;= #{request.loanMinAmount}
+            </if>
+            <if test="request.loanMaxAmount != null">
+                AND loan_max_amount &lt;= #{request.loanMaxAmount}
+            </if>
+        </where>
+    </sql>
+<!--    공통 금리 정렬-->
+    <sql id="orderByCondition">
+        <choose>
+            <when test="request.sortBy != null and request.sortBy.name() == 'MIN_RATE'">
+                ORDER BY lend_rate_min ASC
+            </when>
+            <when test="request.sortBy != null and request.sortBy.name() == 'MAX_RATE'">
+                ORDER BY lend_rate_max ASC
+            </when>
+            <when test="request.sortBy != null and request.sortBy.name() == 'AVG_RATE'">
+                ORDER BY lend_rate_avg ASC
+            </when>
+            <otherwise>
+                ORDER BY jeonse_loan_id ASC
+            </otherwise>
+        </choose>
+    </sql>
 
-
+    <!--    전세자금대출 단건 조회-->
+    <select id="findById" resultMap="JeonseLoanResultMap">
+        SELECT * FROM jeonse_loan
+        WHERE jeonse_loan_id = #{jeonseLoanId}
     </select>
 
+    <!-- 페이징 조회 -->
+    <select id="findJeonseLoansWithFilter"
+            resultMap="JeonseLoanResultMap">
+        SELECT * FROM jeonse_loan
+        <include refid="whereCondition"/>
+        <include refid="orderByCondition"/>
+    </select>
+
+<!--    총 개수 조회-->
+    <select id="countJeonseLoansWithFilter"
+            resultType="int">
+        SELECT COUNT(*) FROM jeonse_loan
+        <include refid="whereCondition"/>
+    </select>
 </mapper>

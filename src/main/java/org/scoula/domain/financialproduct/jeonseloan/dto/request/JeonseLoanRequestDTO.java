@@ -1,10 +1,10 @@
 package org.scoula.domain.financialproduct.jeonseloan.dto.request;
 
-import java.math.BigDecimal;
-
-import org.scoula.domain.financialproduct.constants.JeonseLoanInterestFilterType;
+import org.scoula.domain.financialproduct.constants.JeonseLoanRateType;
 
 public record JeonseLoanRequestDTO(
-	JeonseLoanInterestFilterType jeonseLoanInterestFilterType
+	JeonseLoanRateType sortBy,
+	Long loanMinAmount,
+	Long loanMaxAmount
 ) {
 }
