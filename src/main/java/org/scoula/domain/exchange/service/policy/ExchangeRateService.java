@@ -114,7 +114,7 @@ public class ExchangeRateService {
 			amountAfterFee = amountInKRW;
 			amountChangu = amountInKRW;
 		} else {
-			// 송금/수취는 수수료 별도 차감
+			// 송금/수취는 환율 수수료 + 전신료 차감
 			BigDecimal totalFee = exchangeCommissionFee.add(transferFee);
 			amountAfterFee = amountInKRW.subtract(totalFee);
 
@@ -126,8 +126,16 @@ public class ExchangeRateService {
 		BigDecimal actualRate = targetExchange.getExchangeValue();
 		BigDecimal finalAmount = amountAfterFee.divide(actualRate, 2, RoundingMode.HALF_UP);
 
+		if( finalAmount.compareTo(BigDecimal.ZERO) < 0) {
+			finalAmount = BigDecimal.ZERO; // 음수 금액 방지
+		}
+
 		// 환율 적용 후 금액 (창구 수수료 적용)
 		BigDecimal finalAmountChangu = amountChangu.divide(actualRate, 2, RoundingMode.HALF_UP);
+
+		if( finalAmountChangu.compareTo(BigDecimal.ZERO) < 0) {
+			finalAmountChangu = BigDecimal.ZERO; // 음수 금액 방지
+		}
 
 		String finalAmountChanguDisplay = String.format("%s %s",
 			currencyFormatter.format(finalAmountChangu.setScale(2, RoundingMode.HALF_UP)),
