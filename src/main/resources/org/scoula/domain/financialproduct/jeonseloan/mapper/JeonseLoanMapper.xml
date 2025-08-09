@@ -9,33 +9,73 @@
     <resultMap id="JeonseLoanResultMap" type="org.scoula.domain.financialproduct.jeonseloan.entity.JeonseLoan">
         <id property="jeonseLoanId" column="jeonse_loan_id"/>
         <result property="financialCompanyId" column="financial_company_id"/>
-        <result property="name" column="name"/>
+        <result property="productName" column="product_name"/>
         <result property="joinWay" column="join_way"/>
-        <result property="loanExpensive" column="loan_expensive"/>
-        <result property="erlyFee" column="erly_fee"/>
-        <result property="dlyRate" column="dly_rate"/>
-        <result property="loanLmt" column="loan_lmt"/>
-        <result property="jeonseId" column="jeonse_id"/>
-        <result property="repayTypeName" column="repay_type_name"/>
-        <result property="lendRateTypeName" column="lend_rate_type_name"/>
-        <result property="lendRateMin" column="lend_rate_min"/>
-        <result property="lendRateMax" column="lend_rate_max"/>
-        <result property="lendRateAvg" column="lend_rate_avg"/>
+        <result property="baseRate" column="base_rate"/>
+        <result property="maxRate" column="max_rate"/>
+        <result property="avgRate" column="avg_rate"/>
+        <result property="createdAt" column="created_at"/>
+        <result property="updatedAt" column="updated_at"/>
+        <result property="visaMinMonths" column="visa_min_months"/>
+        <result property="maxPeriodMonths" column="max_period_months"/>
+        <result property="rateInfo" column="rate_info"/>
+        <result property="loanConditions" column="loan_conditions"/>
+        <result property="foreignerAvailable" column="foreigner_available"/>
+        <result property="isActive" column="is_active"/>
+        <result property="minLoanAmount" column="min_loan_amount"/>
     </resultMap>
 
-    <!--    전체 목록 조회 -->
-    <select id="getAllJeonseLoans"
-            parameterType="org.scoula.domain.financialproduct.constants.JeonseLoanInterestFilterType"
-            resultMap="JeonseLoanResultMap">
-        SELECT
-            j.jeson_loans_id,
-            j.name,
-            j.lend_rate_min,
-            fc.name
-        FROM jeonse_loan j
-                 LEFT JOIN financial_comapny fc ON j.financial
+    <!--    공통 조건-->
+    <sql id="whereCondition">
+        <where>
+            AND is_active=1
+            <if test="request.minAmount != null">
+                AND min_loan_amount &lt;= #{request.minAmount}
+            </if>
+            <if test="request.maxAmount != null">
+                AND max_loan_amount &gt;= #{request.maxAmount}
+            </if>
+        </where>
+    </sql>
+    <!--    공통 금리 정렬-->
+    <sql id="orderByCondition">
+        <choose>
+            <when test="request.sortBy != null and request.sortBy.name() == 'MIN_RATE'">
+                ORDER BY base_rate ASC
+            </when>
+            <when test="request.sortBy != null and request.sortBy.name() == 'MAX_RATE'">
+                ORDER BY max_rate ASC
+            </when>
+            <when test="request.sortBy != null and request.sortBy.name() == 'AVG_RATE'">
+                ORDER BY avg_rate ASC
+            </when>
+            <otherwise>
+                ORDER BY jeonse_loan_id ASC
+            </otherwise>
+        </choose>
+    </sql>
 
-
+    <!--    전세자금대출 단건 조회-->
+    <select id="findById" resultMap="JeonseLoanResultMap">
+        SELECT *
+        FROM jeonse_loan
+        WHERE jeonse_loan_id = #{jeonseLoanId}
+          AND is_active = 1
     </select>
 
+    <!-- 페이징 조회 -->
+    <select id="findJeonseLoansWithFilter"
+            resultMap="JeonseLoanResultMap">
+        SELECT * FROM jeonse_loan
+        <include refid="whereCondition"/>
+        <include refid="orderByCondition"/>
+        LIMIT #{limit} OFFSET #{offset}
+    </select>
+
+    <!--    총 개수 조회-->
+    <select id="countJeonseLoansWithFilter"
+            resultType="int">
+        SELECT COUNT(*) FROM jeonse_loan
+        <include refid="whereCondition"/>
+    </select>
 </mapper>
