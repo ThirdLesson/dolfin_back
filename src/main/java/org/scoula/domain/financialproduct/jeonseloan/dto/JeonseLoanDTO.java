@@ -36,8 +36,6 @@ public class JeonseLoanDTO {
 
 	// 가입/조건
 	private Boolean joinAvailable;
-	private Boolean foreignerAvailable;
-	private Boolean isActive;
 	private String loanConditions;
 	private String rateInfo;
 
@@ -55,8 +53,6 @@ public class JeonseLoanDTO {
 			.minPeriod(entity.getMinPeriodMonths())
 			.maxPeriod(entity.getMaxPeriodMonths())
 			.joinAvailable(joinAvailable)
-			.foreignerAvailable(entity.getForeignerAvailable())
-			.isActive(entity.getIsActive())
 			.loanConditions(entity.getLoanConditions())
 			.rateInfo(entity.getRateInfo())
 			.build();
