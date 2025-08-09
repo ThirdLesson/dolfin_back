@@ -17,21 +17,27 @@ import org.scoula.global.entity.BaseEntity;
 @AllArgsConstructor
 @Builder
 public class JeonseLoan extends BaseEntity {
+
 	private Long jeonseLoanId;                     // 전세자금대출 ID
 	private Long financialCompanyId;               // 금융회사 ID
-	private String name;                           // 상품명
-	private String joinWay;                        // 가입방법
-	private String loanExpensive;                  // 대출 부대비용
-	private String erlyFee;                        // 중도상환수수료
-	private String dlyRate;                        // 연체이자율
-	private String loanLmt;                        // 대출한도
-	private String repayTypeName;                  // 상환유형명
-	private String lendRateTypeName;               // 대출금리유형명
-	private BigDecimal lendRateMin;                // 최저금리
-	private BigDecimal lendRateMax;                // 최고금리
-	private BigDecimal lendRateAvg;                // 평균금리
-	private Integer minRemainingVisaMonths;        // 최소 필요 잔여 체류기간(개월)
-	private Integer maxLoanTermMonths;             // 최대 대출기간(개월)
-	private Long loanMinAmount;                    // 최소 대출금액(원)
-	private Long loanMaxAmount;                    // 최대 대출금액(원)
+	private String productName;                           // 상품명
+	private String joinWay;
+
+	private BigDecimal baseRate;                   // 최저금리 (base_rate)
+	private BigDecimal maxRate;                    // 최고금리 (max_rate)
+	private BigDecimal avgRate;                    // 평균금리 (avg_rate)
+
+	private Integer visaMinMonths;          // 최소 대출 기간(개월)
+	private Integer maxPeriodMonths;             // 최대 대출기간(개월)
+	private Integer minPeriodMonths;               // 최소 대출기간 (min_period_months)
+
+
+	private Long minLoanAmount;                    // 최소 대출금액 (min_loan_amount)
+	private Long maxLoanAmount;                    // 최대 대출금액 (max_loan_amount)
+
+	private Boolean foreignerAvailable; // 외국인 가능 여부
+	private Boolean isActive; //활성화 여부
+
+	private String loanConditions; // 대출 가입 조건
+	private String rateInfo; // 금리 정보 상세 설명
 }

@@ -18,6 +18,7 @@ import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
+import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.temporal.ChronoUnit;
 import java.util.List;
@@ -43,8 +44,10 @@ public class JeonseLoanServiceImpl implements JeonseLoanService {
 		List<JeonseLoanResponseDTO> content = jeonseLoans.stream()
 			.map(loan -> {
 				FinancialCompany companyEntity = financialCompanyService.getById(loan.getFinancialCompanyId());
-				FinancialCompanyResponseDTO company = FinancialCompanyResponseDTO.fromEntity(companyEntity);
-				return JeonseLoanResponseDTO.from(loan, company);
+				String companyName = companyEntity.getName();
+				String companyCode = companyEntity.getCode();
+				BigDecimal selectedRate = getSelectedRate(loan, request.sortBy());
+				return JeonseLoanResponseDTO.from(loan, companyName,companyCode,selectedRate);
 			})
 			.collect(Collectors.toList());
 		return new PageImpl<>(content, pageable, totalCount);
@@ -58,17 +61,18 @@ public class JeonseLoanServiceImpl implements JeonseLoanService {
 		FinancialCompany companyEntity = financialCompanyService.getById(jeonseLoan.getFinancialCompanyId());
 		FinancialCompanyResponseDTO company = FinancialCompanyResponseDTO.fromEntity(companyEntity);
 
-		Boolean joinAvailable = checkJoinAvailbility(jeonseLoan, member);
+		Boolean joinAvailable = checkJoinAvailability(jeonseLoan, member);
 
 		return JeonseLoanDetailResponseDTO.from(jeonseLoan, company, joinAvailable);
 	}
 
-	private Boolean checkJoinAvailbility(JeonseLoan jeonseLoan, Member member) {
+	private Boolean checkJoinAvailability(JeonseLoan jeonseLoan, Member member) {
 		if (member == null) {
 			return null;
 		}
+
 		if (member.getRemainTime() != null &&
-			jeonseLoan.getMinRemainingVisaMonths() != null) {
+			jeonseLoan.getMinPeriodMonths() != null) {
 
 			LocalDate now = LocalDate.now();
 			LocalDate remainTime = member.getRemainTime();
@@ -79,10 +83,23 @@ public class JeonseLoanServiceImpl implements JeonseLoanService {
 
 			long remaingMonths = ChronoUnit.MONTHS.between(now, remainTime);
 
-			if (remaingMonths < jeonseLoan.getMinRemainingVisaMonths()) {
+			if (remaingMonths < jeonseLoan.getMinPeriodMonths()) {
 				return false;
 			}
 		}
 		return true;
 	}
+
+	private BigDecimal getSelectedRate(JeonseLoan loan, JeonseLoanRateType rateType) {
+		if (rateType == null) {
+			return loan.getAvgRate(); // 기본값: 평균금리
+		}
+
+		return switch (rateType) {
+			case MIN_RATE -> loan.getBaseRate();
+			case MAX_RATE -> loan.getMaxRate();
+			case AVG_RATE -> loan.getAvgRate();
+		};
+	}
+
 }

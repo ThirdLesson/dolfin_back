@@ -5,7 +5,7 @@ import org.scoula.domain.financialproduct.jeonseloan.dto.JeonseLoanDTO;
 import org.scoula.domain.financialproduct.jeonseloan.entity.JeonseLoan;
 
 public record JeonseLoanDetailResponseDTO(
-	JeonseLoanDTO jeonseLoan,
+	JeonseLoanDTO productInfo,
 	FinancialCompanyResponseDTO company
 ) {
 	public static JeonseLoanDetailResponseDTO from(JeonseLoan entity, FinancialCompanyResponseDTO company,
