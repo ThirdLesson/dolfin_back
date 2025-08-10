@@ -47,7 +47,7 @@ public class JeonseLoanServiceImpl implements JeonseLoanService {
 				String companyName = companyEntity.getName();
 				String companyCode = companyEntity.getCode();
 				BigDecimal selectedRate = getSelectedRate(loan, request.sortBy());
-				return JeonseLoanResponseDTO.from(loan, companyName,companyCode,selectedRate);
+				return JeonseLoanResponseDTO.from(loan, companyName, companyCode, selectedRate);
 			})
 			.collect(Collectors.toList());
 		return new PageImpl<>(content, pageable, totalCount);
@@ -96,7 +96,7 @@ public class JeonseLoanServiceImpl implements JeonseLoanService {
 		}
 
 		return switch (rateType) {
-			case MIN_RATE -> loan.getBaseRate();
+			case BASE_RATE -> loan.getBaseRate();
 			case MAX_RATE -> loan.getMaxRate();
 			case AVG_RATE -> loan.getAvgRate();
 		};
