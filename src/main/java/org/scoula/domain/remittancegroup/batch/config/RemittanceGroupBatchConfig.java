@@ -10,15 +10,13 @@ import org.springframework.batch.core.job.builder.JobBuilder;
 import org.springframework.batch.core.repository.JobRepository;
 import org.springframework.batch.item.ItemReader;
 import org.springframework.batch.item.ItemWriter;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.task.TaskExecutor;
 import org.springframework.transaction.PlatformTransactionManager;
 
-import lombok.RequiredArgsConstructor;
-
 @Configuration
-@RequiredArgsConstructor
 public class RemittanceGroupBatchConfig {
 
 	private final ItemReader<RemittanceGroup> remittanceGroupReader;
@@ -31,6 +29,21 @@ public class RemittanceGroupBatchConfig {
 	private final TaskExecutor taskExecutor;
 
 	private final int threadSize = 3;
+
+	public RemittanceGroupBatchConfig(RemittanceGroupMapper remittanceGroupMapper,
+		ItemReader<RemittanceGroup> remittanceGroupReader,
+		@Qualifier("remittanceGroupItemWriter") ItemWriter<RemittanceGroup> remittanceGroupWriter,
+		JobRepository jobRepository, PlatformTransactionManager transactionManager,
+		StepBuilderFactory stepBuilderFactory,
+		TaskExecutor taskExecutor) {
+		this.remittanceGroupMapper = remittanceGroupMapper;
+		this.remittanceGroupReader = remittanceGroupReader;
+		this.remittanceGroupWriter = remittanceGroupWriter;
+		this.jobRepository = jobRepository;
+		this.transactionManager = transactionManager;
+		this.stepBuilderFactory = stepBuilderFactory;
+		this.taskExecutor = taskExecutor;
+	}
 
 	@Bean
 	public Job remittanceGroupJob() {
