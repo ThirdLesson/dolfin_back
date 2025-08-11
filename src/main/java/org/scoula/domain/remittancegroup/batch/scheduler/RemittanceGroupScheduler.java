@@ -20,15 +20,18 @@ public class RemittanceGroupScheduler {
 	private final JobLauncher jobLauncher;
 	private final Job remittanceGroupJob;
 	private final RemittanceService remittanceService;
+	private final Job remittanceGroupAutoJoinJob;
 
 	public RemittanceGroupScheduler(
 		JobLauncher jobLauncher,
 		@Qualifier("remittanceGroupJob") Job remittanceGroupJob,
-		RemittanceService remittanceService
+		RemittanceService remittanceService,
+		@Qualifier("remittanceGroupAutoJoinJob") Job remittanceGroupAutoJoinJob
 	) {
 		this.jobLauncher = jobLauncher;
 		this.remittanceGroupJob = remittanceGroupJob;
 		this.remittanceService = remittanceService;
+		this.remittanceGroupAutoJoinJob = remittanceGroupAutoJoinJob;
 	}
 
 	@Scheduled(cron = "0 0 3  * * *", zone = "Asia/Seoul")
@@ -40,6 +43,20 @@ public class RemittanceGroupScheduler {
 				.toJobParameters();
 
 			jobLauncher.run(remittanceGroupJob, jobParameters);
+		} catch (Exception e) {
+			throw new RuntimeException(e);
+		}
+	}
+
+	@Scheduled(cron = "0 30 3  * * *", zone = "Asia/Seoul")
+	@SchedulerLock(name = "runRemittanceGroupAutoJoinJobLock", lockAtMostFor = "PT10M") // 락 10분간 유지
+	public void runRemittanceGroupAutoJoinJob() {
+		try {
+			JobParameters jobParameters = new JobParametersBuilder()
+				.addLong("timestamp", System.currentTimeMillis())
+				.toJobParameters();
+
+			jobLauncher.run(remittanceGroupAutoJoinJob, jobParameters);
 		} catch (Exception e) {
 			throw new RuntimeException(e);
 		}
