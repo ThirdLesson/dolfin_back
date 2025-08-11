@@ -6,6 +6,7 @@
     <file url="file://$PROJECT_DIR$/src/main/resources/db/migration/V19__create_saving_tables.sql" dialect="MySQL" />
     <file url="file://$PROJECT_DIR$/src/main/resources/db/migration/V1__Create_init.sql" dialect="MySQL" />
     <file url="file://$PROJECT_DIR$/src/main/resources/db/migration/V20__insert_financial_companies.sql" dialect="MySQL" />
+    <file url="file://$PROJECT_DIR$/src/main/resources/db/migration/V23__Insert_jeonse_loan_products_for_foreigners.sql" dialect="MySQL" />
     <file url="file://$PROJECT_DIR$/src/main/resources/db/migration/V2__edit_init.sql" dialect="MySQL" />
     <file url="file://$PROJECT_DIR$/src/main/resources/db/migration/V3__edit_member.sql" dialect="MySQL" />
     <file url="file://$PROJECT_DIR$/src/main/resources/db/migration/V4__edit_account.sql" dialect="MySQL" />
