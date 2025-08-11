@@ -83,7 +83,9 @@ public interface MemberMapper {
 		        i.purpose,
 		        i.amount,
 		        i.transmit_fail_count,
-		        i.intermediary_bank_commission
+		        i.intermediary_bank_commission,
+		      	i.created_at,
+				i.updated_at
 		
 		    FROM member m
 		    JOIN remittance_information i ON m.remittance_information_id = i.remittance_information_id
@@ -108,5 +110,20 @@ public interface MemberMapper {
 		"</script>"
 	})
 	List<MemberWithInformationDto> findMembersWithInfoByGroupIds(@Param("groupIds") List<Long> groupIds);
+
+	void updateGroupIdByMemberIds(@Param("memberIds") List<Long> memberIds,
+		@Param("toGroupId") Long toGroupId);
+
+	@Select("""
+		<script>
+		  SELECT fcm_token
+		  FROM member
+		  WHERE member_id IN
+		  <foreach item='id' collection='memberIds' open='(' separator=',' close=')'>
+		    #{id}
+		  </foreach>
+		</script>
+		""")
+	List<String> findFcmTokensByMemberIds(@Param("memberIds") List<Long> memberIds);
 
 }

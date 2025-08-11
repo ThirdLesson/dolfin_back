@@ -20,6 +20,7 @@ import org.scoula.domain.exchange.entity.Type;
 import org.scoula.domain.exchange.mapper.ExchangeRateMapper;
 import org.scoula.domain.member.entity.Member;
 import org.scoula.domain.member.mapper.MemberMapper;
+import org.scoula.domain.member.service.MemberService;
 import org.scoula.domain.remittancegroup.batch.dto.MemberWithInformationDto;
 import org.scoula.domain.remittancegroup.dto.request.JoinRemittanceGroupRequest;
 import org.scoula.domain.remittancegroup.dto.response.RemittanceGroupCommissionResponse;
@@ -31,6 +32,7 @@ import org.scoula.domain.remmitanceinformation.entity.RemittanceInformation;
 import org.scoula.domain.remmitanceinformation.mapper.RemittanceInformationMapper;
 import org.scoula.global.constants.Currency;
 import org.scoula.global.exception.CustomException;
+import org.scoula.global.firebase.event.RemittanceGroupChangedEvent;
 import org.scoula.global.firebase.event.RemittanceGroupChargeNoticeEvent;
 import org.scoula.global.firebase.event.RemittanceGroupCompletedEvent;
 import org.scoula.global.kafka.dto.Common;
@@ -38,6 +40,7 @@ import org.scoula.global.kafka.dto.LogLevel;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.dao.DuplicateKeyException;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 import lombok.RequiredArgsConstructor;
@@ -62,6 +65,7 @@ public class RemittanceServiceImpl implements RemittanceService {
 	private final RemittanceInformationMapper remittanceInformationMapper;
 	private final MemberMapper memberMapper;
 	private final ApplicationEventPublisher eventPublisher;
+	private final MemberService memberService;
 
 	@Override
 	@Transactional(readOnly = true)
@@ -83,7 +87,7 @@ public class RemittanceServiceImpl implements RemittanceService {
 	@Override
 	public void joinRemittanceGroup(JoinRemittanceGroupRequest joinRemittanceGroupRequest, Member member,
 		HttpServletRequest request) {
-		validateRemittanceGroup(member, request);
+		// validateRemittanceGroup(member, request);
 		Optional<RemittanceGroup> remittanceGroup = remittanceGroupMapper.findByCurrencyAndBenefitStatusAndRemittanceDate(
 			joinRemittanceGroupRequest.currency(), BenefitStatus.OFF, joinRemittanceGroupRequest.remittanceDate()
 		);
@@ -155,6 +159,73 @@ public class RemittanceServiceImpl implements RemittanceService {
 
 		eventPublisher.publishEvent(new RemittanceGroupChargeNoticeEvent(membersWithInfoByGroupIds));
 
+	}
+
+	@Override
+	@Transactional(propagation = Propagation.REQUIRES_NEW)
+	public void changeRemittanceGroup(RemittanceGroup remittanceGroup) {
+		int chargeMemberCount = 30 - remittanceGroup.getMemberCount();
+
+		Currency targetCurrency = remittanceGroup.getCurrency();
+		int day = remittanceGroup.getRemittanceDate();
+
+		// 동일 currency, day 새 그룹에서 인원 빼와서 충전하기
+		Optional<RemittanceGroup> remittanceGroupByCurrencyAndDate = remittanceGroupMapper.findByDayAndCurrencyAndBenefitOFF(
+			day, targetCurrency);
+		if (remittanceGroupByCurrencyAndDate.isEmpty())
+			return;
+
+		RemittanceGroup newlyRemittanceGroup = remittanceGroupByCurrencyAndDate.get();
+
+		List<Long> changedMemberIds = new ArrayList<>();
+
+		// 현재 모집 중인 그룹의 멤버 수가 채워야하는 인원의 수보다 적으면 전부 다 데려와서 채워버리기
+		if (newlyRemittanceGroup.getMemberCount() <= chargeMemberCount) {
+			Optional<List<Member>> membersByRemittanceGroup = memberService.getMembersByRemittanceGroup(
+				newlyRemittanceGroup.getRemittanceGroupId());
+
+			if (membersByRemittanceGroup.isEmpty())
+				return;
+			List<Member> newlyGroupMembers = membersByRemittanceGroup.get();
+			changedMemberIds = newlyGroupMembers.stream()
+				.map(Member::getMemberId)
+				.collect(Collectors.toList());
+
+			memberService.changeRemittanceGroup(changedMemberIds, remittanceGroup.getRemittanceGroupId());
+
+			remittanceGroupMapper.increaseMemberCountById(remittanceGroup.getRemittanceGroupId(),
+				newlyRemittanceGroup.getMemberCount());
+			memberService.decreaseRemittanceGroupMemberCount(newlyRemittanceGroup.getRemittanceGroupId(),
+				newlyRemittanceGroup.getMemberCount());
+		} else {
+			// 현재 모집 중인 그룹의 멤버 수가 채워야하는 인원의 수보다 많을 경우
+			// 같은 통화 같은 날짜의 사람들 조회하기 + information 조인
+			Optional<List<MemberWithInformationDto>> memberWithRemittanceInformationByRemittanceGroupId = memberService.getMemberWithRemittanceInformationByRemittanceGroupId(
+				newlyRemittanceGroup.getRemittanceGroupId());
+
+			if (memberWithRemittanceInformationByRemittanceGroupId.isEmpty())
+				return;
+			List<MemberWithInformationDto> memberWithInformationDtos = memberWithRemittanceInformationByRemittanceGroupId.get();
+			// 송금 information의 updated_at을 기준으로 오름차순 정렬 시키기
+			memberWithInformationDtos.sort((o1, o2) -> o1.getUpdatedAt().compareTo(o2.getUpdatedAt()));
+
+			// 가장 먼저 가입한 사람부터 chargeNumber 만큼 짤라서 아이디 List 만들고 송금 그룹 외래키 업데이트
+			int changedCnt = 0;
+			for (int i = 0; i < memberWithInformationDtos.size(); i++) {
+				changedMemberIds.add(memberWithInformationDtos.get(i).getMemberId());
+				changedCnt++;
+				if (changedCnt == chargeMemberCount) {
+					break;
+				}
+			}
+			memberService.changeRemittanceGroup(changedMemberIds, remittanceGroup.getRemittanceGroupId());
+
+			remittanceGroupMapper.increaseMemberCountById(remittanceGroup.getRemittanceGroupId(), changedCnt);
+			memberService.decreaseRemittanceGroupMemberCount(newlyRemittanceGroup.getRemittanceGroupId(),
+				changedCnt);
+		}
+
+		eventPublisher.publishEvent(new RemittanceGroupChangedEvent(changedMemberIds));
 	}
 
 	private void validateRemittanceGroup(Member member, HttpServletRequest request) {

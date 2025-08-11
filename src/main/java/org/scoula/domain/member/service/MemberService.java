@@ -1,11 +1,13 @@
 package org.scoula.domain.member.service;
 
 import java.util.List;
+import java.util.Optional;
 
 import javax.servlet.http.HttpServletRequest;
 
 import org.scoula.domain.member.dto.MemberDTO;
 import org.scoula.domain.member.entity.Member;
+import org.scoula.domain.remittancegroup.batch.dto.MemberWithInformationDto;
 
 public interface MemberService {
 
@@ -31,4 +33,12 @@ public interface MemberService {
 
 	Member getMemberByPhoneNumber(String phoneNumber, HttpServletRequest request);
 
+	Optional<List<Member>> getMembersByRemittanceGroup(Long RemittanceGroupId);
+
+	Optional<List<MemberWithInformationDto>> getMemberWithRemittanceInformationByRemittanceGroupId(
+		Long RemittanceGroupId);
+
+	void changeRemittanceGroup(List<Long> memberIds, Long toGroupId);
+
+	void decreaseRemittanceGroupMemberCount(Long targetGroupId, int decreaseMemberCount);
 }
