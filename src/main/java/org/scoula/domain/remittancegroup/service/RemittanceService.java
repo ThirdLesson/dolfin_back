@@ -8,6 +8,7 @@ import org.scoula.domain.member.entity.Member;
 import org.scoula.domain.remittancegroup.dto.request.JoinRemittanceGroupRequest;
 import org.scoula.domain.remittancegroup.dto.response.RemittanceGroupCommissionResponse;
 import org.scoula.domain.remittancegroup.dto.response.RemittanceGroupMemberCountResponse;
+import org.scoula.domain.remittancegroup.entity.RemittanceGroup;
 import org.scoula.global.constants.Currency;
 
 public interface RemittanceService {
@@ -21,4 +22,6 @@ public interface RemittanceService {
 		HttpServletRequest request);
 
 	void RemittanceGroupAlarm();
+
+	void changeRemittanceGroup(RemittanceGroup remittanceGroup);
 }

@@ -3,6 +3,7 @@ package org.scoula.domain.member.service;
 import static org.scoula.domain.member.exception.MemberErrorCode.*;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 import javax.servlet.http.HttpServletRequest;
@@ -10,6 +11,8 @@ import javax.servlet.http.HttpServletRequest;
 import org.scoula.domain.member.dto.MemberDTO;
 import org.scoula.domain.member.entity.Member;
 import org.scoula.domain.member.mapper.MemberMapper;
+import org.scoula.domain.remittancegroup.batch.dto.MemberWithInformationDto;
+import org.scoula.domain.remittancegroup.mapper.RemittanceGroupMapper;
 import org.scoula.global.exception.CustomException;
 import org.scoula.global.kafka.dto.Common;
 import org.scoula.global.kafka.dto.LogLevel;
@@ -28,6 +31,7 @@ public class MemberServiceImpl implements MemberService {
 
 	private final MemberMapper memberMapper;
 	private final PasswordEncoder passwordEncoder;
+	private final RemittanceGroupMapper remittanceGroupMapper;
 
 	@Override
 	public List<MemberDTO> getAllMembers() {
@@ -112,6 +116,31 @@ public class MemberServiceImpl implements MemberService {
 				.callApiPath(request.getRequestURI())
 				.deviceInfo(request.getHeader("user-agent"))
 				.build()));
+	}
+
+	@Override
+	public Optional<List<Member>> getMembersByRemittanceGroup(Long RemittanceGroupId) {
+		return Optional.of(memberMapper.findMembersByRemittanceGroupId(RemittanceGroupId));
+	}
+
+	@Override
+	public Optional<List<MemberWithInformationDto>> getMemberWithRemittanceInformationByRemittanceGroupId(
+		Long RemittanceGroupId) {
+		return Optional.of(memberMapper.findMembersWithInformationByGroupId(RemittanceGroupId));
+	}
+
+	@Override
+	@Transactional
+	public void changeRemittanceGroup(List<Long> memberIds, Long toGroupId) {
+		if (memberIds == null || memberIds.isEmpty())
+			return;
+		memberMapper.updateGroupIdByMemberIds(memberIds, toGroupId);
+	}
+
+	@Override
+	@Transactional
+	public void decreaseRemittanceGroupMemberCount(Long targetGroupId, int decreaseMemberCount) {
+		remittanceGroupMapper.decreaseMemberCountById(targetGroupId, decreaseMemberCount);
 	}
 
 }

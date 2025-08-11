@@ -1,5 +1,6 @@
 package org.scoula.domain.remittancegroup.batch.config;
 
+import org.mybatis.spring.batch.MyBatisPagingItemReader;
 import org.scoula.domain.remittancegroup.batch.reader.IdRangePartitioner;
 import org.scoula.domain.remittancegroup.entity.RemittanceGroup;
 import org.scoula.domain.remittancegroup.mapper.RemittanceGroupMapper;
@@ -8,7 +9,6 @@ import org.springframework.batch.core.Step;
 import org.springframework.batch.core.configuration.annotation.StepBuilderFactory;
 import org.springframework.batch.core.job.builder.JobBuilder;
 import org.springframework.batch.core.repository.JobRepository;
-import org.springframework.batch.item.ItemReader;
 import org.springframework.batch.item.ItemWriter;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Bean;
@@ -17,10 +17,10 @@ import org.springframework.core.task.TaskExecutor;
 import org.springframework.transaction.PlatformTransactionManager;
 
 @Configuration
-public class RemittanceGroupBatchConfig {
+public class RemittanceAutoJoinBatchConfig {
 
-	private final ItemReader<RemittanceGroup> remittanceGroupReader;
 	private final RemittanceGroupMapper remittanceGroupMapper;
+	private final MyBatisPagingItemReader<RemittanceGroup> remittanceGroupReader;
 	private final ItemWriter<RemittanceGroup> remittanceGroupWriter;
 
 	private final JobRepository jobRepository;
@@ -28,11 +28,10 @@ public class RemittanceGroupBatchConfig {
 	private final StepBuilderFactory stepBuilderFactory;
 	private final TaskExecutor taskExecutor;
 
-	private final int threadSize = 3;
-
-	public RemittanceGroupBatchConfig(RemittanceGroupMapper remittanceGroupMapper,
-		ItemReader<RemittanceGroup> remittanceGroupReader,
-		@Qualifier("remittanceGroupItemWriter") ItemWriter<RemittanceGroup> remittanceGroupWriter,
+	public RemittanceAutoJoinBatchConfig(RemittanceGroupMapper remittanceGroupMapper,
+		@Qualifier("autoJoinReader")
+		MyBatisPagingItemReader<RemittanceGroup> remittanceGroupReader,
+		@Qualifier("remittanceGroupAutoJoinItemWriter") ItemWriter<RemittanceGroup> remittanceGroupWriter,
 		JobRepository jobRepository, PlatformTransactionManager transactionManager,
 		StepBuilderFactory stepBuilderFactory,
 		TaskExecutor taskExecutor) {
@@ -45,19 +44,21 @@ public class RemittanceGroupBatchConfig {
 		this.taskExecutor = taskExecutor;
 	}
 
+	private final int threadSize = 3;
+
 	@Bean
-	public Job remittanceGroupJob() {
-		return new JobBuilder("remittanceGroupJob")
-			.start(partitionedRemittanceGroupStep())
+	public Job remittanceGroupAutoJoinJob() {
+		return new JobBuilder("remittanceGroupAutoJoinJob")
+			.start(partitionedRemittanceGroupAutoJoinStep())
 			.repository(jobRepository)
 			.build();
 	}
 
 	@Bean
-	public Step partitionedRemittanceGroupStep() {
-		return stepBuilderFactory.get("partitionedRemittanceGroupStep")
-			.partitioner("remittanceGroupStep", new IdRangePartitioner(remittanceGroupMapper))
-			.step(remittanceGroupStep())
+	public Step partitionedRemittanceGroupAutoJoinStep() {
+		return stepBuilderFactory.get("partitionedRemittanceGroupAutoJoinStep")
+			.partitioner("remittanceGroupAutoJoinStep", new IdRangePartitioner(remittanceGroupMapper))
+			.step(remittanceGroupAutoJoinStep())
 			.gridSize(threadSize)
 			.transactionManager(transactionManager)
 			.taskExecutor(taskExecutor)
@@ -65,8 +66,8 @@ public class RemittanceGroupBatchConfig {
 	}
 
 	@Bean
-	public Step remittanceGroupStep() {
-		return stepBuilderFactory.get("remittanceGroupStep")
+	public Step remittanceGroupAutoJoinStep() {
+		return stepBuilderFactory.get("remittanceGroupAutoJoinStep")
 			.<RemittanceGroup, RemittanceGroup>chunk(1000)
 			.reader(remittanceGroupReader)
 			.writer(remittanceGroupWriter)

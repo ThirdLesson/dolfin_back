@@ -103,6 +103,15 @@
         WHERE member_id = #{memberId}
     </update>
 
+    <update id="updateGroupIdByMemberIds">
+        UPDATE member
+        SET remittance_group_id = #{toGroupId}
+        WHERE member_id IN
+        <foreach item="memberId" collection="memberIds" open="(" separator="," close=")">
+            #{memberId}
+        </foreach>
+    </update>
+
 
     <!-- 회원 삭제 -->
     <delete id="deleteMember" parameterType="long">

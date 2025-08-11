@@ -2,6 +2,7 @@ package org.scoula.domain.remittancegroup.batch.dto;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 
 import org.scoula.domain.remmitanceinformation.entity.IntermediaryBankCommission;
 import org.scoula.global.constants.Currency;
@@ -41,4 +42,6 @@ public class MemberWithInformationDto {
 	private BigDecimal amount;            // 환전을 원하는 금액(원화)
 	private Integer transmitFailCount;    // 송금 실패 카운트 (2회 이상 시 그룹 탈퇴)
 	private IntermediaryBankCommission intermediaryBankCommission; // 중계 수수료 부담 방식
+	private LocalDateTime createdAt;
+	private LocalDateTime updatedAt;
 }

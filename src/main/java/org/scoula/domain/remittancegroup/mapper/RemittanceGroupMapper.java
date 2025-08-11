@@ -105,6 +105,14 @@ public interface RemittanceGroupMapper {
 			SELECT *
 			FROM remittance_group
 			WHERE benefit_status IS NULL
+			  AND remittance_group_id BETWEEN #{startId} AND #{endId}
+		""")
+	List<RemittanceGroup> findByIdRangeBenefitStatusOn(@Param("startId") Long startId, @Param("endId") Long endId);
+
+	@Select("""
+			SELECT *
+			FROM remittance_group
+			WHERE benefit_status IS NULL
 		 		AND remittance_date = #{day}
 			  AND remittance_group_id BETWEEN #{startId} AND #{endId}
 			ORDER BY remittance_group_id
@@ -119,5 +127,32 @@ public interface RemittanceGroupMapper {
 		 		AND remittance_date = #{day}
 		""")
 	List<RemittanceGroup> findByDayBenefitOn(@Param("day") Integer day);
+
+	@Select("""
+			SELECT *
+			FROM remittance_group
+			WHERE benefit_status = 'OFF'
+		 		AND remittance_date = #{day}
+				AND currency = #{currency}
+			FOR UPDATE
+		""")
+	Optional<RemittanceGroup> findByDayAndCurrencyAndBenefitOFF(@Param("day") Integer day,
+		@Param("currency") Currency currency);
+
+	@Update("""
+		UPDATE remittance_group
+		SET member_count = GREATEST(member_count - #{memberCount}, 0)
+		WHERE remittance_group_id = #{remittanceGroupId}
+		""")
+	int decreaseMemberCountById(@Param("remittanceGroupId") Long remittanceGroupId,
+		@Param("memberCount") Integer memberCount);
+
+	@Update("""
+		UPDATE remittance_group
+		SET member_count = member_count + #{memberCount}
+		WHERE remittance_group_id = #{remittanceGroupId}
+		""")
+	int increaseMemberCountById(@Param("remittanceGroupId") Long remittanceGroupId,
+		@Param("memberCount") Integer memberCount);
 
 }
