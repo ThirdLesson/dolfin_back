@@ -12,6 +12,7 @@ import org.scoula.domain.member.exception.MemberErrorCode;
 import org.scoula.domain.member.mapper.MemberMapper;
 import org.scoula.domain.remittancegroup.batch.dto.MemberWithInformationDto;
 import org.scoula.global.firebase.event.RemittanceFailedEvent;
+import org.scoula.global.firebase.event.RemittanceGroupChangedEvent;
 import org.scoula.global.firebase.event.RemittanceGroupChargeNoticeEvent;
 import org.scoula.global.firebase.event.RemittanceGroupCompletedEvent;
 import org.scoula.global.firebase.event.RemittanceGroupFiredEvent;
@@ -43,6 +44,35 @@ public class RemittanceGroupEventListener {
 		// 그룹에 속한 멤버들의 FCM 토큰 가져오기
 		List<String> fcmTokens = memberMapper.findFcmTokensByRemittanceGroupId(groupId);
 		fcmTokens.add(event.getFcmToken());
+
+		// 유효한 토큰만 필터링 (널/빈 문자열 제거)
+		List<String> validTokens = fcmTokens.stream()
+			.filter(token -> token != null && !token.isBlank())
+			.toList();
+
+		if (!validTokens.isEmpty()) {
+			firebaseUtil.sendNotices(
+				validTokens,
+				"단체 송금 혜택이 시작됩니다.",
+				"30명이 모여 정기 해외 송금 서비스가 시작됩니다!\n"
+					+ "수수료를 포함한 송금 금액을 전자지갑에 미리 충전해주세요.\n"
+					+ "송금이 2회 이상 실패할 경우, 혜택 대상에서 자동 제외됩니다.\n"
+					+ "※ 국민은행이 외국환은행으로 지정되어 있어야 하며,\n"
+					+ "KB스타뱅킹 앱에 가입되어 있어야 합니다."
+			);
+		}
+
+	}
+
+	@TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
+	public void handleGroupChanged(RemittanceGroupChangedEvent event) {
+		List<Long> memberIds = event.getMemberIds();
+
+		if (memberIds == null || memberIds.isEmpty())
+			return;
+
+		// 그룹에 속한 멤버들의 FCM 토큰 가져오기
+		List<String> fcmTokens = memberMapper.findFcmTokensByMemberIds(memberIds);
 
 		// 유효한 토큰만 필터링 (널/빈 문자열 제거)
 		List<String> validTokens = fcmTokens.stream()
