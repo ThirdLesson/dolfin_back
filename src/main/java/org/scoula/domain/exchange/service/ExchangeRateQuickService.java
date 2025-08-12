@@ -1,5 +1,7 @@
 package org.scoula.domain.exchange.service;
 
+import java.util.List;
+
 import javax.servlet.http.HttpServletRequest;
 
 import org.scoula.domain.exchange.dto.request.ExchangeBankRequest;
@@ -16,5 +18,5 @@ public interface ExchangeRateQuickService {
 
 	ExchangeQuickResponse calculateExchangeQuick(ExchangeQuickRequest request, HttpServletRequest httpServletRequest);
 
-	ExchangeLiveResponse getLatestExchangeRate(HttpServletRequest request,String upperCase);
+	List<ExchangeLiveResponse> getLatestExchangeRate(HttpServletRequest request);
 }

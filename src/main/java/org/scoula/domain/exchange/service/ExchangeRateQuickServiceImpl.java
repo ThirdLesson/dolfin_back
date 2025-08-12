@@ -1,8 +1,5 @@
 package org.scoula.domain.exchange.service;
 
-import static org.scoula.domain.member.exception.MemberErrorCode.*;
-import static org.scoula.domain.wallet.exception.WalletErrorCode.*;
-
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.text.DecimalFormat;
@@ -13,7 +10,6 @@ import java.util.stream.Collectors;
 
 import javax.servlet.http.HttpServletRequest;
 
-import org.scoula.domain.account.exception.AccountErrorCode;
 import org.scoula.domain.exchange.dto.request.ExchangeQuickRequest;
 import org.scoula.domain.exchange.dto.response.ExchangeLiveResponse;
 import org.scoula.domain.exchange.dto.response.exchangeResponse.BankRateInfo;
@@ -222,12 +218,12 @@ public class ExchangeRateQuickServiceImpl implements ExchangeRateQuickService {
 	}
 
 	@Override
-	public ExchangeLiveResponse getLatestExchangeRate(HttpServletRequest request, String upperCase) {
+	public List<ExchangeLiveResponse> getLatestExchangeRate(HttpServletRequest request) {
 
 		// 기준 통화(KRW)에서 목표 통화로의 환율 조회
-		ExchangeRate baseRate = exchangeRateMapper.findLatestExchangeRate("하나은행", "BASE", upperCase);
+		List<ExchangeLiveResponse> baseExchangeRates = exchangeRateMapper.getExchangeLiveList();
 
-		if (baseRate == null) {
+		if (baseExchangeRates.isEmpty()) {
 			throw new CustomException(ExchangeErrorCode.EXCHANGE_NOT_FOUND, LogLevel.WARNING, null,
 				Common.builder().deviceInfo(request.getHeader("host-agent"))
 					.srcIp(request.getRemoteAddr())
@@ -237,15 +233,13 @@ public class ExchangeRateQuickServiceImpl implements ExchangeRateQuickService {
 					.build());
 		}
 
-		BigDecimal exchangeValue = baseRate.getExchangeValue();
-		String formattedRate = rateFormatter.format(exchangeValue);
-
-		if (upperCase.equals("JPY") || upperCase.equals("VND")) {
-			formattedRate = String.format("%s %s (100)", formattedRate, upperCase);
-		} else {
-			formattedRate = String.format("%s %s", formattedRate, upperCase);
+		for (ExchangeLiveResponse baseExchangeRate : baseExchangeRates) {
+			// 환율값 소수 2자리에서 반올림
+			baseExchangeRate.setExchangeRate(
+				baseExchangeRate.getExchangeRate().setScale(2, RoundingMode.HALF_UP));
 		}
-		return new ExchangeLiveResponse(formattedRate);
+
+		 return baseExchangeRates;
 	}
 
 	/**

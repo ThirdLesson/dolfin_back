@@ -68,7 +68,7 @@
           AND exchange_date = (
             SELECT MAX(exchange_date)
             FROM exchange_rate
-            WHERE target_exchange = #{targetCurrency} AND type = #{type}
+            WHERE type = BASE
         )
         ORDER BY exchange_value ASC
     </select>
@@ -83,6 +83,42 @@
           AND bank_name = #{bankName}
         ORDER BY exchange_date DESC, created_at DESC
             LIMIT 1
+    </select>
+
+    <!-- 방법 3: JOIN 사용 (성능 최적화) -->
+    <select id="getExchangeLiveList" resultType="org.scoula.domain.exchange.dto.response.ExchangeLiveResponse">
+        SELECT e1.target_exchange AS currency,
+               e1.exchange_value AS exchangeRate
+        FROM exchange_rate e1
+                 INNER JOIN (
+            SELECT target_exchange,
+                   MAX(created_at) as max_created_at
+            FROM exchange_rate
+            WHERE base_exchange = 'KRW'
+              AND bank_name = '국민은행'
+              AND type = 'BASE'
+              AND target_exchange IN ('USD', 'JPY', 'EUR', 'GBP', 'CAD', 'HKD',
+                                      'CNY', 'THB', 'IDR', 'VND', 'RUB', 'MYR')
+            GROUP BY target_exchange
+        ) e2 ON e1.target_exchange = e2.target_exchange
+            AND e1.created_at = e2.max_created_at
+        WHERE e1.base_exchange = 'KRW'
+          AND e1.bank_name = '국민은행'
+          AND e1.type = 'BASE'
+        ORDER BY CASE e1.target_exchange
+                     WHEN 'USD' THEN 1
+                     WHEN 'JPY' THEN 2
+                     WHEN 'EUR' THEN 3
+                     WHEN 'GBP' THEN 4
+                     WHEN 'CAD' THEN 5
+                     WHEN 'HKD' THEN 6
+                     WHEN 'CNY' THEN 7
+                     WHEN 'THB' THEN 8
+                     WHEN 'IDR' THEN 9
+                     WHEN 'VND' THEN 10
+                     WHEN 'RUB' THEN 11
+                     WHEN 'MYR' THEN 12
+                     END
     </select>
 
 </mapper>
