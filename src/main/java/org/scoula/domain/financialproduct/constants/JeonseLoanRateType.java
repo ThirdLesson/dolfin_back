@@ -10,7 +10,7 @@ import lombok.Getter;
 @ApiModel(description = "전세대출 금리 정렬 타입")
 public enum JeonseLoanRateType {
 	@ApiModelProperty("최소 금리")
-	BASE_RATE("최저 금리"),
+	MIN_RATE("최저 금리"),
 
 	@ApiModelProperty("최대 금리")
 	MAX_RATE("최고 금리"),

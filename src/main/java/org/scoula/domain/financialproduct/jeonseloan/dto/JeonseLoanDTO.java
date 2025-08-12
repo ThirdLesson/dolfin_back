@@ -61,7 +61,7 @@ public class JeonseLoanDTO {
 			.jeonseLoanId(entity.getJeonseLoanId())
 			.financialCompanyId(entity.getFinancialCompanyId())
 			.productName(entity.getProductName())
-			.minRate(entity.getBaseRate())
+			.minRate(entity.getMinRate())
 			.maxRate(entity.getMaxRate())
 			.avgRate(entity.getAvgRate())
 			.minLoanAmount(entity.getMinLoanAmount())
