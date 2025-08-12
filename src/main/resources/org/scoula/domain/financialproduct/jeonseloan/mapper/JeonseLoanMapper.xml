@@ -11,7 +11,7 @@
         <result property="financialCompanyId" column="financial_company_id"/>
         <result property="productName" column="product_name"/>
         <result property="joinWay" column="join_way"/>
-        <result property="baseRate" column="base_rate"/>
+        <result property="minRate" column="base_rate"/>
         <result property="maxRate" column="max_rate"/>
         <result property="avgRate" column="avg_rate"/>
         <result property="createdAt" column="created_at"/>
