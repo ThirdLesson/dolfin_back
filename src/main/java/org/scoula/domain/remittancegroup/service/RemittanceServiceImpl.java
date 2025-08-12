@@ -235,7 +235,7 @@ public class RemittanceServiceImpl implements RemittanceService {
 		if (member.getRemittanceGroupId() == null) {
 			return RemittanceGroupCheckResponse.builder()
 				.groupExists(false)
-				.remittance_date(null)
+				.remittanceDate(null)
 				.remittanceGroupId(null)
 				.groupCurrency(null)
 				.memberCount(0)
@@ -247,7 +247,7 @@ public class RemittanceServiceImpl implements RemittanceService {
 		if (remittanceGroup == null) {
 			return RemittanceGroupCheckResponse.builder()
 				.groupExists(false)
-				.remittance_date(null)
+				.remittanceDate(null)
 				.remittanceGroupId(null)
 				.groupCurrency(null)
 				.memberCount(0)
@@ -258,7 +258,7 @@ public class RemittanceServiceImpl implements RemittanceService {
 		return RemittanceGroupCheckResponse.builder()
 			.groupExists(true)
 			.remittanceGroupId(remittanceGroup.getRemittanceGroupId())
-			.remittance_date(remittanceGroup.getRemittanceDate())
+			.remittanceDate(remittanceGroup.getRemittanceDate())
 			.groupCurrency(remittanceGroup.getCurrency().name())
 			.memberCount(remittanceGroup.getMemberCount())
 			.build();
