@@ -81,25 +81,14 @@ public class ExchangeRateController {
 		);
 	}
 
-	/**
-	 * 단일 통화 환율 조회
-	 *
-	 * @param currency 통화 코드 (USD, JPY 등)
-	 * @return 환율 정보
-	 */
 	@ApiOperation(
 		value = "실시간 환율 조회",
 		notes = "특정 통화에 대한 실시간 환율 정보를 조회합니다. "
-				+ "예시: /exchange/USD, /exchange/EUR 등"
+			+ "예시: /exchange/USD, /exchange/EUR 등"
 	)
-	@GetMapping("/live/{currency}")
-	public SuccessResponse<ExchangeLiveResponse> getExchangeRate(HttpServletRequest request,@PathVariable String currency) {
-
-		ExchangeLiveResponse latestExchangeRate = exchangeRateQuickService.getLatestExchangeRate(request,
-			currency.toUpperCase());
-
-		return SuccessResponse.ok(latestExchangeRate);
-
+	@GetMapping("/live")
+	public SuccessResponse<List<ExchangeLiveResponse>> getExchangeRate(HttpServletRequest request) {
+		return SuccessResponse.ok(exchangeRateQuickService.getLatestExchangeRate(request));
 	}
 
 
