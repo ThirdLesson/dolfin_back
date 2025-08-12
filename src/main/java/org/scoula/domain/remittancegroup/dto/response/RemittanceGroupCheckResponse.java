@@ -7,7 +7,7 @@ public record RemittanceGroupCheckResponse (
 	Boolean groupExists,
 	Long remittanceGroupId,
 	String groupCurrency,
-	Integer remittance_date,
+	Integer remittanceDate,
 	Integer memberCount
 ){
 
