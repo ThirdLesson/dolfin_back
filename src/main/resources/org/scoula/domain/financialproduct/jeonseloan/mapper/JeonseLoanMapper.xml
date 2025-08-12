@@ -29,11 +29,11 @@
     <sql id="whereCondition">
         <where>
             AND is_active=1
-            <if test="request.minAmount != null">
-                AND min_loan_amount &lt;= #{request.minAmount}
+            <if test="request.minAmount != null and request.minAmount >= 0">
+                AND min_loan_amount >= #{request.minAmount}
             </if>
-            <if test="request.maxAmount != null">
-                AND max_loan_amount &gt;= #{request.maxAmount}
+            <if test="request.maxAmount != null and request.maxAmount > 0">
+                AND max_loan_amount &lt;= #{request.maxAmount}
             </if>
         </where>
     </sql>
