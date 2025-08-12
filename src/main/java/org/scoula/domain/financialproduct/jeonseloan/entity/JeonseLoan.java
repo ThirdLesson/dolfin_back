@@ -23,7 +23,7 @@ public class JeonseLoan extends BaseEntity {
 	private String productName;                           // 상품명
 	private String joinWay;
 
-	private BigDecimal baseRate;                   // 최저금리 (base_rate)
+	private BigDecimal minRate;                   // 최저금리 (base_rate)
 	private BigDecimal maxRate;                    // 최고금리 (max_rate)
 	private BigDecimal avgRate;                    // 평균금리 (avg_rate)
 

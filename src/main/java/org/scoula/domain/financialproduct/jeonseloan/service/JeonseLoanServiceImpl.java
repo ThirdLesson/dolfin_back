@@ -96,7 +96,7 @@ public class JeonseLoanServiceImpl implements JeonseLoanService {
 		}
 
 		return switch (rateType) {
-			case BASE_RATE -> loan.getBaseRate();
+			case MIN_RATE -> loan.getMinRate();
 			case MAX_RATE -> loan.getMaxRate();
 			case AVG_RATE -> loan.getAvgRate();
 		};
