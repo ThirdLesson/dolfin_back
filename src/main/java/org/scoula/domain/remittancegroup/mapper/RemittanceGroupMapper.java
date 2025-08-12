@@ -3,6 +3,7 @@ package org.scoula.domain.remittancegroup.mapper;
 import java.util.List;
 import java.util.Optional;
 
+import org.apache.ibatis.annotations.Delete;
 import org.apache.ibatis.annotations.Insert;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Options;
@@ -154,5 +155,18 @@ public interface RemittanceGroupMapper {
 		""")
 	int increaseMemberCountById(@Param("remittanceGroupId") Long remittanceGroupId,
 		@Param("memberCount") Integer memberCount);
+
+	@Select("""
+		SELECT *
+				FROM remittance_group
+				WHERE remittance_group_id = #{remittanceGroupId}
+		""")
+	RemittanceGroup findById(@Param("remittanceGroupId") Long remittanceGroupId);
+
+	@Delete("""
+		DELETE FROM remittance_group
+		WHERE remittance_group_id = #{remittanceGroupId}
+	""")
+	int deleteById(@Param("remittanceGroupId") Long remittanceGroupId);
 
 }

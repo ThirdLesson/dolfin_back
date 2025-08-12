@@ -23,6 +23,7 @@ import org.scoula.domain.member.mapper.MemberMapper;
 import org.scoula.domain.member.service.MemberService;
 import org.scoula.domain.remittancegroup.batch.dto.MemberWithInformationDto;
 import org.scoula.domain.remittancegroup.dto.request.JoinRemittanceGroupRequest;
+import org.scoula.domain.remittancegroup.dto.response.RemittanceGroupCheckResponse;
 import org.scoula.domain.remittancegroup.dto.response.RemittanceGroupCommissionResponse;
 import org.scoula.domain.remittancegroup.dto.response.RemittanceGroupMemberCountResponse;
 import org.scoula.domain.remittancegroup.entity.BenefitStatus;
@@ -226,6 +227,90 @@ public class RemittanceServiceImpl implements RemittanceService {
 		}
 
 		eventPublisher.publishEvent(new RemittanceGroupChangedEvent(changedMemberIds));
+	}
+
+	@Override
+	public RemittanceGroupCheckResponse checkRemittanceGroupExist(Member member) {
+
+		if (member.getRemittanceGroupId() == null) {
+			return RemittanceGroupCheckResponse.builder()
+				.groupExists(false)
+				.remittance_date(null)
+				.remittanceGroupId(null)
+				.groupCurrency(null)
+				.memberCount(0)
+				.build();
+		}
+
+		RemittanceGroup remittanceGroup = remittanceGroupMapper.findById(member.getRemittanceGroupId());
+
+		if (remittanceGroup == null) {
+			return RemittanceGroupCheckResponse.builder()
+				.groupExists(false)
+				.remittance_date(null)
+				.remittanceGroupId(null)
+				.groupCurrency(null)
+				.memberCount(0)
+				.build();
+		}
+
+
+		return RemittanceGroupCheckResponse.builder()
+			.groupExists(true)
+			.remittanceGroupId(remittanceGroup.getRemittanceGroupId())
+			.remittance_date(remittanceGroup.getRemittanceDate())
+			.groupCurrency(remittanceGroup.getCurrency().name())
+			.memberCount(remittanceGroup.getMemberCount())
+			.build();
+	}
+
+	@Override
+	public void cancelRemittanceGroup(Member member, HttpServletRequest request) {
+		if (member.getRemittanceGroupId() == null) {
+			throw new CustomException(NOT_EXIST_GROUP,
+				LogLevel.WARNING, null,
+				Common.builder()
+					.deviceInfo(request.getHeader("user-agent"))
+					.srcIp(request.getRemoteAddr())
+					.apiMethod(request.getMethod())
+					.callApiPath(request.getRequestURI())
+					.memberId(member.getMemberId().toString())
+					.build());
+		}
+
+		// 그룹이 존재할 경우
+		RemittanceGroup remittanceGroup = remittanceGroupMapper.findById(member.getRemittanceGroupId());
+		if (remittanceGroup == null) {
+			throw new CustomException(NOT_EXIST_GROUP,
+				LogLevel.WARNING, null,
+				Common.builder()
+					.deviceInfo(request.getHeader("user-agent"))
+					.srcIp(request.getRemoteAddr())
+					.apiMethod(request.getMethod())
+					.callApiPath(request.getRequestURI())
+					.memberId(member.getMemberId().toString())
+					.build());
+		}
+
+		int memberCount = remittanceGroup.getMemberCount();
+
+		if (memberCount <= 0) {
+			throw new CustomException(MEMBER_COUNT_NUMBER_ZERO, LogLevel.WARNING, null,
+				Common.builder()
+					.deviceInfo(request.getHeader("user-agent"))
+					.srcIp(request.getRemoteAddr())
+					.apiMethod(request.getMethod())
+					.callApiPath(request.getRequestURI())
+					.memberId(member.getMemberId().toString())
+					.build());
+		}
+
+		remittanceGroupMapper.decreaseMemberCountById(remittanceGroup.getRemittanceGroupId(), 1);
+
+		remittanceInformationMapper.deleteById(member.getRemittanceInformationId());
+
+		memberMapper.updateRemittanceRefsStrict(member.getMemberId(), null, null);
+
 	}
 
 	private void validateRemittanceGroup(Member member, HttpServletRequest request) {

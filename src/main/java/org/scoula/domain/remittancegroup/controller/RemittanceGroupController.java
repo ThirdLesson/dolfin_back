@@ -7,12 +7,14 @@ import javax.validation.Valid;
 
 import org.scoula.domain.remittancegroup.dto.request.JoinRemittanceGroupRequest;
 import org.scoula.domain.remittancegroup.dto.request.RemittanceGroupMemberCountRequest;
+import org.scoula.domain.remittancegroup.dto.response.RemittanceGroupCheckResponse;
 import org.scoula.domain.remittancegroup.dto.response.RemittanceGroupCommissionResponse;
 import org.scoula.domain.remittancegroup.dto.response.RemittanceGroupMemberCountResponse;
 import org.scoula.domain.remittancegroup.service.RemittanceService;
 import org.scoula.global.response.SuccessResponse;
 import org.scoula.global.security.dto.CustomUserDetails;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -56,4 +58,24 @@ public class RemittanceGroupController {
 		return SuccessResponse.ok(
 			remittanceService.getRemittanceGroupMemberCount(remittanceGroupMemberCountRequest.currency(), request));
 	}
+
+	@GetMapping("/check/info")
+	@ApiOperation(value = "단체 송금 상품 가입 정보 확인", notes = "단체 송금 상품에 가입한 사용자 정보를 확인하는 api.")
+	public SuccessResponse<RemittanceGroupCheckResponse> checkRemittanceGroupExist(
+		@AuthenticationPrincipal CustomUserDetails customUserDetails) {
+		return SuccessResponse.ok(
+			remittanceService.checkRemittanceGroupExist(customUserDetails.getMember())
+		);
+	}
+
+	@DeleteMapping("/cancel")
+	@ApiOperation(value = "단체 송금 상품 해지", notes = "단체 송금 상품을 해지하는 api.")
+	public SuccessResponse<Void> cancelRemittanceGroup(
+		@AuthenticationPrincipal CustomUserDetails customUserDetails,
+		HttpServletRequest request) {
+		remittanceService.cancelRemittanceGroup(customUserDetails.getMember(),request);
+		return SuccessResponse.noContent();
+	}
+
+
 }
