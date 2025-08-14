@@ -11,6 +11,15 @@
         WHERE wallet_id = #{walletId}
     </update>
 
+    <update id="updateBothBalancesByMember">
+        UPDATE wallet
+        SET balance = CASE
+                          WHEN member_id = #{senderMemberId} THEN #{senderNewBalance}
+                          WHEN member_id = #{receiverMemberId} THEN #{receiverNewBalance}
+            END
+        WHERE member_id IN (#{senderMemberId}, #{receiverMemberId})
+    </update>
+
     <select id="findByMemberIdWithLock" resultType="org.scoula.domain.wallet.entity.Wallet">
         SELECT wallet_id,
                member_id,
@@ -19,6 +28,19 @@
         FROM wallet
         WHERE member_id = #{memberId}
             FOR UPDATE
+    </select>
+    <select id="findByMemberIdsWithLock" resultType="org.scoula.domain.wallet.entity.Wallet">
+        SELECT wallet_id,
+        member_id,
+        balance,
+        password
+        FROM wallet
+        WHERE member_id IN
+        <foreach collection="memberIds" item="id" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+        ORDER BY member_id
+        FOR UPDATE
     </select>
 
 </mapper>
