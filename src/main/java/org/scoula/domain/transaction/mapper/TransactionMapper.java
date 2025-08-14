@@ -15,6 +15,11 @@ import org.scoula.global.constants.SortDirection;
 public interface TransactionMapper {
 	void insert(Transaction transaction);
 
+	void insertTransferPair(
+		@Param("sender") Transaction sender,
+		@Param("receiver") Transaction receiver
+	);
+
 	List<Transaction> findByMemberIdAndAccountTransfer(@Param("memberId") Long memberId);
 
 	List<Transaction> findByMemberIdAndWalletTransfer(@Param("memberId") Long memberId);
