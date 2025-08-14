@@ -21,8 +21,11 @@ public class FirebaseUtil {
 					.setNotification(new WebpushNotification(title, body))
 					.build())
 				.build();
-
-			FirebaseMessaging.getInstance().sendAsync(message);
+			try {
+				String send = FirebaseMessaging.getInstance().send(message);
+			} catch (Exception e) {
+				throw new RuntimeException(e);
+			}
 		}
 	}
 
@@ -35,6 +38,10 @@ public class FirebaseUtil {
 				.setNotification(new WebpushNotification(title, body))
 				.build())
 			.build();
-		FirebaseMessaging.getInstance().sendAsync(message);
+		try {
+			String send = FirebaseMessaging.getInstance().send(message);
+		} catch (Exception e) {
+			throw new RuntimeException(e);
+		}
 	}
 }
