@@ -42,6 +42,7 @@ import com.zaxxer.hikari.HikariDataSource;
 @ComponentScan(basePackages = {
 	// "org.scoula.service",
 	"org.scoula.domain.**.service",  // 도메인 객체를 포함하기 위해 추가
+	"org.scoula.domain.**.util",
 	"org.scoula.domain.remittancegroup.batch", // spring batch 설정 추가
 	"org.scoula.domain.ledger.batch",
 	"org.scoula.global.swagger.config",  // Swagger 설정을 포함하기 위해 추가
@@ -70,7 +71,7 @@ public class RootConfig {
 		config.setJdbcUrl(url);
 		config.setUsername(username);
 		config.setPassword(password);
-		config.setMaximumPoolSize(50);
+		config.setMaximumPoolSize(10);
 		config.setMinimumIdle(5);
 		config.setConnectionTimeout(30000);
 		config.setIdleTimeout(600000);
