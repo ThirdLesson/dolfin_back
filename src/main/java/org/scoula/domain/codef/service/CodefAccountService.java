@@ -52,6 +52,7 @@ public class CodefAccountService {
 
 	private final RedisUtil redisUtil;
 	private final MemberService memberService;
+	private final CodefApiClient codefApiClient;
 
 	public void verifyCode(CodefVerifyCodeRequest codefVerifyCodeRequest, Long memberId, HttpServletRequest request) {
 		String redisAuthCode = redisUtil.get(REDIS_CODEF_VERIFY_KEY + memberId);
@@ -155,7 +156,7 @@ public class CodefAccountService {
 	}
 
 	private HttpURLConnection getAuthorizedConnection(String urlStr, HttpServletRequest request) throws Exception {
-		String cachedAccessToken = redisUtil.get(REDIS_ACCESS_TOKEN_KEY);
+		String cachedAccessToken = codefApiClient.getCachedAccessToken(request);
 		if (cachedAccessToken == null) {
 			log.error("CODEF Access Token이 레디스에 없습니다.");
 			Common common = Common.builder()
