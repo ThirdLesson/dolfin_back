@@ -35,7 +35,7 @@ public record JoinRemittanceGroupRequest(
 	)
 	@NotNull(message = "송금 금액은 필수로 입력하셔야 합니다.")
 	@DecimalMin(value = "100000", inclusive = true, message = "송금 금액은 최소 10만원 이상이어야 합니다.")
-	@DecimalMax(value = "3000000", inclusive = true, message = "송금 금액은 최대 300만원 이하여야 합니다.")
+	@DecimalMax(value = "5000000", inclusive = true, message = "송금 금액은 최대 500만원 이하여야 합니다.")
 	BigDecimal amount,
 	@ApiModelProperty(
 		value = "송금 날짜",
