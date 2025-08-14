@@ -57,6 +57,24 @@
                 NOW())
     </insert>
 
+    <insert id="insertTransferPair">
+        INSERT INTO `transaction` (wallet_id, member_id, transaction_group_id,
+                                   amount, before_balance, after_balance, transaction_type,
+                                   counter_party_name, counterparty_member_id, counterparty_wallet_id,
+                                   counter_party_bank_type, counter_party_account_number,
+                                   status)
+        VALUES (#{sender.walletId}, #{sender.memberId}, #{sender.transactionGroupId},
+                #{sender.amount}, #{sender.beforeBalance}, #{sender.afterBalance}, #{sender.transactionType},
+                #{sender.counterPartyName}, #{sender.counterPartyMemberId}, #{sender.counterPartyWalletId},
+                #{sender.counterPartyBankType}, #{sender.counterPartyAccountNumber},
+                #{sender.status}),
+               (#{receiver.walletId}, #{receiver.memberId}, #{receiver.transactionGroupId},
+                #{receiver.amount}, #{receiver.beforeBalance}, #{receiver.afterBalance}, #{receiver.transactionType},
+                #{receiver.counterPartyName}, #{receiver.counterPartyMemberId}, #{receiver.counterPartyWalletId},
+                #{receiver.counterPartyBankType}, #{receiver.counterPartyAccountNumber},
+                #{receiver.status})
+    </insert>
+
     <select id="findByMemberIdAndAccountTransfer" resultMap="transactionResultMap">
         SELECT transaction_id,
                wallet_id,
