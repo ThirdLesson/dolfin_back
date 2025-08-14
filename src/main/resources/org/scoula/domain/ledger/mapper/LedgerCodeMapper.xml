@@ -12,4 +12,17 @@
         WHERE name = #{name}
     </select>
 
+    <select id="findByNames"
+            resultType="org.scoula.domain.ledger.entity.LedgerCode">
+        SELECT
+        account_code_id,
+        name,
+        type
+        FROM ledger_code
+        WHERE name IN
+        <foreach collection="names" item="n" open="(" separator="," close=")">
+            #{n}
+        </foreach>
+    </select>
+
 </mapper>
