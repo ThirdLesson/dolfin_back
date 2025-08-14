@@ -21,6 +21,7 @@ import org.scoula.domain.ledger.entity.LedgerVoucher;
 import org.scoula.domain.ledger.mapper.LedgerCodeMapper;
 import org.scoula.domain.ledger.mapper.LedgerEntryMapper;
 import org.scoula.domain.ledger.mapper.LedgerVoucherMapper;
+import org.scoula.domain.ledger.util.LedgerCodeCacheHelper;
 import org.scoula.domain.remittancegroup.batch.dto.MemberWithInformationDto;
 import org.scoula.domain.transaction.entity.TransactionType;
 import org.scoula.domain.wallet.dto.request.ChargeWalletRequest;
@@ -42,6 +43,7 @@ public class LedgerServiceImpl implements LedgerService {
 	private final LedgerCodeMapper ledgerCodeMapper;
 	private final LedgerVoucherMapper ledgerVoucherMapper;
 	private final LedgerEntryMapper ledgerEntryMapper;
+	private final LedgerCodeCacheHelper ledgerCodeCacheHelper;
 
 	@Override
 	public void accountForWalletTransfer(TransferToWalletRequest request, String transactionGroupId,
@@ -50,23 +52,27 @@ public class LedgerServiceImpl implements LedgerService {
 
 		List<LedgerEntry> ledgerEntries = new ArrayList<>();
 
-		LedgerCode bankPayable = ledgerCodeMapper.findByName("BANK_PAYABLE")
-			.orElseThrow(() -> new CustomException(LEDGER_CODE_NOT_FOUND, LogLevel.ERROR, null, Common.builder()
-				.ledgerCode("BANK_PAYABLE")
-				.srcIp(servletRequest.getRemoteAddr())
-				.callApiPath(servletRequest.getRequestURI())
-				.apiMethod(servletRequest.getMethod())
-				.deviceInfo(servletRequest.getHeader("user-agent"))
-				.build()));
+		LedgerCode bankPayable = ledgerCodeCacheHelper.getByName("BANK_PAYABLE")
+			.orElseThrow(() -> new CustomException(LEDGER_CODE_NOT_FOUND, LogLevel.ERROR, null,
+				Common.builder()
+					.ledgerCode("BANK_PAYABLE")
+					.srcIp(servletRequest.getRemoteAddr())
+					.callApiPath(servletRequest.getRequestURI())
+					.apiMethod(servletRequest.getMethod())
+					.deviceInfo(servletRequest.getHeader("user-agent"))
+					.build()
+			));
 
-		LedgerCode bankAsset = ledgerCodeMapper.findByName("BANK_ASSET")
-			.orElseThrow(() -> new CustomException(LEDGER_CODE_NOT_FOUND, LogLevel.ERROR, null, Common.builder()
-				.ledgerCode("BANK_ASSET")
-				.srcIp(servletRequest.getRemoteAddr())
-				.callApiPath(servletRequest.getRequestURI())
-				.apiMethod(servletRequest.getMethod())
-				.deviceInfo(servletRequest.getHeader("user-agent"))
-				.build()));
+		LedgerCode bankAsset = ledgerCodeCacheHelper.getByName("BANK_ASSET")
+			.orElseThrow(() -> new CustomException(LEDGER_CODE_NOT_FOUND, LogLevel.ERROR, null,
+				Common.builder()
+					.ledgerCode("BANK_ASSET")
+					.srcIp(servletRequest.getRemoteAddr())
+					.callApiPath(servletRequest.getRequestURI())
+					.apiMethod(servletRequest.getMethod())
+					.deviceInfo(servletRequest.getHeader("user-agent"))
+					.build()
+			));
 
 		LedgerEntry debitEntry = LedgerEntry.builder()
 			.ledgerVoucherId(ledgerVoucher.getLedgerVoucherId())

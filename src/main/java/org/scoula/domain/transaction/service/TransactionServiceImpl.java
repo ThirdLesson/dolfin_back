@@ -61,7 +61,6 @@ public class TransactionServiceImpl implements TransactionService {
 			.counterPartyName(receiver.getName())
 			.status(SUCCESS)
 			.build();
-		transactionMapper.insert(senderTransaction);
 
 		Transaction receiverTransaction = Transaction.builder()
 			.walletId(receiverWallet.getWalletId())
@@ -76,7 +75,8 @@ public class TransactionServiceImpl implements TransactionService {
 			.counterPartyName(member.getName())
 			.status(SUCCESS)
 			.build();
-		transactionMapper.insert(receiverTransaction);
+
+		transactionMapper.insertTransferPair(senderTransaction, receiverTransaction);
 	}
 
 	@Override

@@ -9,14 +9,15 @@ import java.util.stream.Collectors;
 import javax.servlet.http.HttpServletRequest;
 
 import org.scoula.domain.member.dto.MemberDTO;
+import org.scoula.domain.member.dto.response.MemberByPhoneNumberCacheResponse;
 import org.scoula.domain.member.entity.Member;
 import org.scoula.domain.member.mapper.MemberMapper;
+import org.scoula.domain.member.util.MemberCache;
 import org.scoula.domain.remittancegroup.batch.dto.MemberWithInformationDto;
 import org.scoula.domain.remittancegroup.mapper.RemittanceGroupMapper;
 import org.scoula.global.exception.CustomException;
 import org.scoula.global.kafka.dto.Common;
 import org.scoula.global.kafka.dto.LogLevel;
-import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -30,8 +31,8 @@ import lombok.extern.log4j.Log4j2;
 public class MemberServiceImpl implements MemberService {
 
 	private final MemberMapper memberMapper;
-	private final PasswordEncoder passwordEncoder;
 	private final RemittanceGroupMapper remittanceGroupMapper;
+	private final MemberCache memberCache;
 
 	@Override
 	public List<MemberDTO> getAllMembers() {
@@ -109,13 +110,30 @@ public class MemberServiceImpl implements MemberService {
 
 	@Override
 	public Member getMemberByPhoneNumber(String phoneNumber, HttpServletRequest request) {
-		return memberMapper.selectMemberByPhoneNumber(phoneNumber)
-			.orElseThrow(() -> new CustomException(MEMBER_NOT_FOUND, LogLevel.WARNING, null, Common.builder()
-				.apiMethod(request.getMethod())
-				.srcIp(request.getRemoteAddr())
-				.callApiPath(request.getRequestURI())
-				.deviceInfo(request.getHeader("user-agent"))
-				.build()));
+
+		MemberByPhoneNumberCacheResponse cached = memberCache.get(phoneNumber);
+		if (cached != null) {
+			return Member.builder()
+				.memberId(cached.getMemberId())
+				.name(cached.getName())
+				.build();
+		}
+
+		Member m = memberMapper.selectMemberByPhoneNumber(phoneNumber)
+			.orElseThrow(() -> new CustomException(
+				MEMBER_NOT_FOUND, LogLevel.WARNING, null,
+				Common.builder()
+					.apiMethod(request.getMethod())
+					.srcIp(request.getRemoteAddr())
+					.callApiPath(request.getRequestURI())
+					.deviceInfo(request.getHeader("user-agent"))
+					.build()
+			));
+
+		memberCache.put(phoneNumber,
+			MemberByPhoneNumberCacheResponse.builder().memberId(m.getMemberId()).name(m.getName()).build());
+
+		return m;
 	}
 
 	@Override

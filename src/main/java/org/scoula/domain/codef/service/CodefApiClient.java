@@ -117,7 +117,7 @@ public class CodefApiClient {
 		}
 	}
 
-	private String getCachedAccessToken(HttpServletRequest request) {
+	public String getCachedAccessToken(HttpServletRequest request) {
 		String cachedAccessToken = redisUtil.get(REDIS_ACCESS_TOKEN_KEY);
 
 		if (cachedAccessToken == null) {

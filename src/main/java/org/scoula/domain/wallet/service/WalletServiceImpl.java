@@ -5,6 +5,7 @@ import static org.scoula.global.constants.Currency.*;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -127,12 +128,16 @@ public class WalletServiceImpl implements WalletService {
 			(member.getMemberId().compareTo(receiver.getMemberId()) < 0) ? receiver.getMemberId() :
 				member.getMemberId();
 
-		Wallet firstLockedWallet = walletMapper.findByMemberIdWithLock(firstLockMemberId)
-			.orElseThrow(() -> new CustomException(WALLET_NOT_FOUND, LogLevel.WARNING, null, common,
-				"조회 실패 ID: " + firstLockMemberId));
-		Wallet secondLockedWallet = walletMapper.findByMemberIdWithLock(secondLockMemberId)
-			.orElseThrow(() -> new CustomException(WALLET_NOT_FOUND, LogLevel.WARNING, null, common,
-				"조회 실패 ID: " + secondLockMemberId));
+		List<Long> ids = Arrays.asList(firstLockMemberId, secondLockMemberId)
+			.stream().sorted().toList();
+		List<Wallet> wallets = walletMapper.findByMemberIdsWithLock(ids);
+
+		if (wallets.isEmpty()) {
+			new CustomException(WALLET_NOT_FOUND, LogLevel.WARNING, null, common,
+				"조회 실패 ID: " + firstLockMemberId + "or" + secondLockMemberId);
+		}
+		Wallet firstLockedWallet = wallets.get(0);
+		Wallet secondLockedWallet = wallets.get(1);
 
 		Wallet senderWallet =
 			(firstLockedWallet.getMemberId().equals(member.getMemberId())) ? firstLockedWallet : secondLockedWallet;
@@ -151,8 +156,8 @@ public class WalletServiceImpl implements WalletService {
 		BigDecimal senderNewBalance = senderWallet.getBalance().subtract(request.amount());
 		BigDecimal receiverNewBalance = receiverWallet.getBalance().add(request.amount());
 
-		walletMapper.updateBalance(senderWallet.getWalletId(), senderNewBalance);
-		walletMapper.updateBalance(receiverWallet.getWalletId(), receiverNewBalance);
+		walletMapper.updateBothBalancesByMember(senderWallet.getMemberId(), senderNewBalance,
+			receiverWallet.getMemberId(), receiverNewBalance);
 
 		String transactionGroupId = UUID.randomUUID().toString();
 		transactionService.saveWalletTransferTransaction(senderWallet, senderNewBalance, receiverWallet,
