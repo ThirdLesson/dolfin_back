@@ -2,6 +2,8 @@ package org.scoula.domain.member.dto.request;
 
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Pattern;
+import javax.validation.constraints.Size;
 
 import org.scoula.global.constants.NationalityCode;
 
@@ -10,12 +12,18 @@ import io.swagger.annotations.ApiModelProperty;
 
 @ApiModel(description = "회원가입 요청 데이터")
 public record JoinRequest(
+
 	@ApiModelProperty(value = "로그인 아이디", example = "user123", required = true)
 	@NotBlank(message = "로그인 아이디는 필수 입력 값입니다.")
+	@Size(min = 6, message = "아이디는 6자 이상이어야 합니다.")
 	String loginId,
 
 	@ApiModelProperty(value = "비밀번호", example = "password123!", required = true)
 	@NotBlank(message = "비밀번호는 필수 입력 값입니다.")
+	@Pattern(
+		regexp = "^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d)(?=.*[^a-zA-Z0-9]).{10,}$",
+		message = "비밀번호는 10자 이상이며, 영문 대소문자, 숫자, 특수문자를 모두 포함해야 합니다."
+	)
 	String password,
 
 	@ApiModelProperty(value = "휴대폰 번호", example = "01012345678", required = true)
