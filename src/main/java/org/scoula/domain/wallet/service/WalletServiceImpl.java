@@ -229,7 +229,7 @@ public class WalletServiceImpl implements WalletService {
 		BigDecimal senderNewBalance = senderWallet.getBalance().subtract(request.amount());
 		walletMapper.updateBalance(senderWallet.getWalletId(), senderNewBalance);
 
-		accountService.depositToAccount(request, servletRequest);
+		// accountService.depositToAccount(request, servletRequest);
 
 		String transactionGroupId = UUID.randomUUID().toString();
 		transactionService.saveAccountTransferTransaction(senderWallet, senderNewBalance, memberId, transactionGroupId,
