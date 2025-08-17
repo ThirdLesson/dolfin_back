@@ -30,7 +30,7 @@ public class BankRateInfo {
 
 	@ApiModelProperty(
 		value = "환율 표시 문자열",
-		example = "1 USD 당 1,419.4 KRW",
+		example = "1,419.4 KRW",
 		notes = "사용자에게 표시되는 환율 정보 (읽기 쉬운 형태)",
 		required = true,
 		position = 2

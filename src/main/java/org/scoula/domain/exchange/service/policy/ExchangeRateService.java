@@ -142,8 +142,7 @@ public class ExchangeRateService {
 			targetExchange.getTargetExchange());
 
 		// 3. 환율 표시 문자열
-		String rateDisplay = String.format("1 %s 당 %s KRW",
-			targetExchange.getTargetExchange(),
+		String rateDisplay = String.format("%s KRW",
 			rateFormatter.format(actualRate));
 
 		// 4. 최종 금액 표시 문자열
@@ -170,10 +169,13 @@ public class ExchangeRateService {
 	private void sortBanksByAmount(List<BankRateInfo> banks, String exchangeType) {
 		if ("RECEIVE".equals(exchangeType) || "SELLCASH".equals(exchangeType)) {
 			// RECEIVE, SELLCASH: 원화를 받기 위해 필요한 외화가 적을수록 좋음 (오름차순)
-			banks.sort(Comparator.comparing(BankRateInfo::getTotaloperation));
+			banks.sort(Comparator.comparing(BankRateInfo::getTotaloperation)
+				.thenComparing(Comparator.comparing(BankRateInfo::getTargetoperation).reversed())
+			);
 		} else {
 			// SEND, GETCASH, BASE: 원화로 더 많은 외화를 받을수록 좋음 (내림차순)
-			banks.sort(Comparator.comparing(BankRateInfo::getTotaloperation).reversed());
+			banks.sort(Comparator.comparing(BankRateInfo::getTotaloperation).reversed()
+				.thenComparing(BankRateInfo::getTargetoperation));
 		}
 	}
 
