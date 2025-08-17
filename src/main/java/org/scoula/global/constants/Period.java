@@ -9,7 +9,7 @@ import lombok.Getter;
 @AllArgsConstructor
 @Getter
 public enum Period {
-	ONE_WEEK(7, ChronoUnit.WEEKS),
+	ONE_WEEK(7, ChronoUnit.DAYS),
 	ONE_MONTH(1, ChronoUnit.MONTHS),
 	THREE_MONTH(3, ChronoUnit.MONTHS),
 	SIX_MONTH(6, ChronoUnit.MONTHS),
