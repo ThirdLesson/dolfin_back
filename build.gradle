@@ -164,6 +164,8 @@ dependencies {
     implementation 'net.javacrumbs.shedlock:shedlock-spring:5.16.0'
     implementation 'net.javacrumbs.shedlock:shedlock-provider-redis-spring:5.16.0'
 
+    // 어떤 캐시 기술을 쓸지 선택 (Caffeine은 성능이 매우 좋은 캐시 라이브러리)
+    implementation 'com.github.ben-manes.caffeine:caffeine:3.1.8'
 }
 
 

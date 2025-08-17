@@ -1,10 +1,14 @@
 package org.scoula.domain.account.mapper;
 
+import java.math.BigDecimal;
 import java.util.List;
+
 
 import org.apache.ibatis.annotations.Insert;
 import org.apache.ibatis.annotations.Mapper;
+import org.apache.ibatis.annotations.Param;
 import org.apache.ibatis.annotations.Select;
+import org.apache.ibatis.annotations.Update;
 import org.scoula.domain.account.dto.request.CreateAccountRequest;
 import org.scoula.domain.account.entity.Account;
 
@@ -69,4 +73,12 @@ public interface AccountMapper {
 		    WHERE wallet_id = #{walletId}
 		""")
 	List<Account> findByWalletId(Long walletId);
+
+	@Update("""
+			    UPDATE account
+			    SET balance = balance + #{amount}
+			    WHERE account_number = #{accountNumber}
+		""")
+	int increaseBalance(
+		@Param("accountNumber") String accountNumber, @Param("amount") BigDecimal amount);
 }

@@ -60,9 +60,15 @@ public class AccountServiceImpl implements AccountService {
 
 	@Transactional
 	public void depositToAccount(TransferToAccountRequest request, HttpServletRequest servletRequest) {
-		boolean externalTransferSuccess = true;
+		// boolean externalTransferSuccess = true;
 
-		if (!externalTransferSuccess) {
+
+		// Mapper를 호출하여 계좌의 잔액을 업데이트합니다.
+		int updatedRows = accountMapper.increaseBalance(request.accountNumber(), request.amount());
+
+		// 업데이트가 성공했는지 확인 (결과가 0이면 계좌번호가 없는 경우)
+		// if (!externalTransferSuccess) {
+		if (updatedRows == 0) {
 			throw new CustomException(ACCOUNT_TRANSFER_FAILED, LogLevel.ERROR, null, Common.builder()
 				.deviceInfo(servletRequest.getHeader("user-agent"))
 				.callApiPath(servletRequest.getRequestURI())
@@ -71,6 +77,8 @@ public class AccountServiceImpl implements AccountService {
 				.build(),
 				"은행 계좌 이체 실패: " + request.accountNumber());
 		}
+
+
 	}
 
 	@Override

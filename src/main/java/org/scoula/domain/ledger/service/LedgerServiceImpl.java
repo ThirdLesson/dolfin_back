@@ -44,6 +44,7 @@ public class LedgerServiceImpl implements LedgerService {
 	private final LedgerVoucherMapper ledgerVoucherMapper;
 	private final LedgerEntryMapper ledgerEntryMapper;
 	private final LedgerCodeCacheHelper ledgerCodeCacheHelper;
+	private final LedgerCodeService ledgerCodeService;
 
 	@Override
 	public void accountForWalletTransfer(TransferToWalletRequest request, String transactionGroupId,
@@ -52,27 +53,31 @@ public class LedgerServiceImpl implements LedgerService {
 
 		List<LedgerEntry> ledgerEntries = new ArrayList<>();
 
-		LedgerCode bankPayable = ledgerCodeCacheHelper.getByName("BANK_PAYABLE")
-			.orElseThrow(() -> new CustomException(LEDGER_CODE_NOT_FOUND, LogLevel.ERROR, null,
-				Common.builder()
-					.ledgerCode("BANK_PAYABLE")
-					.srcIp(servletRequest.getRemoteAddr())
-					.callApiPath(servletRequest.getRequestURI())
-					.apiMethod(servletRequest.getMethod())
-					.deviceInfo(servletRequest.getHeader("user-agent"))
-					.build()
-			));
+		// LedgerCode bankPayable = ledgerCodeCacheHelper.getByName("BANK_PAYABLE")
+		// 	.orElseThrow(() -> new CustomException(LEDGER_CODE_NOT_FOUND, LogLevel.ERROR, null,
+		// 		Common.builder()
+		// 			.ledgerCode("BANK_PAYABLE")
+		// 			.srcIp(servletRequest.getRemoteAddr())
+		// 			.callApiPath(servletRequest.getRequestURI())
+		// 			.apiMethod(servletRequest.getMethod())
+		// 			.deviceInfo(servletRequest.getHeader("user-agent"))
+		// 			.build()
+		// 	));
+		//
+		// LedgerCode bankAsset = ledgerCodeCacheHelper.getByName("BANK_ASSET")
+		// 	.orElseThrow(() -> new CustomException(LEDGER_CODE_NOT_FOUND, LogLevel.ERROR, null,
+		// 		Common.builder()
+		// 			.ledgerCode("BANK_ASSET")
+		// 			.srcIp(servletRequest.getRemoteAddr())
+		// 			.callApiPath(servletRequest.getRequestURI())
+		// 			.apiMethod(servletRequest.getMethod())
+		// 			.deviceInfo(servletRequest.getHeader("user-agent"))
+		// 			.build()
+		// 	));
 
-		LedgerCode bankAsset = ledgerCodeCacheHelper.getByName("BANK_ASSET")
-			.orElseThrow(() -> new CustomException(LEDGER_CODE_NOT_FOUND, LogLevel.ERROR, null,
-				Common.builder()
-					.ledgerCode("BANK_ASSET")
-					.srcIp(servletRequest.getRemoteAddr())
-					.callApiPath(servletRequest.getRequestURI())
-					.apiMethod(servletRequest.getMethod())
-					.deviceInfo(servletRequest.getHeader("user-agent"))
-					.build()
-			));
+		// [수정 후] DB를 직접 조회하는 대신 캐시 서비스를 호출합니다.
+		LedgerCode bankAsset = ledgerCodeService.findByName("BANK_ASSET", servletRequest);
+		LedgerCode bankPayable = ledgerCodeService.findByName("BANK_PAYABLE", servletRequest);
 
 		LedgerEntry debitEntry = LedgerEntry.builder()
 			.ledgerVoucherId(ledgerVoucher.getLedgerVoucherId())
@@ -129,6 +134,7 @@ public class LedgerServiceImpl implements LedgerService {
 
 		LedgerCode bankAsset = ledgerCodeMapper.findByName("BANK_ASSET")
 			.orElseThrow(() -> new CustomException(LEDGER_CODE_NOT_FOUND, LogLevel.ERROR, null, common));
+
 		LedgerCode bankPayable = ledgerCodeMapper.findByName("BANK_PAYABLE")
 			.orElseThrow(() -> new CustomException(LEDGER_CODE_NOT_FOUND, LogLevel.ERROR, null, common));
 
