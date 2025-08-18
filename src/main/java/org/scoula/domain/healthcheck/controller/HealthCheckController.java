@@ -1,4 +1,4 @@
-package org.scoula.domain.controller;
+package org.scoula.domain.healthcheck.controller;
 
 import java.util.HashMap;
 import java.util.Map;
