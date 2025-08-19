@@ -39,18 +39,14 @@ public class PersonalLoanService {
         HttpServletRequest httpServletRequest) {
 
 
-        // offset 계산
-
-        // 전체 개수 조회
+       
         int totalCount = loanMapper.countLoansByConditions(minAmount, maxAmount);
 
-        // 조건에 맞는 대출 상품 조회
         List<PersonalCreditLoan> loans = loanMapper.findLoansByConditions(
             filterType, minAmount, maxAmount, (int)pageable.getOffset(), pageable.getPageSize()
         );
 
 
-        // Response 변환
         List<PersonalSearchResponse> responses = loans.stream()
             .map(loan -> convertToResponse(loan, filterType, httpServletRequest))
             .collect(Collectors.toList());
@@ -68,16 +64,16 @@ public class PersonalLoanService {
         BigDecimal selectedRate = BigDecimal.ZERO;
         switch (criteria) {
             case "default":
-                selectedRate = loan.getMaxRate(); // 기본 기준은 최고금리
+                selectedRate = loan.getMaxRate(); 
                 break;
             case "MIN_RATE":
-                selectedRate = loan.getBaseRate(); // 최저금리
+                selectedRate = loan.getBaseRate();
                 break;
             case "AVG_RATE":
-                selectedRate = loan.getSpreadRate(); // 평균금리
+                selectedRate = loan.getSpreadRate(); 
                 break;
             case "MAX_RATE":
-                selectedRate = loan.getMaxRate(); // 최고금리
+                selectedRate = loan.getMaxRate(); 
                 break;
             default:
                 throw new CustomException(PersonalLoanErrorCode.EXCHANGE_NOT_FOUND, LogLevel.ERROR,
@@ -118,12 +114,11 @@ public class PersonalLoanService {
 
         Integer visaMinMonths;
         if (loan.getVisaMinMonths() == null|| loan.getVisaMinMonths() < 0) {
-            visaMinMonths = 0; // 비자 소지 최소 기간이 설정되지 않은 경우 기본값 0으로 처리
+            visaMinMonths = 0; 
         } else {
             visaMinMonths = loan.getVisaMinMonths();
         }
         Boolean isForeignerAvailable = false;
-        // 대출 상품의 최소 이용 기간이 남은 시간보다 크면 isForeignerAvailable = true
         if (remainTime >= visaMinMonths) {
             isForeignerAvailable = true;
         }
