@@ -1,6 +1,5 @@
 package org.scoula.domain.exchange.service.finalService;
 
-// ExchangeFinalService.java
 
 import javax.servlet.http.HttpServletRequest;
 
@@ -24,27 +23,18 @@ public class ExchangeFinalService {
 	private final ExchangePolicyService exchangePolicyService;
 	private final ExchangeRateService exchangeRateService;
 	private final ExchangeCommissionService exchangeCommissionService;
-	/**
-	 * 최종 환율 계산 서비스
-	 *
-	 * @param request            환율 계산 요청 정보
-	 * @param httpServletRequest HTTP 요청 정보
-	 * @return 최종 환율 정보 (기본 환율 + 정책 옵션)
-	 */
+	
 	public ExchangeBankResponse calculateFinalExchangeRate(ExchangeBankRequest request,
 		HttpServletRequest httpServletRequest) {
 
-		// 1. 송금 수수료 적용
 		ExchangeInformation exchangeinformation = exchangeCommissionService.getExchangeCommissionFee("하나은행",
 			request.getTargetCurrency(),
 			request.getType(),
 			request.getAmount());
 
-		// 2. 기본 환율 계산 (5개 은행, 0% 우대율, 수수료 포함)
 		ExchangeBankResponse bankResponse = exchangeRateService.calculateExchangeBank(
 			request, exchangeinformation.getUsdAmount(),exchangeinformation.exchangeCommissionFee);
 
-		// 3. 정책 적용
 		exchangePolicyService.getAllBanksWithPolicy(bankResponse, exchangeinformation.usdAmount, exchangeinformation.getExchangeCommissionFee());
 
 		return bankResponse;
