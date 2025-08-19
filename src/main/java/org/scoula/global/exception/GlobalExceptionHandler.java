@@ -31,9 +31,7 @@ public class GlobalExceptionHandler {
 
 	private final KafkaProducer kafkaProducer;
 
-	/**
-	 * 커스텀 예외
-	 */
+	
 	@ExceptionHandler(value = CustomException.class)
 	public ResponseEntity<ErrorResponse<Void>> handleCustomException(CustomException e) {
 		ErrorCode errorCode = e.getErrorCode();
@@ -50,9 +48,7 @@ public class GlobalExceptionHandler {
 			.body(ErrorResponse.error(errorCode.getCode(), e.getMessage()));
 	}
 
-	/**
-	 * 데이터 유효성 검사가 실패할 경우
-	 */
+	
 	@ExceptionHandler(MethodArgumentNotValidException.class)
 	protected ResponseEntity<ErrorResponse<Map<String, String>>> handleMethodArgumentNotValidException(
 		MethodArgumentNotValidException e) {
@@ -77,9 +73,7 @@ public class GlobalExceptionHandler {
 			.body(ErrorResponse.error(errors, errorCode.getCode(), errorCode.getMessage()));
 	}
 
-	/**
-	 * 필수 요청 파라미터 누락 예외
-	 */
+
 	@ExceptionHandler(MissingServletRequestParameterException.class)
 	public ResponseEntity<ErrorResponse<Void>> handleMissingServletRequestParameterException(
 		MissingServletRequestParameterException e) {
@@ -113,9 +107,7 @@ public class GlobalExceptionHandler {
 			.body(ErrorResponse.error(errorCode.getCode(), errorCode.getMessage()));
 	}
 
-	/**
-	 * 예상하지 못한 모든 예외 처리
-	 */
+	
 	@ExceptionHandler(Exception.class)
 	public ResponseEntity<ErrorResponse<Void>> handleAllExceptions(Exception e, HttpServletRequest request) {
 		ErrorCode errorCode = CommonErrorCode.INTERNAL_SERVER_ERROR;
