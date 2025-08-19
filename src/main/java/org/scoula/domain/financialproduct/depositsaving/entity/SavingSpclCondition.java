@@ -10,17 +10,16 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-// 적금 우대금리
 @Getter
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
 @Setter
 public class SavingSpclCondition extends BaseEntity {
-	private Long id;//PK
-	private Long savingId; // FK
-	private SavingSpclConditionType spclCondition; // ENUM, 우대조건
-	private String productCode;         // 상품코드 (조인키)
-	private String companyCode;         // 회사코드 (조인키)
-	private Integer saveMonth;       // 저축기간
+	private Long id;
+	private Long savingId; 
+	private SavingSpclConditionType spclCondition; 
+	private String productCode;        
+	private String companyCode;         
+	private Integer saveMonth;      
 }
