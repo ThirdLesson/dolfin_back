@@ -45,14 +45,12 @@ public class CustomAuthenticationEntryPoint implements AuthenticationEntryPoint 
 				IN_JWT_NOT_CONTAINS_USER_INFO.getCode(),
 				IN_JWT_NOT_CONTAINS_USER_INFO.getMessage());
 		} else {
-			// 나머지 잘못된 요청에 대한 기본 예외 처리
 			setResponse(response, HttpStatus.UNAUTHORIZED, "F-001",
-				"허용되지 않은 권한 또는 허용되지 않은 경로입니다."); // 기본적으로 401 상태 코드와 에러 메시지 반환
+				"허용되지 않은 권한 또는 허용되지 않은 경로입니다."); 
 		}
 
 	}
 
-	// 발생한 예외에 맞게 status를 설정하고 message를 반환
 	private void setResponse(HttpServletResponse response, HttpStatus status, String code, String message) throws
 		IOException {
 		response.setStatus(status.value());
