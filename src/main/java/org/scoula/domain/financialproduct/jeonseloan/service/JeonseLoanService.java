@@ -11,10 +11,8 @@ import java.util.List;
 
 public interface JeonseLoanService {
 
-	// 전세대출 전체 리스트 조회
 	Page<JeonseLoanResponseDTO> getAllJeonseLoans(JeonseLoanRequestDTO request, Pageable pageable);
 
-	// 전세대출 상세 조회
 	JeonseLoanDetailResponseDTO getJeonseLoanDetail(Long jeonseLoanId, Member member);
 }
 
