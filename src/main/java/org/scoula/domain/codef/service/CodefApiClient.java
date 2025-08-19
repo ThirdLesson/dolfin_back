@@ -66,15 +66,14 @@ public class CodefApiClient {
 
 		if (resultCode.equals("CF-00000")) {
 			if (response.data().resAuthenticity().equals("0")) {
-				// throw new CustomException(STAY_AUTHENTICITY_FAILED, LogLevel.WARNING, null, common);
 				return new StayExpirationResponse(
-					"0",                                      // resAuthenticity
-					"현재 체류중인 외국인이 아닙니다.",              // resAuthenticityDesc
-					null,                                     // resPassportNo
-					null,                                     // resNationality
-					null,                                     // commBirthDate
-					null,                                     // resStatus
-					LocalDate.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd")) // resExpirationDate
+					"0",                                      
+					"현재 체류중인 외국인이 아닙니다.",             
+					null,                                    
+					null,                                   
+					null,                                    
+					null,                                    
+					LocalDate.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd")) 
 				);
 			}
 			return response.data();
