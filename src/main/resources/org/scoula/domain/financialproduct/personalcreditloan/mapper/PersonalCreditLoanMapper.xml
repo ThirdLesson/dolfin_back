@@ -6,7 +6,6 @@
 
 
     <resultMap id="personalCreditLoanResultMap" type="org.scoula.domain.financialproduct.personalcreditloan.entity.PersonalCreditLoan">
-        <!-- 기본 필드 매핑 -->
         <id property="personalLoanId" column="personal_loan_id"/>
         <result property="financialCompanyId" column="financial_company_id"/>
         <result property="productName" column="product_name"/>
@@ -22,7 +21,6 @@
         <result property="visaMinMonths" column="visa_min_months"/>
         <result property="isActive" column="is_active"/>
 
-        <!-- JOIN 필드 매핑 -->
         <result property="companyName" column="company_name"/>
         <result property="companyCode" column="company_code"/>
         <result property="companyCallNumber" column="company_call_number"/>
@@ -40,12 +38,10 @@
         JOIN financial_company fc ON pcl.financial_company_id = fc.financial_company_id
         WHERE pcl.is_active = true
 
-        <!-- 대출 금액 필터 -->
         <if test="minAmount != null and maxAmount != null">
             AND pcl.max_loan_amount BETWEEN #{minAmount} AND #{maxAmount}
         </if>
 
-        <!-- 금리 기준 정렬 -->
         <choose>
             <when test="filterType == 'MIN_RATE'">
                 ORDER BY pcl.base_rate ASC
@@ -57,22 +53,19 @@
                 ORDER BY pcl.spread_rate ASC
             </when>
             <otherwise>
-                ORDER BY pcl.base_rate ASC  <!-- 기본값 -->
+                ORDER BY pcl.base_rate ASC 
             </otherwise>
         </choose>
 
-        <!-- 페이징 -->
         LIMIT #{limit} OFFSET #{offset}
     </select>
 
-    <!-- 전체 개수 조회 (페이징을 위해 필요) -->
     <select id="countLoansByConditions" resultType="int">
         SELECT COUNT(*)
         FROM personal_credit_loan pcl
         JOIN financial_company fc ON pcl.financial_company_id = fc.financial_company_id
         WHERE pcl.is_active = true
 
-        <!-- 대출 금액 필터 -->
         <if test="minAmount != null and maxAmount != null">
             AND pcl.max_loan_amount BETWEEN #{minAmount} AND #{maxAmount}
         </if>
