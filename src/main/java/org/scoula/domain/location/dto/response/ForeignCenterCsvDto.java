@@ -6,23 +6,23 @@ import com.opencsv.bean.CsvBindByName;
 @Data
 public class ForeignCenterCsvDto {
     @CsvBindByName(column = "cnterNm")
-    private String centerName;           // 센터명
+    private String centerName;          
     
     @CsvBindByName(column = "roadNmAddr")
-    private String roadAddress;          // 도로명주소
+    private String roadAddress;         
     
     @CsvBindByName(column = "lat")
-    private Double latitude;             // 위도
+    private Double latitude;            
     
     @CsvBindByName(column = "lot")
-    private Double longitude;            // 경도
+    private Double longitude;            
     
     @CsvBindByName(column = "rprsTelno")
-    private String representativeTelno;  // 대표전화번호
+    private String representativeTelno;  
     
     @CsvBindByName(column = "dscsnTelno")
-    private String consultTelno;         // 상담전화번호
+    private String consultTelno;        
 
     @CsvBindByName(column = "hmpgAddr")
-    private String homepageUrl;           // 센터 URL
+    private String homepageUrl;          
 }
