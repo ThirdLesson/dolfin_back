@@ -47,7 +47,6 @@ public class ExchangeRateQuickServiceImpl implements ExchangeRateQuickService {
 		List<String> banks = List.of("국민은행", "하나은행", "신한은행", "우리은행", "기업은행");
 		List<BankRateInfo> rates = new ArrayList<>();
 
-		// 각 은행별 환율 정보 조회
 		for (String bank : banks) {
 			ExchangeRate latestExchangeRate = exchangeRateMapper
 				.findLatestExchangeRate(bank, request.getType(), request.getTargetCurrency());
@@ -75,7 +74,6 @@ public class ExchangeRateQuickServiceImpl implements ExchangeRateQuickService {
 			);
 		}
 
-		// 환율 타입에 따른 정렬
 		List<BankRateInfo> sortedRates = sortByExchangeType(rates, request.getType());
 
 		return ExchangeBankResponse.builder()
@@ -91,14 +89,14 @@ public class ExchangeRateQuickServiceImpl implements ExchangeRateQuickService {
 		Comparator<BankRateInfo> comparator;
 
 		switch (type) {
-			case "SELLCASH":  // 현찰 팔 때 - 낮은 환율이 유리
-			case "SEND":      // 송금 보낼 때 - 낮은 환율이 유리
-			case "BASE":      // 기준율 - 낮은 순으로 정렬
+			case "SELLCASH":  
+			case "SEND":      
+			case "BASE":     
 				comparator = Comparator.comparing(BankRateInfo::getTargetoperation);
 				break;
 
-			case "GETCASH":   // 현찰 살 때 - 높은 환율이 유리
-			case "RECEIVE":   // 송금 받을 때 - 높은 환율이 유리
+			case "GETCASH":   
+			case "RECEIVE":   
 				comparator = Comparator.comparing(BankRateInfo::getTargetoperation).reversed();
 				break;
 
@@ -112,14 +110,11 @@ public class ExchangeRateQuickServiceImpl implements ExchangeRateQuickService {
 	}
 
 	private BankRateInfo calculateBankRate(ExchangeRate rate, BigDecimal amountInKRW) {
-		// 환전 후 받게 될 목표 통화 금액 계산
 		BigDecimal targetAmount;
 		String rateDisplay;
 
-		// KRW -> 목표통화: 원화금액 / 환율
 		targetAmount = amountInKRW.divide(rate.getExchangeValue(), 2, RoundingMode.HALF_UP);
 
-		// 환율 표시 (1 목표통화 = X KRW)
 		rateDisplay = String.format("1 %s 당 %s KRW",
 			rate.getTargetExchange(),
 			rateFormatter.format(rate.getExchangeValue()));
@@ -143,7 +138,6 @@ public class ExchangeRateQuickServiceImpl implements ExchangeRateQuickService {
 		List<String> banks = List.of("국민은행", "하나은행", "신한은행", "우리은행", "기업은행");
 		List<BankRateInfo> rates = new ArrayList<>();
 
-		// 각 은행별 환율 정보 조회
 		for (String bank : banks) {
 			ExchangeRate baseExchange = exchangeRateMapper
 				.findLatestExchangeRate(bank, request.getType(), String.valueOf(Type.BASE));
@@ -175,37 +169,31 @@ public class ExchangeRateQuickServiceImpl implements ExchangeRateQuickService {
 			.build();
 	}
 
-	/**
-	 * 기본 정책 옵션 계산 (0% 우대율)
-	 */
+	
 	private BankRateInfo calculatePolicyOption(ExchangeRate targetExchange, ExchangeRate baseExchange,
 		BigDecimal amountInKRW) {
-		BigDecimal transferFee = BigDecimal.valueOf(8000); // 전신료
-		BigDecimal zeroPreferentialRate = BigDecimal.ZERO; // 0% 우대율 (일반 요율)
+		BigDecimal transferFee = BigDecimal.valueOf(8000);
+		BigDecimal zeroPreferentialRate = BigDecimal.ZERO; 
 
-		// 1. 전신료 차감
 		BigDecimal amountAfterTransferFee = amountInKRW.subtract(transferFee);
 
-		// 2. 일반 요율 (0% 우대) 계산 - 실제로는 targetExchange(SEND) 환율 그대로 사용
-		BigDecimal baseActualRate = targetExchange.getExchangeValue(); // SEND 타입 환율 (0% 우대)
+		BigDecimal baseActualRate = targetExchange.getExchangeValue(); 
 		BigDecimal baseFinalAmount = amountAfterTransferFee.divide(baseActualRate, 2, RoundingMode.HALF_UP);
 
-		// 3. 환율 표시
 		String rateDisplay = String.format("1 %s 당 %s KRW",
 			targetExchange.getTargetExchange(),
 			rateFormatter.format(baseActualRate));
 
-		// 4. 일반 요율 결과
 		String totalAmountDisplay = String.format("%s %s",
 			currencyFormatter.format(baseFinalAmount.setScale(2, RoundingMode.HALF_UP)),
 			targetExchange.getTargetExchange());
 
 		return BankRateInfo.builder()
 			.bankName(targetExchange.getBankName())
-			.targetoperation(baseActualRate)  // 0% 우대 적용된 환율 (실제로는 SEND 그대로)
+			.targetoperation(baseActualRate)  
 			.exchangeRate(rateDisplay)
 			.totalAmount(totalAmountDisplay)
-			.policyList(new ArrayList<>()) // 나중에 addPolicyOption으로 추가
+			.policyList(new ArrayList<>())
 			.build();
 	}
 
@@ -220,7 +208,6 @@ public class ExchangeRateQuickServiceImpl implements ExchangeRateQuickService {
 	@Override
 	public List<ExchangeLiveResponse> getLatestExchangeRate(HttpServletRequest request) {
 
-		// 기준 통화(KRW)에서 목표 통화로의 환율 조회
 		List<ExchangeLiveResponse> baseExchangeRates = exchangeRateMapper.getExchangeLiveList();
 
 		if (baseExchangeRates.isEmpty()) {
@@ -234,7 +221,6 @@ public class ExchangeRateQuickServiceImpl implements ExchangeRateQuickService {
 		}
 
 		for (ExchangeLiveResponse baseExchangeRate : baseExchangeRates) {
-			// 환율값 소수 2자리에서 반올림
 			baseExchangeRate.setExchangeRate(
 				baseExchangeRate.getExchangeRate().setScale(2, RoundingMode.HALF_UP));
 		}
@@ -242,16 +228,8 @@ public class ExchangeRateQuickServiceImpl implements ExchangeRateQuickService {
 		 return baseExchangeRates;
 	}
 
-	/**
-	 * 빠른 환율 계산
-	 * 기준 통화(KRW)에서 목표 통화로의 환율을 조회하여, 요청한 금액에 대한 환전 후 금액을 계산합니다.
-	 * 환율 타입은 BASE로 고정되어 있습니다.
-	 * @param request 환율 계산 요청 정보
-	 * @return ExchangeQuickResponse
-	 */
 	private ExchangeQuickResponse calculateExchangeQuickNormal(ExchangeQuickRequest request) {
 
-		// 기준 통화(KRW)에서 목표 통화로의 환율 조회
 		ExchangeRate baseRate = exchangeRateMapper.findLatestExchangeRate("KB국민은행", "BASE", request.getTargetCurrency());
 
 		if (baseRate == null) {
