@@ -36,9 +36,9 @@ import lombok.extern.slf4j.Slf4j;
 @Component
 public class JwtTokenProvider {
 
-	private static final long ACCESS_TOKEN_MAX_AGE = 1000L * 60 * 30;         // 30분
-	private static final long REFRESH_TOKEN_MAX_AGE = 1000L * 60 * 60 * 24 * 3; // 3일
-	private static final int REDIS_REFRESH_TOKEN_MAX_AGE = 60 * 24 * 3; // 3일 minute 단위
+	private static final long ACCESS_TOKEN_MAX_AGE = 1000L * 60 * 30;        
+	private static final long REFRESH_TOKEN_MAX_AGE = 1000L * 60 * 60 * 24 * 3; 
+	private static final int REDIS_REFRESH_TOKEN_MAX_AGE = 60 * 24 * 3; 
 
 	private final Key key;
 	private final MemberService memberService;
@@ -52,12 +52,10 @@ public class JwtTokenProvider {
 		this.redisUtil = redisUtil;
 	}
 
-	// Member 정보를 가지고 AccessToken, RefreshToken을 생성하는 메서드
 	public JwtToken generateToken(Long memberId, String loginId) {
 
 		long now = (new Date()).getTime();
 
-		// Access Token 생성
 		Date accessTokenExpiresIn = new Date(now + ACCESS_TOKEN_MAX_AGE);
 		String accessToken = Jwts.builder()
 			.setSubject(String.valueOf(memberId))
@@ -66,7 +64,6 @@ public class JwtTokenProvider {
 			.signWith(key, SignatureAlgorithm.HS256)
 			.compact();
 
-		// Refresh Token 생성
 		String refreshToken = Jwts.builder()
 			.setExpiration(new Date(now + REFRESH_TOKEN_MAX_AGE))
 			.signWith(key, SignatureAlgorithm.HS256)
@@ -81,12 +78,10 @@ public class JwtTokenProvider {
 			.build();
 	}
 
-	// Jwt 토큰을 복호화하여 토큰에 들어있는 정보를 꺼내는 메서드
 	public Authentication getAuthentication(HttpServletRequest request, HttpServletResponse response,
 		String accessToken) throws
 		ServletException,
 		IOException, JwtAuthenticationException {
-		// Jwt 토큰 복호화
 		Claims claims = parseClaims(accessToken);
 
 		if (claims.get("auth") == null) {
@@ -94,11 +89,9 @@ public class JwtTokenProvider {
 			throw new JwtAuthenticationException("cannotUseRefreshToken");
 		}
 
-		// 클레임에서 권한 정보 가져오기
 		Collection<SimpleGrantedAuthority> authorities = new ArrayList<>();
 		authorities.add(new SimpleGrantedAuthority((String)claims.get("auth")));
 
-		// CustomUserDetails 객체를 만들어서 Authentication return
 		MemberDTO member = memberService.getMemberById(Long.valueOf(claims.getSubject()));
 		if (member == null) {
 			request.setAttribute("cannotFindMemberIDInJWTToken", 400);
@@ -106,15 +99,13 @@ public class JwtTokenProvider {
 		}
 		CustomUserDetails userDetails = new CustomUserDetails(member.toEntity());
 
-		// 3) AuthenticationToken 에 principal 로 CustomUserDetails 넣기
 		return new UsernamePasswordAuthenticationToken(
-			userDetails,                          // <- CustomUserDetails
-			accessToken,                          // credentials 필드에 토큰을 넣어도 되고, null 여도 됩니다
-			userDetails.getAuthorities()          // 권한
+			userDetails,                          
+			accessToken,                         
+			userDetails.getAuthorities()         
 		);
 	}
 
-	// 토큰 정보를 검증하는 메서드
 	public boolean validateToken(HttpServletRequest request, HttpServletResponse response, String token) throws
 		JwtAuthenticationException {
 		try {
@@ -137,7 +128,6 @@ public class JwtTokenProvider {
 		}
 	}
 
-	// accessToken
 	private Claims parseClaims(String accessToken) {
 		try {
 			return Jwts.parserBuilder()

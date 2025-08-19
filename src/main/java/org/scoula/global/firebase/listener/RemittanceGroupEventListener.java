@@ -41,11 +41,9 @@ public class RemittanceGroupEventListener {
 	public void handleGroupCompleted(RemittanceGroupCompletedEvent event) {
 		Long groupId = event.getRemittanceGroupId();
 
-		// 그룹에 속한 멤버들의 FCM 토큰 가져오기
 		List<String> fcmTokens = memberMapper.findFcmTokensByRemittanceGroupId(groupId);
 		fcmTokens.add(event.getFcmToken());
 
-		// 유효한 토큰만 필터링 (널/빈 문자열 제거)
 		List<String> validTokens = fcmTokens.stream()
 			.filter(token -> token != null && !token.isBlank())
 			.toList();
@@ -71,10 +69,8 @@ public class RemittanceGroupEventListener {
 		if (memberIds == null || memberIds.isEmpty())
 			return;
 
-		// 그룹에 속한 멤버들의 FCM 토큰 가져오기
 		List<String> fcmTokens = memberMapper.findFcmTokensByMemberIds(memberIds);
 
-		// 유효한 토큰만 필터링 (널/빈 문자열 제거)
 		List<String> validTokens = fcmTokens.stream()
 			.filter(token -> token != null && !token.isBlank())
 			.toList();
@@ -176,9 +172,9 @@ public class RemittanceGroupEventListener {
 	}
 
 	private String formatAmount(BigDecimal amount, org.scoula.global.constants.Currency currency) {
-		NumberFormat format = NumberFormat.getCurrencyInstance(Locale.US); // 기본 미국식
-		format.setCurrency(Currency.getInstance(currency.name())); // "USD", "KRW", "JPY"
-		format.setMinimumFractionDigits(2); // 소수점 자리수
+		NumberFormat format = NumberFormat.getCurrencyInstance(Locale.US); 
+		format.setCurrency(Currency.getInstance(currency.name())); 
+		format.setMinimumFractionDigits(2); 
 		return format.format(amount);
 	}
 }

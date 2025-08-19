@@ -35,7 +35,6 @@ public class RemittanceGroupAutoJoinWriter {
 			}
 
 			for (RemittanceGroup g : sorted) {
-				// 기존 그룹에 이탈자가 없을 경우 패스
 				if (g.getMemberCount() != null && g.getMemberCount() >= 30)
 					continue;
 

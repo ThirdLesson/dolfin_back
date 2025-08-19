@@ -10,9 +10,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-/**
- * 단체 송금
- */
+
 @Getter
 @Setter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
@@ -20,11 +18,11 @@ import lombok.Setter;
 @Builder
 public class RemittanceGroup extends BaseEntity {
 
-	private Long remittanceGroupId;         // 송금 그룹 아이디 (PK)
-	private BenefitStatus benefitStatus; // 혜택 적용 상태
-	private Integer remittanceDate; // 정기 송금 날짜
-	private Integer memberCount; // 참여중인 사람 수
-	private Currency currency; // 설정 통화
+	private Long remittanceGroupId;        
+	private BenefitStatus benefitStatus; 
+	private Integer remittanceDate; 
+	private Integer memberCount; 
+	private Currency currency; 
 
 }
 

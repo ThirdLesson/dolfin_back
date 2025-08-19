@@ -13,9 +13,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-/**
- * 회원
- */
+
 @Getter
 @Setter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
@@ -23,20 +21,20 @@ import lombok.Setter;
 @Builder
 public class Member extends BaseEntity {
 
-	private Long memberId;          // 회원 아이디 (PK)
-	private Long remittanceInformationId; // 정기송금 정보 아이디
-	private Long remittanceGroupId; // 정기송금 그룹 아이디
-	private String loginId;         // 로그인 아이디
-	private String password;        // 비밀번호
-	private String passportNumber;  // 여권번호
-	private NationalityCode nationality; // 국적
-	private String country;            // 나라
-	private LocalDate birth;        // 생년월일
-	private String name;            // 성명
-	private String phoneNumber;     // 전화번호
-	private LocalDate remainTime;   // 잔여 체류기간
-	private Currency currency;      // 설정 통화
-	private String connectedId; // 코데프 유저 아이디
-	private String fcmToken; // firebase 유저 토큰
+	private Long memberId;          
+	private Long remittanceInformationId; 
+	private Long remittanceGroupId; 
+	private String loginId;         
+	private String password;        
+	private String passportNumber;  
+	private NationalityCode nationality; 
+	private String country;            
+	private LocalDate birth;        
+	private String name;            
+	private String phoneNumber;     
+	private LocalDate remainTime;  
+	private Currency currency;     
+	private String connectedId; 
+	private String fcmToken; 
 
 }

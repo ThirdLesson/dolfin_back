@@ -46,7 +46,7 @@ public class JoinServiceImpl implements JoinService {
 		String StayExpirationBirthDate = date.format(STAY_EXPIRATION_FORMATTER);
 
 		StayExpirationRequest stayExpirationRequest = StayExpirationRequest.builder()
-			.organization("0001") // 고정값 0001
+			.organization("0001") 
 			.birthDate(StayExpirationBirthDate)
 			.passportNo(joinRequest.passportNumber())
 			.nationality(joinRequest.nationality().getCode())
@@ -62,7 +62,7 @@ public class JoinServiceImpl implements JoinService {
 			.birth(LocalDate.parse(joinRequest.birth(), DATE_FORMATTER))
 			.nationality(joinRequest.nationality())
 			.phoneNumber(joinRequest.phoneNumber().replaceAll("-", ""))
-			.currency(USD) // default USD
+			.currency(USD) 
 			.remainTime(stayExpiration)
 			.build();
 
@@ -85,7 +85,6 @@ public class JoinServiceImpl implements JoinService {
 		String expirationDate = stayExpirationResponse.resExpirationDate();
 
 		if (stayExpirationResponse.resAuthenticity().equals("0") && expirationDate == null) {
-			// throw new CustomException(STAY_EXPIRATION, LogLevel.WARNING, null, null);
 			return null;
 		}
 		return LocalDate.parse(expirationDate, DATE_FORMATTER);

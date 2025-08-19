@@ -21,9 +21,8 @@ import lombok.NoArgsConstructor;
 @ApiModel(description = "회원 정보")
 public class MemberDTO {
 
-	private Long remittanceInformationId; // 정기송금 정보 아이디
-
-	private Long remittanceGroupId; // 정기송금 그룹 아이디
+	private Long remittanceInformationId; 
+	private Long remittanceGroupId; 
 
 	@ApiModelProperty(value = "회원 ID", example = "1")
 	private Long memberId;
@@ -55,11 +54,10 @@ public class MemberDTO {
 	@ApiModelProperty(value = "설정 통화", example = "USD")
 	private Currency currency;
 
-	private String connectedId; // 코데프 유저 아이디
+	private String connectedId; 
 
-	private String fcmToken; // firebase fcm 알림 토큰
+	private String fcmToken; 
 
-	// Entity -> DTO 변환
 	public static MemberDTO from(Member member) {
 		return MemberDTO.builder()
 			.remittanceInformationId(member.getRemittanceInformationId())
@@ -79,7 +77,6 @@ public class MemberDTO {
 			.build();
 	}
 
-	// DTO -> Entity 변환
 	public Member toEntity() {
 		return Member.builder()
 			.remittanceGroupId(this.remittanceGroupId)

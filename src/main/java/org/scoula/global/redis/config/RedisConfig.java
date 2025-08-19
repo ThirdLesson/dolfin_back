@@ -44,7 +44,7 @@ public class RedisConfig {
 			.clientResources(clientResources)
 			.commandTimeout(Duration.ofSeconds(10))
 			.shutdownTimeout(Duration.ZERO)
-			.useSsl() // tls 연결 활성화
+			.useSsl() 
 			.build();
 
 		return new LettuceConnectionFactory(config, clientConfig);

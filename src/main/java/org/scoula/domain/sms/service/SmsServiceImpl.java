@@ -41,20 +41,16 @@ public class SmsServiceImpl implements SmsService {
 	@Value("${coolsms.caller}")
 	private String callerNumber;
 
-	// 인증번호 전송하기
 	@Transactional
 	@Override
 	public void certificateSMS(PhoneNumRequest phoneNumRequest, HttpServletRequest request) {
 		DefaultMessageService messageService = NurigoApp.INSTANCE.initialize(apiKey, apiSecret, SMS_DOMAIN);
 
 		String phoneNumber = phoneNumRequest.phoneNumber().replaceAll("-", "");
-		// 랜덤한 인증 번호 생성
 		String randomNum = createRandomNumber();
 
-		//인증 번호를 redis에 저장 만료시간은 5분
 		redisUtil.set(phoneNumber, randomNum, 5);
 
-		// 발신 정보 설정
 		Message message = new Message();
 		message.setFrom(callerNumber);
 		message.setTo(phoneNumber);
@@ -77,10 +73,8 @@ public class SmsServiceImpl implements SmsService {
 		String phoneNumber = phoneVerificationRequest.phoneNumber().replaceAll("-", "");
 		String inputCode = phoneVerificationRequest.code();
 
-		// Redis에서 저장된 인증번호 조회
 		String savedCode = (String)redisUtil.get(phoneNumber);
 
-		// 인증번호가 없거나 일치하지 않으면 예외 발생
 		if (savedCode == null) {
 			throw new CustomException(SMS_CODE_EXPIRED, LogLevel.WARNING, null, Common.builder()
 				.srcIp(request.getRemoteAddr())
@@ -99,7 +93,6 @@ public class SmsServiceImpl implements SmsService {
 				.build());
 		}
 
-		// 인증 성공 시 Redis에서 삭제 (재사용 방지)
 		redisUtil.delete(phoneNumber);
 	}
 

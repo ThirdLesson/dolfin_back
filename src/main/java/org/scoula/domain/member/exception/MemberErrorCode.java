@@ -10,7 +10,6 @@ import lombok.Getter;
 @AllArgsConstructor
 public enum MemberErrorCode implements ErrorCode {
 
-	// 400
 	MEMBER_NOT_FOUND(HttpStatus.NOT_FOUND, "M-001", "존재하지 않는 회원입니다."),
 	MEMBER_ALREADY_EXISTS(HttpStatus.BAD_REQUEST, "M-002", "이미 존재하는 회원입니다."),
 	LOGIN_ID_ALREADY_EXISTS(HttpStatus.BAD_REQUEST, "M-003", "이미 존재하는 회원 아이디 입니다."),

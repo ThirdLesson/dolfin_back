@@ -26,10 +26,8 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 	@Override
 	protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
 		throws ServletException, IOException {
-		// 1. Request Header에서 JWT 토큰 추출
 		String token = resolveToken(request);
 
-		// 2. 새로고침 시 메모리에 저장된 액세스 토큰이 사라졌을 시 발생시키는 에러
 		if (token == null) {
 			request.setAttribute("notExistAccessToken", 401);
 			customAuthenticationEntryPoint.commence(request, response,
@@ -37,10 +35,8 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 			return;
 		}
 
-		// 3. validateToken으로 토큰 유효성 검사
 		try {
 			if (jwtTokenProvider.validateToken(request, response, token)) {
-				// 토큰이 유효할 경우 토큰에서 Authentication 객체를 가지고 와서 SecurityContext에 저장
 				Authentication authentication = jwtTokenProvider.getAuthentication(request, response, token);
 				SecurityContextHolder.getContext().setAuthentication(authentication);
 			}
@@ -54,7 +50,6 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 	@Override
 	protected boolean shouldNotFilter(HttpServletRequest request) {
 		String requestURI = request.getRequestURI();
-		// 해당 토큰 검증 필터가 적용되지 않게 하려는 api 경로
 		return requestURI.startsWith("/auth") ||
 			requestURI.startsWith("/swagger") ||
 			requestURI.startsWith("/v2") ||
@@ -62,7 +57,6 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 			requestURI.startsWith("/configuration");
 	}
 
-	// Request Header에서 토큰 정보 추출
 	private String resolveToken(HttpServletRequest request) {
 		String bearerToken = request.getHeader("Authorization");
 		if (StringUtils.hasText(bearerToken) && bearerToken.startsWith("Bearer")) {

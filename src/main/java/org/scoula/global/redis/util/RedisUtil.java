@@ -39,7 +39,7 @@ public class RedisUtil {
 	public long countResumeKeysWithPrefix() {
 		ScanOptions options = ScanOptions.scanOptions()
 			.match("resume:temp:" + "*")
-			.count(1000) // 한 번에 검색할 키 수
+			.count(1000) 
 			.build();
 
 		long count = 0;
@@ -58,7 +58,6 @@ public class RedisUtil {
 		return count;
 	}
 
-	// prefix 기반 키 삭제
 	public void deleteByPrefix(String prefix) {
 		var keys = redisTemplate.keys(prefix + "*");
 		if (keys != null && !keys.isEmpty()) {

@@ -15,7 +15,6 @@
         <result property="updatedAt" column="updated_at"/>
     </resultMap>
 
-    <!-- 단일 Location 삽입 -->
     <insert id="insertLocation" parameterType="org.scoula.domain.location.entity.Location" useGeneratedKeys="true"
             keyProperty="locationId">
         INSERT INTO location (location_name,

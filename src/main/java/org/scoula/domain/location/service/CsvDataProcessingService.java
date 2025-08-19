@@ -34,19 +34,16 @@ public class CsvDataProcessingService {
 	@Transactional
 	public void processForeignCenterCsv(HttpServletRequest request, String csvFilePath) {
 		try {
-			// CSV 파일 읽기
 			List<ForeignCenterCsvDto> csvData = new CsvToBeanBuilder<ForeignCenterCsvDto>(new FileReader(csvFilePath))
 				.withType(ForeignCenterCsvDto.class)
 				.withIgnoreLeadingWhiteSpace(true)
 				.build()
 				.parse();
 
-			// DTO를 Location으로 변환
 			List<Location> locations = csvData.stream()
 				.map(this::convertToLocation)
 				.collect(Collectors.toList());
 
-			// 배치로 저장 (성능 향상)
 			if (!locations.isEmpty()) {
 				locationMapper.insertLocationBatch(locations);
 			}
@@ -66,21 +63,17 @@ public class CsvDataProcessingService {
 	}
 
 	private Location convertToLocation(ForeignCenterCsvDto dto) {
-		// Point 객체 생성 (경도, 위도 순서)
 		Point point = new Point(dto.getLongitude(), dto.getLatitude());
 
 
-		// 315991700 -> 035-599-1700
-		// 25030070 -> 025-030-070
-		// 3180455572 -> 031-8045-5572
 		String raw = dto.getRepresentativeTelno();
 		StringBuilder phoneNumberBuilder = new StringBuilder(raw);
 
 		if (raw.startsWith("02")) {
-			if (raw.length() == 9) { // 02-XXX-XXXX
+			if (raw.length() == 9) { 
 				phoneNumberBuilder.insert(2, "-");
 				phoneNumberBuilder.insert(6, "-");
-			} else if (raw.length() == 10) { // 02-XXXX-XXXX
+			} else if (raw.length() == 10) { 
 				phoneNumberBuilder.insert(2, "-");
 				phoneNumberBuilder.insert(7, "-");
 			}

@@ -3,7 +3,6 @@
 
 <mapper namespace="org.scoula.domain.financialproduct.depositsaving.mapper.SavingMapper">
 
-    <!-- Saving Entity ResultMap -->
     <resultMap id="SavingResultMap" type="org.scoula.domain.financialproduct.depositsaving.entity.Saving">
         <id property="savingId" column="saving_id"/>
         <result property="financialCompanyId" column="financial_company_id"/>
@@ -17,7 +16,6 @@
         <result property="companyCode" column="company_code"/>
     </resultMap>
 
-    <!-- SavingSpclCondition Entity ResultMap -->
     <resultMap id="SavingSpclConditionResultMap"
                type="org.scoula.domain.financialproduct.depositsaving.entity.SavingSpclCondition">
         <id property="id" column="id"/>
@@ -31,7 +29,6 @@
         <result property="createdAt" column="created_at"/>
         <result property="updatedAt" column="updated_at"/>
     </resultMap>
-    <!--    적금 상품 저장-->
     <insert id="insertBatch">
         INSERT INTO saving(
         financial_company_id, name, save_month, interest_rate, max_interest_rate,
@@ -43,7 +40,6 @@
             NOW(), NOW())
         </foreach>
     </insert>
-    <!--    우대조건 저장-->
     <insert id="insertSpclCondition">
         INSERT INTO saving_spcl_condition(
         saving_id, spcl_condition, product_code, company_code,
@@ -61,19 +57,16 @@
         </foreach>
     </insert>
 
-    <!--    전체 적금 리스트 조회(금리 높은 순)-->
     <select id="selectAllSavings" resultMap="SavingResultMap">
         SELECT *
         FROM saving
         ORDER BY max_interest_rate DESC, interest_rate DESC
         LIMIT #{limit} OFFSET #{offset}
     </select>
-    <!-- 전체 예금 리스트 수-->
     <select id="countAllSavings" resultType="int">
         SELECT COUNT(*)
         FROM saving
     </select>
-    <!--    필터 조건으로 예금 상품 리스트 조회-->
     <select id="selectSavingWithFilters" resultMap="SavingResultMap">
         SELECT DISTINCT s.saving_id,
         s.financial_company_id,
@@ -101,7 +94,6 @@
         ORDER BY s.max_interest_rate DESC, s.interest_rate DESC
         LIMIT #{limit} OFFSET #{offset}
     </select>
-    <!--    필터 조건에 맞는 상품 개수 조회-->
     <select id="countSavingWithFilters" resultType="int">
         SELECT COUNT(DISTINCT s.saving_id)
         FROM saving s
@@ -119,7 +111,6 @@
             AND s.save_month &lt;= #{remainTime}
         </if>
     </select>
-    <!--    상품 중복 조회(코드 + 회사 + 기간)-->
     <select id="selectByProductAndCompanyCode"
             resultMap="SavingResultMap">
         SELECT saving_id,
@@ -137,7 +128,6 @@
           AND company_code = #{companyCode}
           AND save_month = #{saveMonth}
     </select>
-    <!--    우대 조건 조회(1:N)-->
     <select id="selectSpclConditionsBySavingId"
             resultMap="SavingSpclConditionResultMap">
         SELECT id,

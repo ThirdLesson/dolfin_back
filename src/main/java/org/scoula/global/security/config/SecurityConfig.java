@@ -60,9 +60,7 @@ public class SecurityConfig {
 		http.authorizeHttpRequests(authorizationManagerRequestMatcherRegistry ->
 			authorizationManagerRequestMatcherRegistry
 
-				// 로그인 관련 api
 				.requestMatchers("/auth/**").permitAll()
-				// 스웨거 사용을 위한 허용
 				.requestMatchers(
 					"/v2/api-docs/**",
 					"/swagger-resources/**",

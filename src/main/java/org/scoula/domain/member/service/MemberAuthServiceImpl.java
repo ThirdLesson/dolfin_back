@@ -45,8 +45,6 @@ public class MemberAuthServiceImpl implements MemberAuthService {
 
 		authenticationManagerBuilder.getObject().authenticate(authenticationToken);
 
-		// authenticate 메서드 내부에서 이미 존재하는지 검증이 되기 때문에 한 번 더 검증을 해주지 않았음
-		// authenticate 에서 조회한 멤버 정보를 가져올 방법을 생각해 쿼리를 한 번 줄이면 좋을 듯
 		MemberDTO member = memberService.getMemberByLoginId(signInRequestDto.loginId());
 
 		JwtToken jwtToken = jwtTokenProvider.generateToken(member.getMemberId(), member.getLoginId());
