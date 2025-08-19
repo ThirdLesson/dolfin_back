@@ -65,7 +65,6 @@ public class JeonseLoanController {
 		return SuccessResponse.ok(response);
 	}
 
-	// 전세자금대출 단건 조회
 	@GetMapping("/{jeonseLoanId}")
 	@ApiOperation(
 		value = "전세대출상품 단건 조회",
