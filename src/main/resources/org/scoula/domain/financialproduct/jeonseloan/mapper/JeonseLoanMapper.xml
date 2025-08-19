@@ -5,7 +5,6 @@
 
 <mapper namespace="org.scoula.domain.financialproduct.jeonseloan.mapper.JeonseLoanMapper">
 
-    <!-- resultMap -->
     <resultMap id="JeonseLoanResultMap" type="org.scoula.domain.financialproduct.jeonseloan.entity.JeonseLoan">
         <id property="jeonseLoanId" column="jeonse_loan_id"/>
         <result property="financialCompanyId" column="financial_company_id"/>
@@ -25,7 +24,6 @@
         <result property="minLoanAmount" column="min_loan_amount"/>
     </resultMap>
 
-    <!--    공통 조건-->
     <sql id="whereCondition">
         <where>
             AND is_active=1
@@ -37,7 +35,6 @@
             </if>
         </where>
     </sql>
-    <!--    공통 금리 정렬-->
     <sql id="orderByCondition">
         <choose>
             <when test="request.sortBy != null and request.sortBy.name() == 'MIN_RATE'">
@@ -55,7 +52,6 @@
         </choose>
     </sql>
 
-    <!--    전세자금대출 단건 조회-->
     <select id="findById" resultMap="JeonseLoanResultMap">
         SELECT *
         FROM jeonse_loan
@@ -63,7 +59,6 @@
           AND is_active = 1
     </select>
 
-    <!-- 페이징 조회 -->
     <select id="findJeonseLoansWithFilter"
             resultMap="JeonseLoanResultMap">
         SELECT * FROM jeonse_loan
@@ -72,7 +67,6 @@
         LIMIT #{limit} OFFSET #{offset}
     </select>
 
-    <!--    총 개수 조회-->
     <select id="countJeonseLoansWithFilter"
             resultType="int">
         SELECT COUNT(*) FROM jeonse_loan
