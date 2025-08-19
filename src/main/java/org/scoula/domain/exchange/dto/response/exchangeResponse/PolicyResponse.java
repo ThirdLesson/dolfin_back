@@ -22,9 +22,9 @@ import lombok.Data;
 		required = true,
 		position = 1
 	)
-	String name;                  // 정책명
+	String name;                 
 
-	@JsonIgnore  // 이 어노테이션으로 JSON 응답에서 제외
+	@JsonIgnore 
 	BigDecimal numericAmount;
 
 	@ApiModelProperty(
@@ -34,5 +34,5 @@ import lombok.Data;
 			"기본 환율 대비 얼마나 더 유리한지 비교할 수 있습니다.",
 		required = true,
 		position = 2
-	)	String amount;            // 정책 적용 금액
+	)	String amount;            
 }
