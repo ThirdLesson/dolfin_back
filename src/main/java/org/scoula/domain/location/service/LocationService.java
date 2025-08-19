@@ -19,7 +19,6 @@ public class LocationService {
 
 	private final LocationMapper locationMapper;
 
-	// CENTER 타입만 조회하는 메서드
 	public List<LocationResponse> getAllCenters(HttpServletRequest request) {
 		return locationMapper.selectAllCenters()
 			.stream()
