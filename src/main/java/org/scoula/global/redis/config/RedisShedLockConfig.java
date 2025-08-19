@@ -11,7 +11,7 @@ import net.javacrumbs.shedlock.spring.annotation.EnableSchedulerLock;
 
 @Configuration
 @EnableScheduling
-@EnableSchedulerLock(defaultLockAtMostFor = "PT10M") // 락 유지 시간 (10분)
+@EnableSchedulerLock(defaultLockAtMostFor = "PT10M") 
 public class RedisShedLockConfig {
 	@Bean
 	public LockProvider lockProvider(RedisConnectionFactory redisConnectionFactory) {
