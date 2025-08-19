@@ -46,17 +46,17 @@ public class SwaggerConfig {
 			.paths(PathSelectors.any())
 			.build()
 			.apiInfo(apiInfo())
-			.securityContexts(Collections.singletonList(securityContext())) // 보안 컨텍스트 적용
+			.securityContexts(Collections.singletonList(securityContext())) 
 			.securitySchemes(List.of(apiKey()))
-			.ignoredParameterTypes(CustomUserDetails.class, Authentication.class /* 다른 숨기고 싶은 타입 */);
+			.ignoredParameterTypes(CustomUserDetails.class, Authentication.class );
 
 	}
 
 	List<SecurityReference> defaultAuth() {
-		AuthorizationScope authorizationScope = new AuthorizationScope("global", "accessEverything"); // 모든 범위 허용
+		AuthorizationScope authorizationScope = new AuthorizationScope("global", "accessEverything"); 
 		AuthorizationScope[] authorizationScopes = new AuthorizationScope[1];
 		authorizationScopes[0] = authorizationScope;
-		return List.of(new SecurityReference("JWT", authorizationScopes)); // "JWT"는 apiKey()에서 정의한 이름과 일치해야 함
+		return List.of(new SecurityReference("JWT", authorizationScopes)); 
 	}
 
 	private ApiKey apiKey() {
