@@ -12,20 +12,18 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-/**
- * 환율
- */
+
 @Getter
-@Setter  // MyBatis는 setter가 필요합니다!
+@Setter  
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor
 public class ExchangeRate extends BaseEntity {
 
 	private Long exchangeId;
-	private String baseExchange; 		// 기준 통화
-	private String targetExchange; 		// 대상 통화
-	private BigDecimal exchangeValue; 	// 환율 값
-	private String bankName; 			// 은행 이름
-	private LocalDate ExchangeDate; 	// 환율 적용 날짜
-	private Type type;                  // 환전 타입 / SELLCASH(현금 송금), GETCASH(현금 수취), SEND(송금), RECEIVE(수취), BASE(기준 환율)
+	private String baseExchange; 		
+	private String targetExchange; 		
+	private BigDecimal exchangeValue; 	
+	private String bankName; 			
+	private LocalDate ExchangeDate; 	
+	private Type type;                  
 }
