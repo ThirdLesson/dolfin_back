@@ -3,7 +3,6 @@
 
 <mapper namespace="org.scoula.domain.financialproduct.depositsaving.mapper.DepositMapper">
 
-    <!-- Deposit Entity ResultMap -->
     <resultMap id="DepositResultMap" type="org.scoula.domain.financialproduct.depositsaving.entity.Deposit">
         <id property="depositId" column="deposit_id"/>
         <result property="financialCompanyId" column="financial_company_id"/>
@@ -31,7 +30,6 @@
         <result property="updatedAt" column="updated_at"/>
     </resultMap>
 
-    <!-- 예금 상품저장 -->
     <insert id="insertBatch">
         Insert Into deposit(
         financial_company_id, name, save_month, interest_rate, max_interest_rate,
@@ -45,7 +43,6 @@
             )
         </foreach>
     </insert>
-    <!--    우대조건 저장-->
     <insert id="insertSpclCondition">
         INSERT INTO deposit_spcl_condition(
         deposit_id, spcl_condition, product_code, company_code,
@@ -63,20 +60,17 @@
         </foreach>
     </insert>
 
-    <!-- 전체 예금 리스트 조회 (금리 높은 순) -->
     <select id="selectAllDeposits" resultMap="DepositResultMap">
         SELECT *
         FROM deposit
         ORDER BY max_interest_rate DESC, interest_rate DESC
         LIMIT #{limit} OFFSET #{offset}
     </select>
-    <!--    전체 예금 리스트 수-->
     <select id="countAllDeposits" resultType="int">
         SELECT COUNT(*)
         FROM deposit
     </select>
 
-    <!--    필터 조건으로 예금 상품 리스트 조회-->
     <select id="selectDepositsWithFilters" resultMap="DepositResultMap">
         SELECT DISTINCT d.deposit_id,
         d.financial_company_id,
@@ -104,7 +98,6 @@
         ORDER BY d.max_interest_rate DESC, d.interest_rate DESC
         LIMIT #{limit} OFFSET #{offset}
     </select>
-    <!--    필터 조건에 맞는 상품 개수 조회-->
     <select id="countDepositsWithFilters" resultType="int">
         SELECT COUNT(DISTINCT d.deposit_id)
         FROM deposit d
@@ -122,7 +115,6 @@
             AND d.save_month &lt;= #{remainTime}
         </if>
     </select>
-    <!--   예금 상품 상세 정보 단건 조회 -->
     <select id="selectProductDetailById" resultMap="DepositResultMap">
         SELECT d.deposit_id,
                d.financial_company_id,
@@ -137,7 +129,6 @@
         FROM deposit d
         WHERE d.deposit_id = #{id}
     </select>
-    <!--    우대 조건 조회(1:N)-->
     <select id="selectSpclConditionsByDepositId" resultMap="DepositSpclConditionResultMap">
         SELECT id,
                deposit_id,
@@ -151,7 +142,6 @@
         WHERE deposit_id = #{depositId}
         ORDER BY spcl_condition
     </select>
-    <!--    상품 중복 조회(코드 + 회사 + 기간)-->
     <select id="selectByProductAndCompanyCode" resultMap="DepositResultMap">
         SELECT deposit_id,
                financial_company_id,
