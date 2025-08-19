@@ -24,7 +24,6 @@ public class FinancialCompanyController {
 
 	private final FinancialCompanyService financialCompanyService;
 
-	// API 호출 및 저장
 	@PostMapping("/sync")
 	@ApiOperation(value = "전체 금융회사 리스트 저장")
 	public SuccessResponse<List<FinancialCompanyResponseDTO>> fetchAndSaveFinancialCompaniesFromApi() {
@@ -32,7 +31,6 @@ public class FinancialCompanyController {
 		return SuccessResponse.created(savedCompanies);
 	}
 
-	// 전체 목록 조회
 	@GetMapping
 	@ApiOperation(
 		value = "전체 금융회사 목록 조회",

@@ -10,7 +10,6 @@ import lombok.Getter;
 @AllArgsConstructor
 public enum PersonalLoanErrorCode implements ErrorCode {
 
-	// 400
 	EXCHANGE_NOT_FOUND(HttpStatus.NOT_FOUND, "M-001", "존재하지 대출 단위 입니다."),
 	LOAN_NOT_FOUND(HttpStatus.NOT_FOUND, "M-002", "존재하지 않는 대출 상품입니다.")
 	;

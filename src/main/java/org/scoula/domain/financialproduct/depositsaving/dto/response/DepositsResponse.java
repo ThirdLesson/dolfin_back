@@ -15,14 +15,13 @@ import lombok.Builder;
 
 @Builder
 public record DepositsResponse(
-	DepositDTO product, // 상품정보
-	FinancialCompanyResponseDTO company// 회사정보
+	DepositDTO product, 
+	FinancialCompanyResponseDTO company
 ) {
 	public static DepositsResponse of(Deposit deposit,
 		FinancialCompany company,
 		List<DepositSpclCondition> spclConditions) {
 
-		// Entity -> ENUM 변환
 		List<DepositSpclConditionType> conditionTypes = spclConditions.stream()
 			.map(DepositSpclCondition::getSpclCondition)
 			.toList();

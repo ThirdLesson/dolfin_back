@@ -9,7 +9,6 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
-// 리스트 응답용
 @Getter
 @NoArgsConstructor
 @AllArgsConstructor

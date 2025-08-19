@@ -74,7 +74,7 @@ public class BankRateInfo {
 		required = false,
 		position = 5
 	)
-	private List<PolicyResponse> policyList; // 모든 정책 옵션들
+	private List<PolicyResponse> policyList;
 
 
 	public void addPolicyResponses(List<PolicyResponse> policies) {

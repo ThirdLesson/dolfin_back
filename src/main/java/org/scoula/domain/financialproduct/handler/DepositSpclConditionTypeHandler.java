@@ -16,13 +16,13 @@ public class DepositSpclConditionTypeHandler extends BaseTypeHandler<DepositSpcl
 	@Override
 	public void setNonNullParameter(PreparedStatement ps, int i,
 		DepositSpclConditionType parameter, JdbcType jdbcType) throws SQLException {
-		ps.setString(i, parameter.name()); // 또는 getDbValue() 써도 됨
+		ps.setString(i, parameter.name()); 
 	}
 
 	@Override
 	public DepositSpclConditionType getNullableResult(ResultSet rs, String columnName) throws SQLException {
 		String value = rs.getString(columnName);
-		return DepositSpclConditionType.fromEnglishName(value); // 커스텀 매핑 로직 사용
+		return DepositSpclConditionType.fromEnglishName(value); 
 	}
 
 	@Override

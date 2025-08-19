@@ -22,8 +22,8 @@ public class LedgerCodeCacheHelper {
 	private final ObjectMapper objectMapper;
 	private final LedgerCodeMapper ledgerCodeMapper;
 
-	private static final String KEY_PREFIX = "LedgerCode:"; // e.g. LedgerCode:BANK_PAYABLE
-	private static final int TTL_MINUTES = 24 * 60;         // 24시간 고정
+	private static final String KEY_PREFIX = "LedgerCode:"; 
+	private static final int TTL_MINUTES = 24 * 60;         
 
 	private static String normalize(String name) {
 		return name == null ? "" : name.trim().toUpperCase(Locale.ROOT);
@@ -73,7 +73,7 @@ public class LedgerCodeCacheHelper {
 
 	public void warm(String... names) {
 		for (String n : names) {
-			getByName(n); // 미스면 DB→캐시 적재
+			getByName(n); 
 		}
 	}
 }

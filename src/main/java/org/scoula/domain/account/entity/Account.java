@@ -9,19 +9,17 @@ import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
-/**
- * 계좌
- */
+
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class Account extends BaseEntity {
-	private Long accountId;            // pk
-	private String accountNumber;   // 계좌 번호
-	private String password;        // 계좌 비밀번호
-	private BigDecimal balance;        // 계좌 잔액
-	private BankType bankType; // 은행 타입
-	private boolean isVerified;        // 검증 여부
-	private LocalDateTime verifiedAt;// 검증 시각
+	private Long accountId;           
+	private String accountNumber;   
+	private String password;        
+	private BigDecimal balance;       
+	private BankType bankType; 
+	private boolean isVerified;       
+	private LocalDateTime verifiedAt;
 	private Long walletId;
 	private Long memberId;
 }

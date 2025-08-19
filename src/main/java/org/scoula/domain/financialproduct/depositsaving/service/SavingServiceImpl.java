@@ -52,7 +52,6 @@ public class SavingServiceImpl implements SavingService {
 	private final FinancialCompanyService financialCompanyService;
 	private final GptEligibilityChecker gptEligibilityChecker;
 
-	// 적금 상품 정보 저장
 	@Override
 	@Transactional
 	public List<Saving> fetchAndSaveSavings() {
@@ -62,7 +61,6 @@ public class SavingServiceImpl implements SavingService {
 		return saveSavings;
 	}
 
-	// 우대 조건 저장
 	@Override
 	@Transactional
 	public void fetchAndSaveSpclConditions(List<Saving> savedSavings) {
@@ -76,12 +74,10 @@ public class SavingServiceImpl implements SavingService {
 		saveSpclConditionsToDatabase(spclConditions, savingIdMap);
 	}
 
-	// 적금 상품 리스트 조회(필터링)
 	@Override
 	@Transactional(readOnly = true)
 	public Page<SavingsResponse> getSavings(ProductPeriod productPeriod, List<SavingSpclConditionType> spclConditions,
 		Pageable pageable, Member member) {
-		// 멤버 체류기간 가져오기
 		Integer remainTime = null;
 		if (productPeriod.equals(STAY_EXPIRATION)) {
 			remainTime = Math.max(0, (int)ChronoUnit.MONTHS.between(LocalDate.now(), member.getRemainTime()));
@@ -91,7 +87,6 @@ public class SavingServiceImpl implements SavingService {
 
 		int totalCount = savingMapper.countSavingWithFilters(spclConditions, remainTime);
 
-		// 기간별,조건별 필터링, pageable
 		List<Saving> savings = savingMapper.selectSavingWithFilters(
 			spclConditions, remainTime, (int)pageable.getOffset(), pageable.getPageSize()
 		);
@@ -137,9 +132,8 @@ public class SavingServiceImpl implements SavingService {
 
 	private List<Saving> collectSavingData(Map<String, FinancialCompany> companyMap) {
 		List<Saving> savings = new ArrayList<>();
-		Set<String> processedProducts = new HashSet<>(); // 중복방지
+		Set<String> processedProducts = new HashSet<>(); 
 
-		// 	기간별 데이터 수집
 		List<Integer> periods = List.of(
 			ProductPeriod.SIX_MONTH.getMonth(),
 			ProductPeriod.ONE_YEAR.getMonth(),
@@ -180,11 +174,9 @@ public class SavingServiceImpl implements SavingService {
 					continue;
 				}
 				String productKey = product.companyCode() + "_" + product.code() + "_" + period;
-				// 중복 체크
 				if (processedProducts.contains(productKey)) {
 					continue;
 				}
-				// 유효성 체크
 				if (!savingDataHelper.isValidProduct(product, companyMap)) {
 					continue;
 				}
@@ -198,7 +190,6 @@ public class SavingServiceImpl implements SavingService {
 				} catch (Exception e) {
 					continue;
 				}
-				// // 외국인 가입 가능 여부 확인
 				boolean isEligible = true;
 				try {
 					Map<String, Object> productData = createProductDataForGpt(product, detailInfo);
@@ -271,7 +262,7 @@ public class SavingServiceImpl implements SavingService {
 			return;
 
 		List<SavingSpclCondition> validConditions = spclConditions.stream()
-			.filter(condition -> condition.getSpclCondition() != null)  // null 제거
+			.filter(condition -> condition.getSpclCondition() != null)  
 			.toList();
 
 		if (validConditions.isEmpty())

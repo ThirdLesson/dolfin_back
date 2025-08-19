@@ -14,11 +14,11 @@ import lombok.NoArgsConstructor;
 public class LedgerEntry extends BaseEntity {
 
 	private Long ledgerEntryId;
-	private BigDecimal amount;                // 금액
-	private LedgerType ledgerType;        // DEBIT(차변) CREDIT(대변)
-	private Long ledgerVoucherId;       // 전표 ID (FK)
+	private BigDecimal amount;                
+	private LedgerType ledgerType;        
+	private Long ledgerVoucherId;       
 
-	private Long accountCodeId;         // 회계 코드 ID (FK)
+	private Long accountCodeId;        
 
 	@Builder
 	public LedgerEntry(BigDecimal amount, LedgerType ledgerType, Long ledgerVoucherId, Long accountCodeId) {

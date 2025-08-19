@@ -50,19 +50,17 @@ public class DepositServiceImpl implements DepositService {
 	private final DepositDataHelper dataHelper;
 	private final FinancialCompanyService financialCompanyService;
 
-	// 예금 상품 정보 저장
 	@Override
 	@Transactional
 	public List<Deposit> fetchAndSaveDeposits() {
 		log.info("예금 상품 수집 시작");
-		Map<String, FinancialCompany> companyMap = createCompanyMap(); //금융회사매핑
-		List<Deposit> deposits = collectDepositData(companyMap); // 외부API 데이터 수집
-		List<Deposit> saveDeposits = saveDepositsToDatabase(deposits); // DB에 저장
+		Map<String, FinancialCompany> companyMap = createCompanyMap(); 
+		List<Deposit> deposits = collectDepositData(companyMap); 
+		List<Deposit> saveDeposits = saveDepositsToDatabase(deposits); 
 		log.info("예금 상품 저장 완료 :{}", saveDeposits.size());
 		return saveDeposits;
 	}
 
-	// 우대 조건 저장
 	@Override
 	@Transactional
 	public void fetchAndSaveSpclConditions(List<Deposit> savedDeposits) {
@@ -77,7 +75,6 @@ public class DepositServiceImpl implements DepositService {
 		log.info("우대조건 저장 완료");
 	}
 
-	// 예금 상품 리스트 조회(필터링)
 	@Override
 	@Transactional(readOnly = true)
 	public Page<DepositsResponse> getDeposits(ProductPeriod productPeriod,
@@ -89,19 +86,16 @@ public class DepositServiceImpl implements DepositService {
 		}else{
 			remainTime = productPeriod.getMonth();
 		}
-		// DB에서 기간별 필터링
 		int totalCount = depositMapper.countDepositsWithFilters(spclConditions, remainTime);
 		List<Deposit> deposits = depositMapper.selectDepositsWithFilters(spclConditions, remainTime,
 			(int)pageable.getOffset(), pageable.getPageSize()
 		);
-		// 상품마다 금융회사 정보도 가져오기
 		List<DepositsResponse> depositsResponses = deposits.stream()
 			.map(this::convertToDepositsResponse)
 			.toList();
 		return new PageImpl<>(depositsResponses, pageable, totalCount);
 	}
 
-	// 예금 상품 상세 정보 조회
 	@Override
 	@Transactional(readOnly = true)
 	public DepositsResponse getDepositDetail(Long depositId) {
@@ -140,9 +134,8 @@ public class DepositServiceImpl implements DepositService {
 
 	private List<Deposit> collectDepositData(Map<String, FinancialCompany> companyMap) {
 		List<Deposit> deposits = new ArrayList<>();
-		Set<String> processedProducts = new HashSet<>(); // 중복방지
+		Set<String> processedProducts = new HashSet<>(); 
 
-		// 기간별 데이터 수집
 		List<Integer> periods = List.of(
 			ProductPeriod.SIX_MONTH.getMonth(),
 			ProductPeriod.ONE_YEAR.getMonth(),
@@ -186,11 +179,11 @@ public class DepositServiceImpl implements DepositService {
 					continue;
 				}
 				String productKey = product.companyCode() + "_" + product.code() + "_" + period;
-				// 중복 체크
+				
 				if (processedProducts.contains(productKey)) {
 					continue;
 				}
-				// 유효성 체크
+				
 				if (!dataHelper.isValidProduct(product, companyMap)) {
 					continue;
 				}
@@ -218,11 +211,9 @@ public class DepositServiceImpl implements DepositService {
 					deposit.getProductCode(), detailInfo.specialConditions().size());
 				detailInfo.specialConditions().stream()
 					.map(conditionName -> {
-						// 4. 개별 우대조건 변환 시도
 						log.info("우대조건 변환 시도: {}", conditionName);
 						DepositSpclCondition condition = dataHelper.convertToSpclCondition(conditionName, deposit);
 
-						// 5. 변환 성공/실패 결과
 						if (condition != null) {
 							log.info("우대조건 변환 성공: {} -> {}", conditionName, condition.getSpclCondition());
 						} else {
@@ -245,7 +236,6 @@ public class DepositServiceImpl implements DepositService {
 		if (deposits.isEmpty())
 			return Collections.emptyList();
 		log.info("DB 저장 시작: {}개 상품", deposits.size());
-		// 배치 저장
 		depositMapper.insertBatch(deposits);
 
 		return deposits.stream()
@@ -260,7 +250,7 @@ public class DepositServiceImpl implements DepositService {
 		if (spclConditions.isEmpty())
 			return;
 		List<DepositSpclCondition> validConditions = spclConditions.stream()
-			.filter(condition -> condition.getSpclCondition() != null)  // null 제거
+			.filter(condition -> condition.getSpclCondition() != null)  
 			.toList();
 		if (validConditions.isEmpty()) {
 			log.warn("저장할 유효한 우대조건이 없습니다.");

@@ -17,12 +17,11 @@ public class ExchangeMonthlyResponse {
 
 
 	@ApiModelProperty(value = "대상 통화", example = "USD")
-	private String targetExchange; // 대상 통화 (예: "USD")
+	private String targetExchange; 
 	@ApiModelProperty(value = "환율 값", example = "1400.50")
-	private BigDecimal exchangeValue; // 환율 값 (예: "1400.50")
+	private BigDecimal exchangeValue;
 	@ApiModelProperty(value = "환율 적용 날짜", example = "2023-10-01")
 	@JsonFormat(pattern = "yyyy-MM-dd")
-	private LocalDate exchangeDate; // 환율 적용 날짜 (예: "2023-10-01")
-
+	private LocalDate exchangeDate; 
 
 }

@@ -30,7 +30,6 @@ public class DepositDTO {
 	private LocalDateTime updatedAt;
 	private List<DepositSpclConditionType> spclConditions;
 
-	// DTO → Entity
 	public Deposit toEntity() {
 		return Deposit.builder()
 			.depositId(this.depositId)
@@ -44,7 +43,6 @@ public class DepositDTO {
 			.build();
 	}
 
-	// Entity → DTO
 	public static DepositDTO fromEntity(Deposit entity, List<DepositSpclConditionType> spclConditions) {
 		return DepositDTO.builder()
 			.depositId(entity.getDepositId())

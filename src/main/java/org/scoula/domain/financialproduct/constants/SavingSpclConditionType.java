@@ -20,14 +20,12 @@ public enum SavingSpclConditionType {
 	RECOMMEND_COUPON("추천코드", "recommendCoupon", List.of("추천", "쿠폰")),
 	HOUSING_SUBSCRIPTION("청약", "housingSubscription", List.of("청약")),
 
-	// 매핑 실패 시 기본값
 	ETC("기타", "etc", List.of());
 
 	private final String koreanName;
 	private final String apiValue;
 	private final List<String> keywords;
 
-	// 한글 이름 기준 매핑
 	public static SavingSpclConditionType fromKoreanName(String koreanName) {
 		String normalized = koreanName.replaceAll("\\s+", "");
 		for (SavingSpclConditionType condition : values()) {
@@ -38,7 +36,6 @@ public enum SavingSpclConditionType {
 		return null;
 	}
 
-	// API 값 기준 매핑
 	public static SavingSpclConditionType fromApiValue(String apiValue) {
 		for (SavingSpclConditionType condition : values()) {
 			if (condition.apiValue.equalsIgnoreCase(apiValue)) {
@@ -56,7 +53,6 @@ public enum SavingSpclConditionType {
 
 		String normalized = description.replaceAll("\\s+", "").toLowerCase();
 
-		// 키워드 기반 매핑
 		for (SavingSpclConditionType condition : values()) {
 			for (String keyword : condition.keywords) {
 				if (normalized.contains(keyword.toLowerCase())) {
@@ -65,11 +61,9 @@ public enum SavingSpclConditionType {
 			}
 		}
 
-		// Fallback
 		return ETC;
 	}
 
-	// 영어 enum 이름 기준 매핑
 	public static SavingSpclConditionType fromEnglishName(String englishName) {
 		try {
 			return SavingSpclConditionType.valueOf(englishName);
@@ -78,12 +72,10 @@ public enum SavingSpclConditionType {
 		}
 	}
 
-	// 화면 출력용
 	public String getDisplayName() {
 		return this.koreanName;
 	}
 
-	// DB 저장용
 	public String getDbValue() {
 		return this.name();
 	}

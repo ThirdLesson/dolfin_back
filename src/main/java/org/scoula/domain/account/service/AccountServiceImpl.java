@@ -75,7 +75,7 @@ public class AccountServiceImpl implements AccountService {
 
 	@Override
 	public List<AccountListResponse> getAllAccountsByWalletId(Long walletId, HttpServletRequest request) {
-		Wallet wallet = validateWallet(walletId, request);// 전자지갑이 존재하는지 검증
+		Wallet wallet = validateWallet(walletId, request);
 		List<Account> byWalletId = accountMapper.findByWalletId(walletId);
 		List<AccountListResponse> accountListResponses = new ArrayList<>();
 		for (Account account : byWalletId) {

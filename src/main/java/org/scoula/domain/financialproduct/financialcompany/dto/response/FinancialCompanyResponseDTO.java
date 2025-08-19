@@ -12,8 +12,7 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;
 
-// 금융회사 조회 응답 DTO
-// 예금/적금 상세 조회 시, DTO 안에 포함되어 사용자에게 제공됨
+
 @Getter
 @AllArgsConstructor
 @Builder
@@ -23,15 +22,15 @@ import lombok.Setter;
 public class FinancialCompanyResponseDTO {
 
 	@ApiModelProperty(value = "금융회사 ID", example = "1")
-	private Long id; //금융회사 ID(PK)
+	private Long id; 
 	@ApiModelProperty(value = "금융회사 이름", example = "KB국민")
-	private String name; //금융회사이름
+	private String name;
 	@ApiModelProperty(value = "금융회사 홈페이지 URL", example = "http://www.kbstar.com")
-	private String homepageUrl; // 금융회사 홈페이지 주소
+	private String homepageUrl; 
 	@ApiModelProperty(value = "금융회사 대표 전화번호", example = "1588-9999")
-	private String callNumber; // 금융회사 대표 전화번호
+	private String callNumber; 
 
-	// Entity -> DTO
+
 	public static FinancialCompanyResponseDTO fromEntity(FinancialCompany company) {
 		return FinancialCompanyResponseDTO.builder()
 			.id(company.getFinancialCompanyId())

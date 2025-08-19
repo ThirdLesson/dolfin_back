@@ -26,7 +26,6 @@ public class SavingDataHelper {
 
 	private final GptEligibilityChecker gptEligibilityChecker;
 
-	// 	SavingId매핑 테이블
 	public Map<String, Long> createdSavingidMap(List<Saving> savedSavings) {
 		Map<String, Long> savingIdMap = savedSavings.stream()
 			.collect(Collectors.toMap(
@@ -117,7 +116,6 @@ public class SavingDataHelper {
 		}
 	}
 
-	// 우대조건에 savingId매핑
 	public static List<SavingSpclCondition> mapSpclConditionsWithSavingId(
 		List<SavingSpclCondition> spclConditions,
 		Map<String, Long> savingMap) {
@@ -129,17 +127,14 @@ public class SavingDataHelper {
 	}
 
 	private SavingSpclConditionType mapSpecialConditionType(String conditionName) {
-		// 1. API 값 기준
 		SavingSpclConditionType type = SavingSpclConditionType.fromApiValue(conditionName);
 		if (type != null)
 			return type;
 
-		// 2. 한글명 기준
 		type = SavingSpclConditionType.fromKoreanName(conditionName);
 		if (type != null)
 			return type;
 
-		// 3. 키워드 포함 기준 (fallback)
 		String lower = conditionName.toLowerCase();
 		if (lower.contains("비대면") || lower.contains("온라인") || lower.contains("인터넷"))
 			return SavingSpclConditionType.ONLINE;
@@ -163,7 +158,6 @@ public class SavingDataHelper {
 			return SavingSpclConditionType.AUTO_DEPOSIT;
 		if (lower.contains("pension") || lower.contains("연금") || lower.contains("펜션"))
 			return SavingSpclConditionType.PENSION;
-		// 매핑 실패
 
 		return null;
 	}

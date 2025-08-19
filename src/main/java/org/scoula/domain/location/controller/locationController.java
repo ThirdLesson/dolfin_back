@@ -44,11 +44,9 @@ public class locationController {
 		return SuccessResponse.ok(banks);
 	}
 
-	// 전체 센터 조회 (csv 파일로 저장)
 	@ApiOperation(value = "사용 X", notes = "내부 csv 파일로 저장용 API")
 	@PostMapping("/import-foreign-centers")
 	public SuccessResponse<String> importForeignCenters(HttpServletRequest request) {
-		// 리소스 파일을 Classpath에서 로드
 		ClassLoader classLoader = getClass().getClassLoader();
 		String csvPath;
 

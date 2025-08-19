@@ -1,6 +1,5 @@
 package org.scoula.domain.financialproduct.helper;
 
-// 데이터 처리 헬퍼 메서드 -> ServiceImpl 코드가 너무 길어 분리
 
 import java.math.BigDecimal;
 import java.util.List;
@@ -23,7 +22,6 @@ import lombok.extern.slf4j.Slf4j;
 @RequiredArgsConstructor
 public class DepositDataHelper {
 
-	// 	DepositId매핑 테이블
 	public Map<String, Long> createdDepositidMap(List<Deposit> savedDeposits) {
 		Map<String, Long> depositIdMap = savedDeposits.stream()
 			.collect(Collectors.toMap(

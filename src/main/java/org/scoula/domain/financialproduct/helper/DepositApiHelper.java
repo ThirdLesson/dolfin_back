@@ -32,7 +32,6 @@ public class DepositApiHelper {
 	@Value("${deposit.product.detail.url.base}")
 	private String DEPOSIT_DETAIL_URL;
 
-	// 기간별 상품 API 호출
 	public List<DepositProduct> getProductsByPeriod(int period, int offset) throws JsonProcessingException {
 		String url = String.format(DEPOSIT_PRODUCT_LIST_BY_PERIOD_URL, period, offset);
 		String rawResponse = restTemplate.getForObject(url, String.class);
@@ -52,7 +51,6 @@ public class DepositApiHelper {
 		return response.result().products();
 	}
 
-	// 상품 상세 정보 API 호출
 	public ProductDetailInfo getProductDetailInfo(String productCode) throws JsonProcessingException {
 		String url = String.format(DEPOSIT_DETAIL_URL, productCode, productCode);
 		String rawResponse = restTemplate.getForObject(url, String.class);
@@ -63,7 +61,6 @@ public class DepositApiHelper {
 		return parseProductDetailResponse(rawResponse, productCode);
 	}
 
-	// 상품 리스트 응답 파싱
 	private ProductListResponse<DepositProduct> parseProductListResponse(String rawResponse) throws
 		JsonProcessingException {
 		JavaType type = objectMapper.getTypeFactory()
@@ -72,7 +69,6 @@ public class DepositApiHelper {
 		return objectMapper.readValue(rawResponse, type);
 	}
 
-	// 상품 상세 응답 파싱
 	private ProductDetailInfo parseProductDetailResponse(String rawResponse, String productCode) throws
 		JsonProcessingException {
 		ProductDetailResponse response = objectMapper.readValue(rawResponse, ProductDetailResponse.class);
@@ -84,7 +80,6 @@ public class DepositApiHelper {
 		return parseSpecialConditions(result, productCode);
 	}
 
-	// 상품 상세 결과 추출
 	private JsonNode extractProductDetailResult(ProductDetailResponse response) {
 		return response.pageProps()
 			.dehydratedState()
@@ -98,7 +93,6 @@ public class DepositApiHelper {
 			.orElse(null);
 	}
 
-	// 우대조건 파싱
 	private ProductDetailInfo parseSpecialConditions(JsonNode result, String productCode) {
 		List<String> specialConditions = new ArrayList<>();
 
@@ -117,7 +111,6 @@ public class DepositApiHelper {
 				}
 			}
 		}
-		// 문자열 형태로 되어있을 수도 있음
 		else if (result.has("specialConditions") && result.get("specialConditions").isTextual()) {
 			String conditionText = result.get("specialConditions").asText();
 			if (!conditionText.isEmpty()) {
@@ -140,12 +133,11 @@ public class DepositApiHelper {
 				}
 			}
 		} else {
-			savingTerms.add(12); // 기본값
+			savingTerms.add(12); 
 		}
 		return new ProductDetailInfo(specialConditions, savingTerms);
 	}
 
-	// 상품 상세 정보 record
 	public record ProductDetailInfo(
 		List<String> specialConditions,
 		List<Integer> savingTerms
