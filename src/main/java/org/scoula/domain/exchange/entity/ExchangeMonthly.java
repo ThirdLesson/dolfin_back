@@ -23,8 +23,8 @@ public class ExchangeMonthly extends BaseEntity {
 	@Id
 	private String exchangeId;
 
-	private String targetExchange; // 대상 통화 (예: "USD")
-	private BigDecimal exchangeValue; // 환율 값 (예: "1400.50")
-	private LocalDate exchangeDate; // 환율 적용 날짜 (예: "2023-10-01")
+	private String targetExchange; 
+	private BigDecimal exchangeValue; 
+	private LocalDate exchangeDate; 
 
 }
