@@ -32,7 +32,6 @@ public class JeonseLoanServiceImpl implements JeonseLoanService {
 	private final JeonseLoanMapper jeonseLoanMapper;
 	private final FinancialCompanyService financialCompanyService;
 
-	// 전세대출 전체 상품 조회
 	@Override
 	public Page<JeonseLoanResponseDTO> getAllJeonseLoans(JeonseLoanRequestDTO request, Pageable pageable) {
 
@@ -53,7 +52,6 @@ public class JeonseLoanServiceImpl implements JeonseLoanService {
 		return new PageImpl<>(content, pageable, totalCount);
 	}
 
-	// 전세대출 상품 상세 조회
 	@Override
 	public JeonseLoanDetailResponseDTO getJeonseLoanDetail(Long jeonseLoanId, Member member) {
 		JeonseLoan jeonseLoan = jeonseLoanMapper.findById(jeonseLoanId)
@@ -92,7 +90,7 @@ public class JeonseLoanServiceImpl implements JeonseLoanService {
 
 	private BigDecimal getSelectedRate(JeonseLoan loan, JeonseLoanRateType rateType) {
 		if (rateType == null) {
-			return loan.getAvgRate(); // 기본값: 평균금리
+			return loan.getAvgRate(); 
 		}
 
 		return switch (rateType) {
