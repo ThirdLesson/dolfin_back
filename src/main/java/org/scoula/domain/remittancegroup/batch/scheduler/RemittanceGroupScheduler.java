@@ -35,7 +35,7 @@ public class RemittanceGroupScheduler {
 	}
 
 	@Scheduled(cron = "0 0 3  * * *", zone = "Asia/Seoul")
-	@SchedulerLock(name = "runRemittanceGroupJobLock", lockAtMostFor = "PT10M") // 락 10분간 유지
+	@SchedulerLock(name = "runRemittanceGroupJobLock", lockAtMostFor = "PT10M") 
 	public void runRemittanceGroupJob() {
 		try {
 			JobParameters jobParameters = new JobParametersBuilder()
@@ -49,7 +49,7 @@ public class RemittanceGroupScheduler {
 	}
 
 	@Scheduled(cron = "0 30 3  * * *", zone = "Asia/Seoul")
-	@SchedulerLock(name = "runRemittanceGroupAutoJoinJobLock", lockAtMostFor = "PT10M") // 락 10분간 유지
+	@SchedulerLock(name = "runRemittanceGroupAutoJoinJobLock", lockAtMostFor = "PT10M") 
 	public void runRemittanceGroupAutoJoinJob() {
 		try {
 			JobParameters jobParameters = new JobParametersBuilder()
@@ -63,7 +63,7 @@ public class RemittanceGroupScheduler {
 	}
 
 	@Scheduled(cron = "0 0 8 * * *", zone = "Asia/Seoul")
-	@SchedulerLock(name = "runRemittanceGroupAlarmLock", lockAtMostFor = "PT10M") // 락 10분간 유지
+	@SchedulerLock(name = "runRemittanceGroupAlarmLock", lockAtMostFor = "PT10M") 
 	public void remittanceGroupAlarm() {
 		remittanceService.RemittanceGroupAlarm();
 	}
