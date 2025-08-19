@@ -39,7 +39,6 @@ public class DepositSavingController {
 	private final DepositService depositService;
 	private final SavingService savingService;
 
-	// 예금 상품 API 호출 및 저장
 	@PostMapping("/sync/deposits")
 	@ApiOperation(
 		value = "외부 API에서 예금상품 데이터 동기화",
@@ -53,7 +52,6 @@ public class DepositSavingController {
 		return SuccessResponse.noContent();
 	}
 
-	// 예금 상품 조회 (기간별 필터링)
 	@GetMapping("/deposits/recommend")
 	@ApiOperation(
 		value = "예금상품 추천 목록 조회",
@@ -82,7 +80,6 @@ public class DepositSavingController {
 		return SuccessResponse.ok(response);
 	}
 
-	// 상품 상세 정보 조회(상품 + 금융회사 정보)
 	@GetMapping("/deposits/{depositId}")
 	@ApiOperation(value = "예금상품 상세조회")
 	public SuccessResponse<DepositsResponse> getProductDetail(
@@ -92,7 +89,6 @@ public class DepositSavingController {
 		return SuccessResponse.ok(response);
 	}
 
-	// 적금 상품 API 호출 및 저장
 	@PostMapping("/sync/savings")
 	@ApiOperation(
 		value = "외부 API에서 적금상품 데이터 동기화",
@@ -123,7 +119,6 @@ public class DepositSavingController {
 		return SuccessResponse.ok(PaginatedResponse.from(savings));
 	}
 
-	// 적금 상품 조회 (기간별 필터링)
 	@GetMapping("/savings/recommend")
 	@ApiOperation(
 		value = "적금상품 추천 목록 조회",
