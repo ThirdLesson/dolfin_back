@@ -269,7 +269,6 @@ public class WalletServiceImpl implements WalletService {
 				"최소 충전 금액부족, 요청 전자지갑 ID" + walletId);
 		}
 
-		// todo 본인 계좌에서 돈을 빼는 로직 (사업자 등록이 없어 구현 불가)
 
 		Wallet wallet = Optional.ofNullable(walletMapper.findByWalletIdForUpdate(walletId)).orElseThrow(
 			() -> new CustomException(NOT_EXIST_WALLET, LogLevel.WARNING, null,
@@ -306,7 +305,6 @@ public class WalletServiceImpl implements WalletService {
 	public void failRemittance(MemberWithInformationDto request, RemittanceGroup remittanceGroup) {
 		int failCount = request.getTransmitFailCount() + 1;
 		if (failCount >= 2) {
-			// 탈퇴 시킨 후 탈퇴 알림
 			remittanceInformationMapper.deleteById(request.getRemittanceInformationId());
 			remittanceGroup.setMemberCount(remittanceGroup.getMemberCount() - 1);
 			remittanceGroupMapper.updateMemberCountById(remittanceGroup.getRemittanceGroupId(),
@@ -316,7 +314,6 @@ public class WalletServiceImpl implements WalletService {
 			eventPublisher.publishEvent(new RemittanceGroupFiredEvent(request));
 			return;
 		}
-		// 송금 실패 알림
 		remittanceInformationMapper.incrementFailCount(request.getRemittanceInformationId());
 		eventPublisher.publishEvent(new RemittanceFailedEvent(request));
 	}
@@ -332,13 +329,11 @@ public class WalletServiceImpl implements WalletService {
 		BigDecimal multiply = spread.multiply(BigDecimal.ONE.subtract(BENEFIT_PERCENTAGE));
 		BigDecimal lastRate = baseRate.getExchangeValue().add(multiply);
 
-		// 100단위 환율이면 1단위 환율로 변경
 		if (request.getCurrency().equals(VND) || request.getCurrency().equals(JPY) || request.getCurrency()
 			.equals(IDR)) {
 			lastRate = lastRate.divide(BigDecimal.valueOf(100), 6, RoundingMode.HALF_UP);
 		}
 
-		// 환산된 외화 금액
 		return request.getAmount().divide(lastRate, 2, RoundingMode.HALF_UP);
 	}
 
@@ -350,33 +345,28 @@ public class WalletServiceImpl implements WalletService {
 		);
 	}
 
-	// 유틸: 한국 전화번호 하이픈 포맷
 	public static String formatKrPhone(String raw) {
 		if (raw == null || raw.isBlank())
 			return raw;
 
-		// 1) 숫자만 남기기
-		String s = raw.replaceAll("\\D", ""); // "+82-10 1234 5678" -> "821012345678"
+		String s = raw.replaceAll("\\D", ""); 
 
-		// 3) 서울(02) 유선 처리: 길이에 따라 02-xxx-xxxx 또는 02-xxxx-xxxx
 		if (s.startsWith("02")) {
-			if (s.length() == 9) {         // 02-xxx-xxxx
+			if (s.length() == 9) {        
 				return "02-" + s.substring(2, 5) + "-" + s.substring(5);
-			} else if (s.length() == 10) { // 02-xxxx-xxxx
+			} else if (s.length() == 10) { 
 				return "02-" + s.substring(2, 6) + "-" + s.substring(6);
 			} else {
-				return raw; // 길이 비정상: 원문 반환
+				return raw; 
 			}
 		}
 
-		// 4) 휴대폰/그 외(지역번호 3자리) 처리
-		if (s.length() == 10) {      // 예: 0111234567, 0311234567
+		if (s.length() == 10) {      
 			return s.replaceFirst("(\\d{3})(\\d{3})(\\d{4})", "$1-$2-$3");
-		} else if (s.length() == 11) { // 예: 01012345678
+		} else if (s.length() == 11) { 
 			return s.replaceFirst("(\\d{3})(\\d{4})(\\d{4})", "$1-$2-$3");
 		}
 
-		// 5) 그 외 길이는 정책에 따라 그대로/에러 처리
 		return raw;
 	}
 
