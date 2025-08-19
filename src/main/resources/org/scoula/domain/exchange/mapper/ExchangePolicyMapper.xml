@@ -4,7 +4,6 @@
 <mapper namespace="org.scoula.domain.exchange.mapper.ExchangePolicyMapper">
 
 
-    <!-- ResultMap 정의 -->
     <resultMap id="ExchangePolicyResultMap" type="org.scoula.domain.exchange.entity.ExchangePolicy">
         <id property="policyId" column="policy_id"/>
         <result property="bankName" column="bank_name"/>
@@ -20,7 +19,6 @@
         <result property="updatedAt" column="updated_at"/>
     </resultMap>
 
-    <!-- 특정 통화와 타입으로 모든 은행의 정책 조회 -->
     <select id="findAllPolicyByCond" resultMap="ExchangePolicyResultMap">
         SELECT policy_id, bank_name, target_currency, exchange_type,
                policy_name,
