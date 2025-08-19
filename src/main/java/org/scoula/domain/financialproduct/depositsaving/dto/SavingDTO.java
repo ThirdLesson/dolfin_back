@@ -33,7 +33,6 @@ public class SavingDTO {
 	private LocalDateTime updatedAt;
 	private List<SavingSpclConditionType> spclConditions;
 
-	// Entity → DTO
 	public static SavingDTO fromEntity(Saving entity, List<SavingSpclConditionType> spclConditions) {
 		return SavingDTO.builder()
 			.savingId(entity.getSavingId())
@@ -50,7 +49,6 @@ public class SavingDTO {
 			.build();
 	}
 
-	// 	DTO -> ENTITY
 	public Saving toEntity() {
 		return Saving.builder()
 			.savingId(this.savingId)
