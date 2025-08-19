@@ -33,7 +33,7 @@ public class AccountController {
 		notes = "전자지갑 아이디를 기준으로 연결된 계좌 리스트를 조회합니다."
 	)
 	@ApiResponses({
-		@ApiResponse(code = 200, message = "OK", response = ExchangeBankResponse.class),
+		@ApiResponse(code = 200, message = "OK"),
 		@ApiResponse(code = 400, message = "해당 ID의 wallet이 존재하지 않습니다."),
 		@ApiResponse(code = 500, message = "서버에서 오류가 발생했습니다.")
 	})
