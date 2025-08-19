@@ -65,7 +65,7 @@ public class MemberAuthServiceImpl implements MemberAuthService {
 		String refreshTokenByRedis = redisUtil.get(reissueTokenRequestDto.loginId());
 		log.info("레디스 저장 토큰: {}", refreshTokenByRedis);
 		log.info("사용자 토큰: {}", refreshToken);
-		if (!refreshTokenByRedis.equals(refreshToken)) {
+		if (refreshTokenByRedis == null || !refreshTokenByRedis.equals(refreshToken)) {
 			throw new CustomException(JwtErrorMessage.NOT_MATCH_REFRESH_TOKEN, LogLevel.WARNING,
 				request.getHeader("txId"), Common.builder()
 				.srcIp(request.getRemoteAddr())
