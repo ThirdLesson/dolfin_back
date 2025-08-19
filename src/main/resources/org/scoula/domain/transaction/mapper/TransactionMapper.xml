@@ -94,13 +94,13 @@
                updated_at
         FROM (SELECT t.*,
                      ROW_NUMBER() OVER (
-                    PARTITION BY counter_party_account_number -- 계좌 번호로 파티션
+                    PARTITION BY counter_party_account_number 
                     ORDER BY created_at DESC, transaction_id DESC
                 ) as rn
               FROM transaction t
               WHERE t.member_id = #{memberId}
                 AND t.transaction_type = 'ACCOUNT_TRANSFER'
-                AND t.counter_party_account_number IS NOT NULL -- 계좌 번호가 있는 경우만
+                AND t.counter_party_account_number IS NOT NULL
              ) AS ranked_transactions
         WHERE rn = 1
         ORDER BY created_at DESC, transaction_id DESC LIMIT 4
@@ -125,13 +125,13 @@
                updated_at
         FROM (SELECT t.*,
                      ROW_NUMBER() OVER (
-                    PARTITION BY counterparty_wallet_id -- 지갑 ID로 파티션
+                    PARTITION BY counterparty_wallet_id 
                     ORDER BY created_at DESC, transaction_id DESC
                 ) as rn
               FROM transaction t
               WHERE t.member_id = #{memberId}
                 AND t.transaction_type = 'WALLET_TRANSFER'
-                AND t.counterparty_wallet_id IS NOT NULL -- 상대 지갑 ID가 있는 경우만
+                AND t.counterparty_wallet_id IS NOT NULL 
              ) AS ranked_transactions
         WHERE rn = 1
         ORDER BY created_at DESC, transaction_id DESC LIMIT 4
