@@ -68,13 +68,11 @@ public class MemberServiceImpl implements MemberService {
 	public MemberDTO updateMember(Long memberId, MemberDTO memberDTO) {
 		log.info("updateMember: {}", memberId);
 
-		// 기존 회원 정보 조회
 		Member existingMember = memberMapper.selectMemberById(memberId);
 		if (existingMember == null) {
 			throw new CustomException(MEMBER_NOT_FOUND, LogLevel.WARNING, null, Common.builder().build());
 		}
 
-		// 수정할 정보 설정
 		memberDTO.changePassword(existingMember.getPassword());
 
 		Member member = memberDTO.toEntity();
