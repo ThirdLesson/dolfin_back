@@ -30,13 +30,13 @@ public class LedgerValidateBatchScheduler {
 	}
 
 	@Scheduled(cron = "0 0 4  * * *", zone = "Asia/Seoul")
-	@SchedulerLock(name = "runRemittanceGroupJobLock", lockAtMostFor = "PT10M") // 락 10분간 유지
+	@SchedulerLock(name = "runRemittanceGroupJobLock", lockAtMostFor = "PT10M") 
 	public void runLedgerValidateJob() {
 		try {
 			log.info("[LedgerValidateBatchScheduler] 배치 시작");
 
 			JobParameters jobParameters = new JobParametersBuilder()
-				.addString("datetime", LocalDateTime.now().toString()) // 중복 실행 방지용
+				.addString("datetime", LocalDateTime.now().toString()) 
 				.toJobParameters();
 
 			JobExecution execution = jobLauncher.run(ledgerValidBatchJob, jobParameters);
