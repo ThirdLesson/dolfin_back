@@ -13,14 +13,13 @@ import lombok.Builder;
 
 @Builder
 public record SavingsResponse(
-	SavingDTO product, // 상품정보
-	FinancialCompanyResponseDTO company // 회사정보
+	SavingDTO product, 
+	FinancialCompanyResponseDTO company 
 ) {
 	public static SavingsResponse of(Saving saving,
 		FinancialCompany company,
 		List<SavingSpclCondition> spclConditions) {
 
-		// Entity → Enum 변환
 		List<SavingSpclConditionType> conditionTypes = spclConditions.stream()
 			.map(SavingSpclCondition::getSpclCondition)
 			.toList();
