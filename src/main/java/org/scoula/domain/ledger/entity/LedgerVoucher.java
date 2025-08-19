@@ -11,19 +11,17 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
-/**
- * 전표 테이블
- */
+
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class LedgerVoucher extends BaseEntity {
 	private Long ledgerVoucherId;
-	private String voucherNo;          // 전표 번호(날짜+UUID 축약)
-	private String transactionId;        // 거래내역 UUID
-	private LocalDateTime entryDate;   // 거래 일자
-	private TransactionType type;       // 거래 타입 (CHARGE(충전), TRANSFER(송금))
+	private String voucherNo;          
+	private String transactionId;       
+	private LocalDateTime entryDate;  
+	private TransactionType type;      
 
-	private List<LedgerEntry> entries; // 분개 목록
+	private List<LedgerEntry> entries; 
 
 	@Builder
 	public LedgerVoucher(String voucherNo, String transactionId, LocalDateTime entryDate, TransactionType type) {
