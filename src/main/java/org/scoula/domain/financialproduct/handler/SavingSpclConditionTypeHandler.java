@@ -23,7 +23,7 @@ public class SavingSpclConditionTypeHandler extends BaseTypeHandler<SavingSpclCo
 	@Override
 	public SavingSpclConditionType getNullableResult(ResultSet rs, String columnName) throws SQLException {
 		String value = rs.getString(columnName);
-		return SavingSpclConditionType.fromEnglishName(value); // 커스텀 매핑 로직 사용
+		return SavingSpclConditionType.fromEnglishName(value); 
 	}
 
 	@Override
