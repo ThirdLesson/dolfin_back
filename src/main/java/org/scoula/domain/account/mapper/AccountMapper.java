@@ -25,10 +25,10 @@ public interface AccountMapper {
 		        #{walletId},
 		        #{memberId},
 		        #{accountNumber},
-		        '',                        -- password는 빈 문자열로 고정
-		        0,                         -- balance 기본값
+		        '',                        
+		        0,                        
 		        #{bankType},
-		        true,                     -- is_verified 기본값
+		        true,                    
 		        NOW()
 		    )
 		""")
