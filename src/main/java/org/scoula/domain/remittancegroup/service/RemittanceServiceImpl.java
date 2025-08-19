@@ -51,15 +51,14 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class RemittanceServiceImpl implements RemittanceService {
 
-	// 국민은행의 기본 외국 송금 수수료 정책
 	private static final BigDecimal TRANSMIT_COMMISSION = BigDecimal.valueOf(3000);
-	private static final BigDecimal INTERMEDIARY_COMMISSION = BigDecimal.valueOf(16.5); // 16.5 달러 * 현재 환율 (곱셈 필요함)
+	private static final BigDecimal INTERMEDIARY_COMMISSION = BigDecimal.valueOf(16.5); 
 	private static final BigDecimal TELEGRAPHIC_TRANSFER_FEE = BigDecimal.valueOf(5000);
 	private static final String BANK_NAME = "하나은행";
 	private static final String TARGET_CURRENCY = "USD";
 
 	private static final BigDecimal REMITTANCE_COMMISSION = BigDecimal.valueOf(
-		5000); // 수수료가 제일 저렴한 quick send 상품의 수수료 모델 참고
+		5000); 
 
 	private final ExchangeRateMapper exchangeRateMapper;
 	private final RemittanceGroupMapper remittanceGroupMapper;
@@ -88,12 +87,10 @@ public class RemittanceServiceImpl implements RemittanceService {
 	@Override
 	public void joinRemittanceGroup(JoinRemittanceGroupRequest joinRemittanceGroupRequest, Member member,
 		HttpServletRequest request) {
-		// validateRemittanceGroup(member, request);
 		Optional<RemittanceGroup> remittanceGroup = remittanceGroupMapper.findByCurrencyAndBenefitStatusAndRemittanceDate(
 			joinRemittanceGroupRequest.currency(), BenefitStatus.OFF, joinRemittanceGroupRequest.remittanceDate()
 		);
 
-		// 기존 그룹이 없을 경우 분기 처리
 		try {
 			if (remittanceGroup.isEmpty()) {
 				RemittanceGroup newGroup = createNewRemittanceGroup(joinRemittanceGroupRequest, BenefitStatus.OFF);
@@ -114,7 +111,6 @@ public class RemittanceServiceImpl implements RemittanceService {
 			existGroup(existRemittanceGroup, member, joinRemittanceGroupRequest);
 		}
 
-		// 기존 그룹이 존재할 경우
 		existGroup(remittanceGroup, member, joinRemittanceGroupRequest);
 
 	}
@@ -127,13 +123,11 @@ public class RemittanceServiceImpl implements RemittanceService {
 		List<RemittanceGroup> allByCurrencyAndBenefitStatusOff =
 			remittanceGroupMapper.findAllByCurrencyAndBenefitStatusOff(currency);
 
-		// 날짜별 그룹 수 map 으로 저장
 		Map<Integer, Integer> dateToCountMap = new HashMap<>();
 		for (RemittanceGroup group : allByCurrencyAndBenefitStatusOff) {
 			dateToCountMap.put(group.getRemittanceDate(), group.getMemberCount());
 		}
 
-		// 1~31일 날짜 기준으로 리스트 생성 (없는 날짜는 0명 처리)
 		List<RemittanceGroupMemberCountResponse> memberCountResponses = new ArrayList<>();
 		for (int day = 1; day <= 31; day++) {
 			int count = dateToCountMap.getOrDefault(day, 0);
@@ -170,7 +164,6 @@ public class RemittanceServiceImpl implements RemittanceService {
 		Currency targetCurrency = remittanceGroup.getCurrency();
 		int day = remittanceGroup.getRemittanceDate();
 
-		// 동일 currency, day 새 그룹에서 인원 빼와서 충전하기
 		Optional<RemittanceGroup> remittanceGroupByCurrencyAndDate = remittanceGroupMapper.findByDayAndCurrencyAndBenefitOFF(
 			day, targetCurrency);
 		if (remittanceGroupByCurrencyAndDate.isEmpty())
@@ -180,7 +173,6 @@ public class RemittanceServiceImpl implements RemittanceService {
 
 		List<Long> changedMemberIds = new ArrayList<>();
 
-		// 현재 모집 중인 그룹의 멤버 수가 채워야하는 인원의 수보다 적으면 전부 다 데려와서 채워버리기
 		if (newlyRemittanceGroup.getMemberCount() <= chargeMemberCount) {
 			Optional<List<Member>> membersByRemittanceGroup = memberService.getMembersByRemittanceGroup(
 				newlyRemittanceGroup.getRemittanceGroupId());
@@ -199,18 +191,15 @@ public class RemittanceServiceImpl implements RemittanceService {
 			memberService.decreaseRemittanceGroupMemberCount(newlyRemittanceGroup.getRemittanceGroupId(),
 				newlyRemittanceGroup.getMemberCount());
 		} else {
-			// 현재 모집 중인 그룹의 멤버 수가 채워야하는 인원의 수보다 많을 경우
-			// 같은 통화 같은 날짜의 사람들 조회하기 + information 조인
+			
 			Optional<List<MemberWithInformationDto>> memberWithRemittanceInformationByRemittanceGroupId = memberService.getMemberWithRemittanceInformationByRemittanceGroupId(
 				newlyRemittanceGroup.getRemittanceGroupId());
 
 			if (memberWithRemittanceInformationByRemittanceGroupId.isEmpty())
 				return;
 			List<MemberWithInformationDto> memberWithInformationDtos = memberWithRemittanceInformationByRemittanceGroupId.get();
-			// 송금 information의 updated_at을 기준으로 오름차순 정렬 시키기
 			memberWithInformationDtos.sort((o1, o2) -> o1.getUpdatedAt().compareTo(o2.getUpdatedAt()));
 
-			// 가장 먼저 가입한 사람부터 chargeNumber 만큼 짤라서 아이디 List 만들고 송금 그룹 외래키 업데이트
 			int changedCnt = 0;
 			for (int i = 0; i < memberWithInformationDtos.size(); i++) {
 				changedMemberIds.add(memberWithInformationDtos.get(i).getMemberId());
@@ -278,7 +267,6 @@ public class RemittanceServiceImpl implements RemittanceService {
 					.build());
 		}
 
-		// 그룹이 존재할 경우
 		RemittanceGroup remittanceGroup = remittanceGroupMapper.findById(member.getRemittanceGroupId());
 		if (remittanceGroup == null) {
 			throw new CustomException(NOT_EXIST_GROUP,
@@ -328,7 +316,6 @@ public class RemittanceServiceImpl implements RemittanceService {
 
 	private void existGroup(Optional<RemittanceGroup> remittanceGroup, Member member,
 		JoinRemittanceGroupRequest joinRemittanceGroupRequest) {
-		// 기존 그룹이 존재할 경우
 		RemittanceGroup existGroup = remittanceGroup.get();
 		int newMemberCount = existGroup.getMemberCount() + 1;
 		remittanceGroupMapper.updateMemberCountById(existGroup.getRemittanceGroupId(), newMemberCount);
@@ -339,10 +326,8 @@ public class RemittanceServiceImpl implements RemittanceService {
 		memberMapper.updateRemittanceRefsStrict(member.getMemberId(), information.getRemittanceInformationId(),
 			existGroup.getRemittanceGroupId());
 
-		// 그룹 멤버 30명이 다 모였을 경우
 		if (newMemberCount == 30) {
 			remittanceGroupMapper.updateBenefitStatusOnById(existGroup.getRemittanceGroupId());
-			// 트랜잭션 종료 후 알림 전송을 위한 이벤트 발행
 			eventPublisher.publishEvent(
 				new RemittanceGroupCompletedEvent(existGroup.getRemittanceGroupId(), member.getFcmToken()));
 		}
