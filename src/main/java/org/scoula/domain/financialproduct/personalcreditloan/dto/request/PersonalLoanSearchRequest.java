@@ -20,17 +20,16 @@ public class PersonalLoanSearchRequest {
     @NotNull(message = "금리 기준은 필수입니다")
     @ApiModelProperty(value = "금리기준 MIN_RATE|MAX_RATE|AVG_RATE", example = "MIN_RATE", required = true)
     @Pattern(regexp = "MIN_RATE|MAX_RATE|AVG_RATE ", message = "금리 기준은 MIN_RATE|MAX_RATE|AVG_RATE 중 하나여야 합니다")
-    private String filterType;  // 대출 금리 기준
+    private String filterType;  
 
     @ApiModelProperty(value = "대출 한도", example = "1000000", required = true)
     @Min(value = 0, message = "최소 대출 한도는 0 이상이어야 합니다")
-    private Integer minAmount;    // 최소 대출 한도
+    private Integer minAmount;    
     
-    private Integer maxAmount;    // 최대 대출 한도
+    private Integer maxAmount;  
 
-    // 추가 필터링 옵션
-    private Integer minPeriod;    // 최소 대출기간(개월)
+    private Integer minPeriod;    
 
-    private Integer maxPeriod;    // 최대 대출기간(개월)
+    private Integer maxPeriod;   
 
 }
