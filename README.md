@@ -1,6 +1,5 @@
 # 🌟 Dolfin - 외국인을 위한 똑똑한 전자지갑
 
----
 
 ## 👨‍💻 백엔드 팀원
 
@@ -88,7 +87,7 @@
     <img src="https://img.shields.io/badge/CodeF%20API-FF6B35?style=for-the-badge&logo=api&logoColor=white" alt="CodeF API">
 </p>
 
----
+
 
 ### DNS
 ![Route 53](https://img.shields.io/badge/Route%2053-FF9900.svg?style=for-the-badge&logo=amazonaws&logoColor=white)
