@@ -4,18 +4,16 @@
 
 ## 👨‍💻 백엔드 팀원
 
----
-
 <table>
   <tr>
     <td align="center" width="33%" style="padding:16px;">
       <a href="https://github.com/ss7622">
         <img src="https://github.com/ss7622.png?size=220"
-             width="140" alt="jonbum avatar"
+             width="140" alt="jubum avatar"
              style="border-radius:50%; display:block;"/>
         <div style="font-size:16px; font-weight:700; margin-top:8px;">이준범</div>
       </a>
-      <div style="font-size:14px; opacity:.8;">백엔드</div>
+      <div style="font-size:14px; opacity:.8;">Backend Leader</div>
     </td>
    <td align="center" width="33%" style="padding:16px;">
       <a href="https://github.com/khozan0120">
@@ -24,7 +22,7 @@
              style="border-radius:50%; display:block;"/>
         <div style="font-size:16px; font-weight:700; margin-top:8px;">김호진</div>
       </a>
-      <div style="font-size:14px; opacity:.8;">백엔드</div>
+      <div style="font-size:14px; opacity:.8;">Backend</div>
     </td>
      <td align="center" width="33%" style="padding:16px;">
       <a href="https://github.com/bagjuna">
@@ -33,7 +31,7 @@
              style="border-radius:50%; display:block;"/>
         <div style="font-size:16px; font-weight:700; margin-top:8px;">박준아</div>
       </a>
-      <div style="font-size:14px; opacity:.8;">백엔드</div>
+      <div style="font-size:14px; opacity:.8;">Backend</div>
     </td>
   </tr>
 </table>
