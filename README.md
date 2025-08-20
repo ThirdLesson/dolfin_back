@@ -36,11 +36,9 @@
   </tr>
 </table>
 
----
 
 ## ⛏️ 기술 스택
 
----
 
 ### WAS
 <p align="left">
